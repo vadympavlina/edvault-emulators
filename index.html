@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Навчальні емулятори</title>
-<meta name="description" content="Чотири навчальні емулятори в браузері: Windows, телефон блогера, місто і стартап. Без встановлення і без реєстрації.">
+<meta name="description" content="Три навчальні емулятори в браузері: Windows, телефон блогера і стартап. Без встановлення і без реєстрації.">
 <meta name="theme-color" content="#E9EEF6">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preload" href="startupsim/fonts/rubik-cyr.woff2" as="font" type="font/woff2" crossorigin>
@@ -18,7 +18,7 @@
 
 :root {
   --paper: #E9EEF6; --ink: #17213A; --ink2: #3D4A66;
-  --win: #0A4DB0; --blog: #A3124E; --city: #0B6559; --start: #4636B8;
+  --win: #0A4DB0; --blog: #A3124E; --start: #4636B8;
   --mx: 0; --my: 0;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,8 +26,6 @@ html { scroll-behavior: smooth; }
 body { font: 17px/1.55 'Golos Text', system-ui, sans-serif; color: var(--ink); background: var(--paper); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
 :focus-visible { outline: 3px solid #FFD54A; outline-offset: 4px; border-radius: 6px; }
-.skip { position: absolute; left: 16px; top: -60px; background: var(--ink); color: #fff; padding: 10px 14px; border-radius: 10px; z-index: 50; }
-.skip:focus { top: 16px; }
 
 /* ── шари з глибиною: рух мишею + поява на прокручуванні ── */
 .L { --d: 0; --s: 0; --y0: 0; --x0: 0; --r: 0; --q: clamp(0, calc((var(--p, 1) - var(--s)) / .3), 1);
@@ -46,7 +44,7 @@ a { color: inherit; }
 @keyframes rise { from { transform: translateY(105%); } }
 .hero .lead { margin-top: 30px; max-width: 34ch; font-size: clamp(18px, 1.7vw, 21px); color: var(--ink2); animation: fade 1s .55s both; }
 @keyframes fade { from { opacity: 0; } }
-.cue { position: absolute; left: clamp(16px, 6vw, 96px); bottom: 36px; display: flex; align-items: center; gap: 12px; font-weight: 600; text-decoration: none; color: var(--ink2); animation: fade 1s 1s both; }
+.cue { position: absolute; left: clamp(16px, 6vw, 96px); bottom: 36px; display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--ink2); animation: fade 1s 1s both; }
 .cue i { width: 26px; height: 40px; border: 2px solid currentColor; border-radius: 14px; position: relative; }
 .cue i::after { content: ''; position: absolute; left: 50%; top: 7px; width: 4px; height: 8px; margin-left: -2px; border-radius: 2px; background: currentColor; animation: wheel 1.8s infinite; }
 @keyframes wheel { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(12px); opacity: 0; } 100% { opacity: 0; } }
@@ -57,8 +55,7 @@ a { color: inherit; }
 .tile svg { width: 46%; height: 46%; }
 .tile.t1 { background: var(--win); right: 30vw; top: 12vh; rotate: -8deg; animation-delay: .35s; }
 .tile.t2 { background: var(--blog); right: 8vw; top: 22vh; rotate: 7deg; animation-delay: .45s; width: clamp(100px, 14vw, 210px); }
-.tile.t3 { background: var(--city); right: 22vw; top: 52vh; rotate: 5deg; animation-delay: .55s; }
-.tile.t4 { background: var(--start); right: 5vw; top: 64vh; rotate: -10deg; animation-delay: .65s; width: clamp(70px, 9vw, 130px); }
+.tile.t4 { background: var(--start); right: 20vw; top: 56vh; rotate: -10deg; animation-delay: .55s; width: clamp(90px, 12vw, 180px); }
 .tile.dot { width: 22px; border-radius: 50%; box-shadow: none; }
 .tile.dot.a { background: #FFB020; right: 40vw; top: 70vh; animation-delay: .8s; }
 .tile.dot.b { background: var(--blog); right: 3vw; top: 10vh; width: 14px; animation-delay: .9s; }
@@ -69,7 +66,6 @@ a { color: inherit; }
 .scene { position: relative; height: 260vh; color: #fff; background: var(--bg); }
 .scene.win { --bg: var(--win); }
 .scene.blog { --bg: var(--blog); }
-.scene.city { --bg: var(--city); }
 .scene.start { --bg: var(--start); }
 .stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: center; gap: clamp(20px, 4vw, 64px); padding: 0 clamp(16px, 6vw, 96px); }
 .stage::before { content: ''; position: absolute; inset: -10%; background: radial-gradient(circle at calc(70% + var(--mx) * 8%) calc(40% + var(--my) * 8%), rgba(255, 255, 255, .16), transparent 55%); pointer-events: none; }
@@ -80,11 +76,6 @@ a { color: inherit; }
 .txt ul { list-style: none; margin-top: 18px; display: grid; gap: 8px; }
 .txt li { padding-left: 26px; position: relative; color: #fff; }
 .txt li::before { content: ''; position: absolute; left: 2px; top: .5em; width: 12px; height: 12px; border-radius: 4px; background: rgba(255, 255, 255, .85); }
-.go { display: inline-flex; align-items: center; gap: 12px; margin-top: 28px; padding: 15px 24px; border-radius: 999px; background: #fff; color: var(--bg); font: 700 18px Rubik, sans-serif; text-decoration: none; box-shadow: 0 14px 30px -12px rgba(0, 0, 0, .5); transition: transform .2s, box-shadow .2s; }
-.go svg { width: 20px; height: 20px; transition: transform .2s; }
-.go:hover { transform: translateY(-2px); box-shadow: 0 20px 36px -12px rgba(0, 0, 0, .55); }
-.go:hover svg { transform: translateX(4px); }
-.go:focus-visible { outline-color: #fff; outline-offset: 5px; }
 .art { position: relative; z-index: 1; height: min(78vh, 680px); }
 .prog { position: absolute; left: clamp(16px, 6vw, 96px); right: clamp(16px, 6vw, 96px); bottom: 26px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .2); z-index: 3; }
 .prog::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: #fff; transform-origin: left; transform: scaleX(var(--p, 0)); }
@@ -154,28 +145,6 @@ a { color: inherit; }
 .pill.warn { left: 2%; bottom: 4%; background: #FFE08A; color: #3A2A00; --d: 46; --s: .62; --y0: 240; --r: -5; }
 .pill.warn::before { background: #3A2A00 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFE08A' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M12 6v8M12 18v.5'/%3E%3C/svg%3E") center / 64% no-repeat; }
 
-/* ── Місто: ізометрія, будинки ростуть під час прокручування ── */
-.iso-wrap { inset: 0; display: grid; place-items: center; perspective: 2400px; --d: 12; --s: 0; }
-.iso { --t: clamp(40px, 6.2vw, 74px); width: calc(var(--t) * 6); height: calc(var(--t) * 6); position: relative; transform-style: preserve-3d; transform: rotateX(58deg) rotateZ(calc(-45deg + var(--mx) * 8deg)); border-radius: 14px; background: #8DCB7A; box-shadow: 0 0 0 calc(var(--t) * .22) #6FAE5E; }
-.iso::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(90deg, transparent calc(var(--t) * 2.3), #5E6878 0 calc(var(--t) * 2.7), transparent 0), linear-gradient(transparent calc(var(--t) * 3.3), #5E6878 0 calc(var(--t) * 3.7), transparent 0); }
-.iso::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(90deg, transparent calc(var(--t) * 2.48), #F2F2E8 0 calc(var(--t) * 2.52), transparent 0), linear-gradient(transparent calc(var(--t) * 3.48), #F2F2E8 0 calc(var(--t) * 3.52), transparent 0); opacity: .7; }
-.bx { position: absolute; transform-style: preserve-3d; left: calc(var(--x) * var(--t) + var(--t) * .1); top: calc(var(--y) * var(--t) + var(--t) * .1); width: calc(var(--w, 1) * var(--t) - var(--t) * .2); height: calc(var(--l, 1) * var(--t) - var(--t) * .2);
-  --g: clamp(0, calc((var(--p, 1) - var(--s, 0)) / .32), 1); --H: calc(var(--h) * var(--t) * var(--g) + 2px); }
-.bx > i { position: absolute; display: block; }
-.bx .tp { inset: 0; background: var(--c); transform: translateZ(var(--H)); filter: brightness(1.12); }
-.bx .tp::after { content: ''; position: absolute; inset: 18%; border-radius: 3px; background: rgba(255, 255, 255, .25); }
-.bx .fr { left: 0; right: 0; bottom: 0; height: var(--H); transform-origin: bottom; transform: rotateX(-90deg); background: var(--c) repeating-linear-gradient(transparent 0 8px, rgba(255, 255, 255, .5) 8px 12px) 50% 0 / 60% 100% no-repeat; filter: brightness(.82); }
-.bx .sd { top: 0; bottom: 0; right: 0; width: var(--H); transform-origin: right; transform: rotateY(90deg); background: var(--c) repeating-linear-gradient(90deg, transparent 0 8px, rgba(255, 255, 255, .45) 8px 12px) 0 50% / 100% 60% no-repeat; filter: brightness(.66); }
-.bx.tree .tp { border-radius: 50%; filter: none; } .bx.tree .tp::after { display: none; } .bx.tree .fr, .bx.tree .sd { background: #2F7A3C; }
-.cloud { --d: 90; --s: .05; --x0: -300; width: 130px; height: 40px; border-radius: 30px; background: rgba(255, 255, 255, .92); }
-.cloud::before, .cloud::after { content: ''; position: absolute; border-radius: 50%; background: inherit; }
-.cloud::before { width: 60px; height: 60px; left: 18px; top: -30px; } .cloud::after { width: 44px; height: 44px; left: 62px; top: -20px; }
-.cloud.a { left: 2%; top: 10%; } .cloud.b { right: 0; top: 30%; --x0: 300; --d: 120; scale: .7; --s: .2; }
-.stat { background: #fff; color: #10302B; border-radius: 14px; padding: 10px 14px; box-shadow: 0 18px 36px -14px rgba(0, 30, 25, .6); font-size: 13px; min-width: 150px; }
-.stat b { display: block; font: 800 22px Rubik, sans-serif; }
-.stat.a { left: 0; bottom: 14%; --d: 50; --s: .35; --y0: 200; }
-.stat.b { right: 2%; bottom: 6%; --d: 70; --s: .55; --y0: 240; }
-.stat.c { right: 6%; top: 8%; --d: 40; --s: .7; --y0: -200; }
 
 /* ── Стартап: дошка-мапа ── */
 .board { inset: 4% 0 6%; border-radius: 22px; background: #F2F5F4 radial-gradient(#cfd8d5 1.3px, transparent 1.4px) 0 0 / 22px 22px; box-shadow: 0 50px 90px -30px rgba(15, 5, 60, .7); --d: 10; --s: 0; --y0: 200; overflow: hidden; }
@@ -193,29 +162,13 @@ a { color: inherit; }
 .cash b { display: block; font: 800 22px Rubik, sans-serif; color: #0E7A4E; }
 
 /* ═════════ Фінал ═════════ */
-.end { padding: clamp(80px, 14vh, 150px) clamp(16px, 6vw, 96px) 70px; }
-.end h2 { font: 900 clamp(40px, 7vw, 104px)/.92 Rubik, sans-serif; letter-spacing: -.035em; max-width: 12ch; }
-.end p { margin-top: 18px; color: var(--ink2); max-width: 44ch; font-size: 19px; }
-.doors { margin-top: 46px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-.door { --bg: var(--win); position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 240px; padding: 22px; border-radius: 26px; background: var(--bg); color: #fff; text-decoration: none; overflow: hidden; isolation: isolate; transition: transform .35s cubic-bezier(.2, .8, .2, 1); }
-.door svg.ic { width: 44px; height: 44px; }
-.door::after { content: ''; position: absolute; z-index: -1; width: 160%; aspect-ratio: 1; left: -30%; top: 70%; border-radius: 50%; background: rgba(255, 255, 255, .12); transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
-.door b { font: 800 clamp(22px, 2vw, 28px)/1.05 Rubik, sans-serif; }
-.door span { display: block; margin-top: 6px; font-size: 15px; color: rgba(255, 255, 255, .88); }
-.door:hover { transform: translateY(-6px); } .door:hover::after { transform: translateY(-38%); }
-.door.blog { --bg: var(--blog); } .door.city { --bg: var(--city); } .door.start { --bg: var(--start); }
-.door:focus-visible { outline-color: var(--ink); }
-.foot { margin-top: 60px; color: var(--ink2); font-size: 15px; }
+.end { padding: clamp(80px, 16vh, 170px) clamp(16px, 6vw, 96px) clamp(80px, 14vh, 140px); }
+.end h2 { font: 900 clamp(40px, 7vw, 104px)/.92 Rubik, sans-serif; letter-spacing: -.035em; max-width: 13ch; }
+.end p { margin-top: 22px; color: var(--ink2); max-width: 44ch; font-size: clamp(17px, 1.5vw, 20px); }
+.trio { margin-top: 44px; display: flex; gap: 14px; }
+.trio i { width: 64px; height: 64px; border-radius: 30%; display: grid; place-items: center; color: #fff; }
+.trio svg { width: 46%; height: 46%; }
 
-/* навігація по сценах */
-.rail { position: fixed; right: 18px; top: 50%; translate: 0 -50%; z-index: 20; display: grid; gap: 6px; opacity: 0; pointer-events: none; transition: opacity .3s; }
-.rail.show { opacity: 1; pointer-events: auto; }
-.rail a { display: flex; align-items: center; justify-content: flex-end; gap: 10px; text-decoration: none; color: #fff; font-weight: 600; font-size: 14px; padding: 4px; }
-.rail a span { opacity: 0; translate: 6px 0; transition: .2s; background: rgba(0, 0, 0, .35); padding: 3px 10px; border-radius: 999px; }
-.rail a i { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff; transition: .2s; }
-.rail a.on i { background: #fff; height: 26px; border-radius: 6px; }
-.rail a:hover span, .rail a:focus-visible span { opacity: 1; translate: 0 0; }
-.rail.dark a { color: var(--ink); } .rail.dark a i { border-color: var(--ink); } .rail.dark a.on i { background: var(--ink); } .rail.dark a span { background: rgba(255, 255, 255, .7); }
 
 /* ── телефон і планшет ── */
 @media (max-width: 860px) {
@@ -226,25 +179,22 @@ a { color: inherit; }
   .txt .big { font-size: 80px; top: -.55em; }
   .txt h2 { font-size: 32px; }
   .txt p { margin-top: 8px; font-size: 16px; }
-  .txt ul { display: none; }
-  .go { margin-top: 14px; padding: 12px 20px; font-size: 16px; }
+  .txt ul { margin-top: 10px; gap: 4px; font-size: 15px; }
   .prog { bottom: 20px; }
   .wnd { font-size: 11px; } .w-cmd pre { font-size: 10.5px; min-height: 0; padding: 10px; } .w-exp .bd { min-height: 130px; } .w-exp .fl span::before { width: 30px; height: 24px; }
   .w-exp { width: 70%; } .w-cmd { width: 66%; } .w-task { width: 62%; left: 6%; }
   .toast { font-size: 12px; max-width: 200px; padding: 9px 10px; }
   .phone { width: min(200px, 48%); border-radius: 32px; padding: 8px; } .phone .scr { border-radius: 25px; font-size: 11px; } .phone .ph-top { padding: 14px 12px 6px; font-size: 15px; }
   .bub { font-size: 12.5px; max-width: 170px; padding: 8px 11px; } .pill { font-size: 12.5px; padding: 7px 12px 7px 8px; }
-  .stat { min-width: 0; font-size: 12px; padding: 8px 10px; } .stat b { font-size: 18px; }
   .stk { width: 92px; padding: 9px 8px 10px; font-size: 17px; } .stk small { font-size: 10.5px; }
-  .doors { grid-template-columns: 1fr 1fr; } .door { min-height: 180px; padding: 18px; border-radius: 22px; }
-  .rail { right: 6px; } .rail a span { display: none; }
-  .tile { width: 64px; } .tile.t1 { right: 72vw; top: 8vh; } .tile.t2 { right: 46vw; top: 4vh; width: 78px; } .tile.t3 { right: 24vw; top: 10vh; } .tile.t4 { right: 4vw; top: 4vh; width: 56px; }
+  .tile { width: 68px; } .tile.t1 { right: 66vw; top: 8vh; } .tile.t2 { right: 36vw; top: 4vh; width: 82px; } .tile.t4 { right: 8vw; top: 10vh; width: 64px; }
   .tile.dot.a { right: 60vw; top: 19vh; } .tile.dot.b { right: 18vw; top: 3vh; } .tile.dot.c { right: 8vw; top: 16vh; }
   .hero { align-items: start; padding-top: 24vh; }
   .toast { right: 0; max-width: 180px; }
   .pill.warn { --y0: 60; bottom: 2%; }
 }
-@media (max-width: 520px) { .rail { display: none; } .doors { grid-template-columns: 1fr; } .door { min-height: 130px; } .fl-h.c, .stat.c, .bub.b { display: none; } }
+@media (max-width: 860px) and (max-height: 720px) { .txt ul { display: none; } }
+@media (max-width: 520px) { .fl-h.c, .bub.b { display: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -255,14 +205,11 @@ a { color: inherit; }
 </style>
 </head>
 <body>
-<a class="skip" href="#doors">Перейти до вибору емулятора</a>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-win" viewBox="0 0 24 24"><path fill="currentColor" d="M3 4.5l7.5-1v8H3zM11.5 3.4L21 2v9.5h-9.5zM3 12.5h7.5v8L3 19.5zM11.5 12.5H21V22l-9.5-1.4z"/></symbol>
   <symbol id="i-blog" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M12 15.5s-3-1.8-3-3.8a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 2-3 3.8-3 3.8z" fill="currentColor"/></g></symbol>
-  <symbol id="i-city" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 21h18M5 21V10l5-3v14M10 21V4l6 3v14M16 21v-8l3 1.5V21"/></g></symbol>
   <symbol id="i-start" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M5 15c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.8-.9.8-2.3-.1-3.1a2.3 2.3 0 0 0-2.9.1z"/><path d="M12 15l-3-3a19 19 0 0 1 2-4A12 12 0 0 1 21 3c0 2.7-.8 7.5-6 11a20 20 0 0 1-3 1z"/><path d="M9 12H4s.6-3 2-4c1.6-1.1 5 0 5 0M12 15v5s3-.6 4-2c1.1-1.6 0-5 0-5"/></g></symbol>
-  <symbol id="i-arr" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-heart" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21s-8-4.9-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.1-8 11-8 11z"/></symbol>
 </svg>
 
@@ -270,23 +217,15 @@ a { color: inherit; }
   <div class="tiles" aria-hidden="true">
     <div class="L tile t1" style="--d:-40"><svg><use href="#i-win"/></svg></div>
     <div class="L tile t2" style="--d:-70"><svg><use href="#i-blog"/></svg></div>
-    <div class="L tile t3" style="--d:-28"><svg><use href="#i-city"/></svg></div>
     <div class="L tile t4" style="--d:-90"><svg><use href="#i-start"/></svg></div>
     <div class="L tile dot a" style="--d:-120"></div>
     <div class="L tile dot b" style="--d:-150"></div>
     <div class="L tile dot c" style="--d:-60"></div>
   </div>
   <h1><span class="ln"><span>Натисніть</span></span><span class="ln"><span>будь-що.</span></span><span class="ln"><span>Нічого не зламається.</span></span></h1>
-  <p class="lead">Чотири навчальні емулятори в браузері: комп'ютер з Windows, телефон блогера, ціле місто і власний стартап. Без встановлення і без реєстрації.</p>
-  <a class="cue" href="#windows"><i aria-hidden="true"></i>Гортайте вниз</a>
+  <p class="lead">Три навчальні емулятори в браузері: комп'ютер з Windows, телефон блогера і власний стартап. Без встановлення і без реєстрації.</p>
+  <div class="cue" aria-hidden="true"><i></i>Гортайте вниз</div>
 </header>
-
-<nav class="rail" aria-label="Емулятори на сторінці">
-  <a href="#windows"><span>Windows</span><i></i></a>
-  <a href="#blogger"><span>Блогер</span><i></i></a>
-  <a href="#city"><span>Місто</span><i></i></a>
-  <a href="#startup"><span>Стартап</span><i></i></a>
-</nav>
 
 <main>
   <section class="scene win" id="windows" aria-labelledby="h-win">
@@ -296,7 +235,6 @@ a { color: inherit; }
         <h2 id="h-win">Емулятор Windows</h2>
         <p>Справжній робочий стіл просто у вкладці браузера. Можна видаляти системні папки й вимикати мережу: усе повертається одним натисканням.</p>
         <ul><li>Провідник, файли й пошук</li><li>Командний рядок: ipconfig, ping, tracert</li><li>Роутер, брандмауер і антивірус</li></ul>
-        <a class="go" href="windows.html">Відкрити Windows <svg aria-hidden="true"><use href="#i-arr"/></svg></a>
       </div>
       <div class="art" aria-hidden="true">
         <div class="L desk" style="--d:6;--y0:120"><div class="bar"><b></b><b></b><b></b><b></b></div></div>
@@ -321,7 +259,6 @@ IPv4-адреса . . . : 192.168.0.12
         <h2 id="h-blog">Симулятор блогера</h2>
         <p>Навчальний телефон із соцмережею, відеоплатформою й месенджером. Ведіть свій канал, відповідайте підписникам і вчіться помічати шахраїв.</p>
         <ul><li>Дописи, сторіс і власні фото</li><li>Коментарі, Директ і реклама</li><li>Безпека: фішинг, тролі, приватність</li></ul>
-        <a class="go" href="blogger.html">Відкрити телефон <svg aria-hidden="true"><use href="#i-arr"/></svg></a>
       </div>
       <div class="art" aria-hidden="true">
         <div class="L phone"><div class="scr">
@@ -343,27 +280,6 @@ IPv4-адреса . . . : 192.168.0.12
     </div>
   </section>
 
-  <section class="scene city" id="city" aria-labelledby="h-city">
-    <div class="stage">
-      <div class="txt">
-        <span class="big" aria-hidden="true">Місто</span>
-        <h2 id="h-city">Симулятор міста</h2>
-        <p>Станьте мером і будуйте квартал за кварталом. Кожне рішення видно: в бюджеті, на графіках і в тому, що кажуть жителі.</p>
-        <ul><li>Бюджет, податки й борги</li><li>Транспорт, енергія та екологія</li><li>Школи, лікарні й думка жителів</li></ul>
-        <a class="go" href="city.html">Збудувати місто <svg aria-hidden="true"><use href="#i-arr"/></svg></a>
-      </div>
-      <div class="art" aria-hidden="true">
-        <div class="L iso-wrap"><div class="iso" data-city></div></div>
-        <div class="L cloud a"></div>
-        <div class="L cloud b"></div>
-        <div class="L stat a">Жителів<b data-pop>12 400</b></div>
-        <div class="L stat b">Задоволені<b data-happy>78%</b></div>
-        <div class="L stat c">Повітря<b>чисте</b></div>
-      </div>
-      <div class="prog" aria-hidden="true"></div>
-    </div>
-  </section>
-
   <section class="scene start" id="startup" aria-labelledby="h-start">
     <div class="stage">
       <div class="txt">
@@ -371,7 +287,6 @@ IPv4-адреса . . . : 192.168.0.12
         <h2 id="h-start">Симулятор стартапу</h2>
         <p>Візьміть готову ідею або придумайте свою й проведіть її шляхом від розмов із клієнтами до перших грошей та інвесторів. Тиждень за тижнем.</p>
         <ul><li>Інтерв'ю з клієнтами й бізнес-план</li><li>Перша версія, ціна й реклама</li><li>Команда, фінанси й інвестори</li></ul>
-        <a class="go" href="startup.html">Запустити стартап <svg aria-hidden="true"><use href="#i-arr"/></svg></a>
       </div>
       <div class="art" aria-hidden="true">
         <div class="L board">
@@ -389,16 +304,10 @@ IPv4-адреса . . . : 192.168.0.12
     </div>
   </section>
 
-  <section class="end" id="doors" aria-labelledby="h-end">
-    <h2 id="h-end">З чого почнете?</h2>
-    <p>Кожен емулятор зберігає прогрес у браузері, а гру можна записати у файл і продовжити на іншому комп'ютері.</p>
-    <div class="doors">
-      <a class="door" href="windows.html"><svg class="ic" aria-hidden="true"><use href="#i-win"/></svg><div><b>Windows</b><span>Комп'ютер, мережа й безпека</span></div></a>
-      <a class="door blog" href="blogger.html"><svg class="ic" aria-hidden="true"><use href="#i-blog"/></svg><div><b>Блогер</b><span>Соцмережі й цифрова гігієна</span></div></a>
-      <a class="door city" href="city.html"><svg class="ic" aria-hidden="true"><use href="#i-city"/></svg><div><b>Місто</b><span>Бюджет, дані й рішення</span></div></a>
-      <a class="door start" href="startup.html"><svg class="ic" aria-hidden="true"><use href="#i-start"/></svg><div><b>Стартап</b><span>Від ідеї до компанії</span></div></a>
-    </div>
-    <p class="foot">Працює на комп'ютері, планшеті й телефоні. Емулятор Windows найзручніше відкривати на комп'ютері.</p>
+  <section class="end" aria-labelledby="h-end">
+    <h2 id="h-end">Помиляйтеся тут, а не в житті.</h2>
+    <p>Кожен емулятор зберігає прогрес у браузері, а гру можна записати у файл і продовжити на іншому комп'ютері. Працює на комп'ютері, планшеті й телефоні.</p>
+    <div class="trio" aria-hidden="true"><i style="background:var(--win)"><svg><use href="#i-win"/></svg></i><i style="background:var(--blog)"><svg><use href="#i-blog"/></svg></i><i style="background:var(--start)"><svg><use href="#i-start"/></svg></i></div>
   </section>
 </main>
 
@@ -408,17 +317,8 @@ IPv4-адреса . . . : 192.168.0.12
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = matchMedia('(pointer: fine)').matches;
   const scenes = [...document.querySelectorAll('.scene')];
-  const rail = document.querySelector('.rail'), railLinks = [...rail.querySelectorAll('a')];
   const fmt = n => Math.round(n).toLocaleString('uk-UA');
 
-  // місто: квартали будинків, дерев і парку на сітці 6×6
-  const B = [[0,0,1,1,1.6,'#F2A65A',0],[1,0,1,1,2.6,'#5B8DEF',.06],[0,1,1,1,.9,'#E86A5C',.1],[1,1,1,1,1.2,'#F6D365',.16],
-    [3,0,1,1,3.4,'#7C6CF2',.2],[4,0,2,1,1.4,'#4DB6AC',.26],[3,1,1,1,1,'#F28CB1',.3],[4,1,1,1,2.2,'#5B8DEF',.34],[5,1,1,1,.7,'#F2A65A',.38],
-    [0,4,2,1,1.1,'#4DB6AC',.4],[0,5,1,1,2,'#7C6CF2',.46],[1,5,1,1,.8,'#E86A5C',.5],[4,4,1,2,4.2,'#3F7FE0',.55],[5,4,1,1,1.6,'#F6D365',.6],[5,5,1,1,1,'#F28CB1',.64]];
-  const T = [[0,2],[1,2],[2,0],[2,1],[3,4.6],[3.4,5.2],[2,4],[2,5],[5,2],[4.5,2.1],[5.3,0.2]];
-  const iso = document.querySelector('[data-city]');
-  const box = (x, y, w, l, h, c, s, tree) => `<div class="bx${tree ? ' tree' : ''}" style="--x:${x};--y:${y};--w:${w};--l:${l};--h:${h};--c:${c};--s:${s}"><i class="fr"></i><i class="sd"></i><i class="tp"></i></div>`;
-  iso.innerHTML = B.map(b => box(...b)).join('') + T.map(([x, y], i) => box(x + .15, y + .15, .7, .7, .5, '#3FA34D', .1 + i * .05, true)).join('');
 
   // стартап: дорога з етапами
   const board = document.querySelector('.board'), path = board.querySelector('.fg'), dash = board.querySelector('.dash');
@@ -430,7 +330,6 @@ IPv4-адреса . . . : 192.168.0.12
   let mx = 0, my = 0, tmx = 0, tmy = 0, raf = 0;
   const out = {
     blogger: p => { likes.textContent = fmt(120 + p * 4692); subs.textContent = '+' + fmt(p * 248); },
-    city: p => { pop.textContent = fmt(1200 + p * 11200); happy.textContent = Math.round(52 + p * 26) + '%'; },
     startup: p => {
       const q = clamp(p * 1.12); path.style.strokeDashoffset = LEN * (1 - q);
       stks.forEach((el, i) => el.classList.toggle('on', q >= AT[i] - .02));
@@ -438,15 +337,11 @@ IPv4-адреса . . . : 192.168.0.12
     },
   };
   const $ = s => document.querySelector(s);
-  const likes = $('[data-likes]'), subs = $('[data-subs]'), pop = $('[data-pop]'), happy = $('[data-happy]'), week = $('[data-week]'), cash = $('[data-cash]');
+  const likes = $('[data-likes]'), subs = $('[data-subs]'), week = $('[data-week]'), cash = $('[data-cash]');
 
   function measure() {
     const vh = innerHeight;
     scenes.forEach((s, i) => { const r = s.getBoundingClientRect(); tgt[i] = still ? 1 : clamp(-r.top / (r.height - vh) * 1.15 + .12); });
-    const mid = vh / 2; let on = -1;
-    scenes.forEach((s, i) => { const r = s.getBoundingClientRect(); if (r.top <= mid && r.bottom > mid) on = i; });
-    rail.classList.toggle('show', on >= 0);
-    railLinks.forEach((a, i) => { a.classList.toggle('on', i === on); a.toggleAttribute('aria-current', i === on); });
   }
   function frame() {
     raf = 0; let moving = false;

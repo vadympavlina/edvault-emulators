@@ -1,7 +1,7 @@
 {
   "name": "edvault-emulators",
   "private": true,
-  "description": "Навчальні емулятори Edvault: Windows, блогер, місто й стартап (статичні сторінки, без збирання)",
+  "description": "Навчальні емулятори Edvault: Windows, блогер і стартап (статичні сторінки, без збирання)",
   "scripts": {
     "start": "node scripts/serve.mjs",
     "test": "node --test tests/*.test.mjs",
