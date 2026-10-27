@@ -40,7 +40,7 @@ export function packGame(S, ui = {}) {
   const state = JSON.parse(JSON.stringify(S.s));
   return {
     app: FILE_APP, format: FILE_FORMAT, savedAt: new Date().toISOString(),
-    about: 'Збережена гра «Симулятор стартапу» (edvault.online/emulators/startup). Відкрийте її в симуляторі кнопкою «Відкрити з файлу».',
+    about: 'Збережена гра «Симулятор стартапу» (emulators.edvault.online/startup). Відкрийте її в симуляторі кнопкою «Відкрити з файлу».',
     summary: summaryOf(S),
     integrity: checksum(JSON.stringify(state)),
     ui: JSON.parse(JSON.stringify(ui)),

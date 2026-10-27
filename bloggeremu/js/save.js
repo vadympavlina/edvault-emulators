@@ -39,7 +39,7 @@ export function fileName(s) {
 const README = s => `Збережена гра «Симулятор блогера» (Edvault)
 ==========================================
 
-Щоб продовжити гру, відкрийте симулятор блогера на сайті edvault.online
+Щоб продовжити гру, відкрийте симулятор блогера на сайті emulators.edvault.online
 і натисніть «Відкрити файл» (праворуч від телефона або в «Налаштуваннях» телефона).
 Архів НЕ треба розпаковувати.
 
@@ -65,7 +65,7 @@ export async function packBlogger(s, ui, media, onProgress) {
   }
   const game = {
     app: FILE_APP, format: FILE_FORMAT, savedAt: new Date().toISOString(),
-    about: 'Збережена гра «Симулятор блогера» (edvault.online/emulators/blogger). Відкрийте архів у симуляторі кнопкою «Відкрити файл».',
+    about: 'Збережена гра «Симулятор блогера» (emulators.edvault.online/blogger). Відкрийте архів у симуляторі кнопкою «Відкрити файл».',
     summary: summaryOf(state, Object.keys(index).length),
     integrity: checksum(JSON.stringify(state)),
     ui: JSON.parse(JSON.stringify(ui || {})),
