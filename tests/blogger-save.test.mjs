@@ -5,8 +5,8 @@ import { execFileSync } from 'node:child_process';
 import { writeFileSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { Sim, newState } from '../emulators/bloggeremu/js/sim.js';
-import { packBlogger, unpackBlogger, fileName, summaryOf } from '../emulators/bloggeremu/js/save.js';
+import { Sim, newState } from '../bloggeremu/js/sim.js';
+import { packBlogger, unpackBlogger, fileName, summaryOf } from '../bloggeremu/js/save.js';
 import { makeZip, readZip } from '../shared/zip.js';
 
 const game = () => {

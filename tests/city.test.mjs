@@ -1,10 +1,10 @@
 // Симулятор міста: рушій без браузера — будівництво, енергія, ріст, транспорт, забруднення, бюджет, освіта, жителі, місії.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { newCity, City, okState, EVENTS } from '../emulators/citysim/js/sim.js';
-import { autoplay } from '../emulators/citysim/js/bots.js';
-import { N, T, Z, B, ROADS, SCENARIOS, BRIDGE_MUL } from '../emulators/citysim/js/data.js';
-import { streetOf } from '../emulators/citysim/js/people.js';
+import { newCity, City, okState, EVENTS } from '../citysim/js/sim.js';
+import { autoplay } from '../citysim/js/bots.js';
+import { N, T, Z, B, ROADS, SCENARIOS, BRIDGE_MUL } from '../citysim/js/data.js';
+import { streetOf } from '../citysim/js/people.js';
 
 const days = (c, n) => { for (let i = 0; i < n; i++) c.tick(); };
 const months = (c, n) => days(c, n * 30);

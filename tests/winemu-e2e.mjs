@@ -8,7 +8,7 @@ const browser = await launch();
 const errors = [];
 const ctx = await browser.newContext({ viewport: { width: 1366, height: 820 } });
 const p = await newPage(ctx, errors);
-await p.goto(server.url + '/emulators/windows');
+await p.goto(server.url + '/windows');
 await p.waitForFunction(() => window.WinEmu);
 await p.waitForSelector('#boot', { state: 'hidden' }); await signIn(p);
 
@@ -198,7 +198,7 @@ await step('вікна: згорнути, розгорнути, перетягн
 });
 
 await step('усе зберігається після перезавантаження сторінки, «Скинути комп’ютер» повертає початковий стан', async () => {
-  await p.goto(server.url + '/emulators/windows');
+  await p.goto(server.url + '/windows');
   await p.waitForFunction(() => window.WinEmu);
   assert.ok(await node(H + '\\Documents\\Проєкти\\План — копія.txt'));
   await p.waitForSelector('#boot', { state: 'hidden' }); await signIn(p);

@@ -8,7 +8,7 @@ const browser = await launch();
 const errors = [];
 const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
 const p = await newPage(ctx, errors);
-await p.goto(server.url + '/emulators/startup');
+await p.goto(server.url + '/startup');
 await p.evaluate(() => localStorage.clear());
 await p.reload();
 const S = () => p.evaluate(() => JSON.parse(JSON.stringify(window.Startup.sim.s)));
@@ -241,7 +241,7 @@ await step('файл: зберегти всю гру у файл і відкри
   await p.click('[data-act="more"]');
   // інший браузер: порожньо → відкрити файл із майстра
   const q = await newPage(await browser.newContext({ viewport: { width: 1366, height: 900 } }), errors);
-  await q.goto(server.url + '/emulators/startup'); await q.evaluate(() => localStorage.clear()); await q.reload(); await q.waitForSelector('.wizard');
+  await q.goto(server.url + '/startup'); await q.evaluate(() => localStorage.clear()); await q.reload(); await q.waitForSelector('.wizard');
   const [fc] = await Promise.all([q.waitForEvent('filechooser'), q.click('.wizard [data-act="openFile"]')]);
   await fc.setFiles(path);
   await q.waitForSelector('.md.file-open');
@@ -277,7 +277,7 @@ await step('файл: зберегти всю гру у файл і відкри
 
 await step('телефон: вкладки, етапи й розділи без горизонтальної прокрутки', async () => {
   const m = await newPage(await browser.newContext({ viewport: { width: 390, height: 844 } }), errors);
-  await m.goto(server.url + '/emulators/startup');
+  await m.goto(server.url + '/startup');
   await m.evaluate(() => localStorage.clear()); await m.reload();
   await m.click('[data-w="next"]'); await m.click('[data-w="next"]'); await m.fill('[data-w="name"]', 'Ія'); await m.click('[data-w="next"]'); await m.fill('[data-w="company"]', 'Тест'); await m.click('[data-w="next"]'); await m.click('[data-w="next"]');
   await m.waitForSelector('#main .stage-card');
@@ -292,7 +292,7 @@ await step('телефон: вкладки, етапи й розділи без 
 await step('власна ідея: конструктор у майстрі, перевірка полів, гра з власними сегментами', async () => {
   const q = await newPage(await browser.newContext({ viewport: { width: 1366, height: 900 } }), errors);
   q.setDefaultTimeout(10000);
-  await q.goto(server.url + '/emulators/startup'); await q.evaluate(() => localStorage.clear()); await q.reload();
+  await q.goto(server.url + '/startup'); await q.evaluate(() => localStorage.clear()); await q.reload();
   await q.click('[data-w="next"]'); await q.click('[data-w="idea"][data-v="custom"]'); await q.click('[data-w="next"]');
   await q.click('[data-w="next"]');
   assert.match(await q.locator('#toast').innerText(), /назву ідеї/);

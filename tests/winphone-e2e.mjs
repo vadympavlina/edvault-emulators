@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { startServer, launch, step } from './_harness.mjs';
 const srv = await startServer(), b = await launch();
 const errs = [];
-const open = async (vp, extra = {}) => { const ctx = await b.newContext({ viewport: vp, deviceScaleFactor: 2, ...extra }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message)); const reqs = []; p.on('request', r => reqs.push(r.url())); await p.route(/fonts\.(googleapis|gstatic)/, r => r.abort()); await p.goto(srv.url + '/emulators/windows'); await p.waitForTimeout(800); return { p, reqs }; };
+const open = async (vp, extra = {}) => { const ctx = await b.newContext({ viewport: vp, deviceScaleFactor: 2, ...extra }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message)); const reqs = []; p.on('request', r => reqs.push(r.url())); await p.route(/fonts\.(googleapis|gstatic)/, r => r.abort()); await p.goto(srv.url + '/windows'); await p.waitForTimeout(800); return { p, reqs }; };
 await step('телефон вертикально: повідомлення, емулятор не завантажується', async () => {
   const { p, reqs } = await open({ width: 390, height: 844 }, { isMobile: true, hasTouch: true });
   assert.ok(await p.isVisible('#smallScreen'));

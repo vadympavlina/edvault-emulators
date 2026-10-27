@@ -1,8 +1,8 @@
 // Симулятор блогера: рушій (охоплення, реакції, безпека, шахраї) — без браузера
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Sim, newState, okState, hourOf, toneOf, DAY } from '../emulators/bloggeremu/js/sim.js';
-import { nickErr, passScore } from '../emulators/bloggeremu/js/likeer.js';
+import { Sim, newState, okState, hourOf, toneOf, DAY } from '../bloggeremu/js/sim.js';
+import { nickErr, passScore } from '../bloggeremu/js/likeer.js';
 
 const fresh = (seed = 11) => { const s = new Sim(newState(seed)); s.register({ nick: 'kotyk.art', niche: 'pets', bio: 'Про котів', pass: 'Murchyk-2026!' }); return s; };
 const gid = (sim, scene) => sim.s.gallery.find(g => g.scene === scene).id;

@@ -1,8 +1,8 @@
 // Симулятор блогера: таргетована реклама — аудиторія, ціна, модерація, витрати й повернення коштів
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Sim, newState, DAY } from '../emulators/bloggeremu/js/sim.js';
-import { audience, cpm, forecast, review, launchAd, stopAd, teen, VAT, START_BALANCE } from '../emulators/bloggeremu/js/adsim.js';
+import { Sim, newState, DAY } from '../bloggeremu/js/sim.js';
+import { audience, cpm, forecast, review, launchAd, stopAd, teen, VAT, START_BALANCE } from '../bloggeremu/js/adsim.js';
 
 const base = { auto: false, city: 'ua', radius: 0, age: [18, 34], gender: 'all', interests: [], place: 'auto', places: ['feed'], goal: 'profile', daily: 100, days: 5 };
 const fresh = () => { const s = new Sim(newState(7)); s.register({ nick: 'kotyk.art', niche: 'pets', bio: 'Про котів', pass: 'Murchyk-2026!' }); return s; };

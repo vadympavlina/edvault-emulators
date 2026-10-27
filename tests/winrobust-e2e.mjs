@@ -8,7 +8,7 @@ const server = await startServer();
 const browser = await launch();
 const errors = [];
 const p = await newPage(await browser.newContext({ viewport: { width: 1366, height: 820 } }), errors);
-const boot = async () => { await p.goto(server.url + '/emulators/windows'); await p.waitForFunction(() => window.WinEmu); await p.waitForSelector('#boot', { state: 'hidden' }); await signIn(p); };
+const boot = async () => { await p.goto(server.url + '/windows'); await p.waitForFunction(() => window.WinEmu); await p.waitForSelector('#boot', { state: 'hidden' }); await signIn(p); };
 await boot();
 const H = 'C:\\Users\\Учень';
 
@@ -52,7 +52,7 @@ await step('посилання й форми не переводять зі ст
   await p.waitForTimeout(300);
   await p.evaluate(() => document.getElementById('lnk').remove());
   await p.mouse.click(600, 300); await p.keyboard.press('Alt+ArrowLeft'); await p.waitForTimeout(300);
-  assert.ok(await p.evaluate(() => !!window.WinEmu && location.pathname.endsWith('/emulators/windows')));
+  assert.ok(await p.evaluate(() => !!window.WinEmu && location.pathname.endsWith('/windows')));
 });
 
 await step('браузер: Ctrl+W на останній вкладці, а потім F5 — без помилок', async () => {

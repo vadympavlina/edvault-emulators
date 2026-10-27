@@ -1,8 +1,8 @@
 // Симулятор блогера: месенджер Telegram і власний канал — без браузера
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Sim, newState, hourOf, DAY } from '../emulators/bloggeremu/js/sim.js';
-import { linkErr, tgSend, tgCreateChannel, tgPost, tgInvite, tgOpt, tgStats, tgEndSession, postCheck, realSubs, tgDeliver, brandOffer, adPrice, adCheck, tgAdPost, tgDeletePost, chLinkIn } from '../emulators/bloggeremu/js/tgsim.js';
+import { Sim, newState, hourOf, DAY } from '../bloggeremu/js/sim.js';
+import { linkErr, tgSend, tgCreateChannel, tgPost, tgInvite, tgOpt, tgStats, tgEndSession, postCheck, realSubs, tgDeliver, brandOffer, adPrice, adCheck, tgAdPost, tgDeletePost, chLinkIn } from '../bloggeremu/js/tgsim.js';
 
 const fresh = (seed = 21) => new Sim(newState(seed));
 const at = (sim, h) => { while (hourOf(sim.s.t) !== h) sim.advance(5); };

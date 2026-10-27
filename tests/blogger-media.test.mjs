@@ -1,9 +1,9 @@
 // Симулятор блогера: власні фото й відео, карусель, відеоплатформа YouTube — без браузера
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Sim, newState, hourOf, DAY } from '../emulators/bloggeremu/js/sim.js';
-import { judge, checks } from '../emulators/bloggeremu/js/quality.js';
-import { createChannel, updateChannel, tubeUpload, brandScore, curve, tubeReply, tubeFeed } from '../emulators/bloggeremu/js/tubesim.js';
+import { Sim, newState, hourOf, DAY } from '../bloggeremu/js/sim.js';
+import { judge, checks } from '../bloggeremu/js/quality.js';
+import { createChannel, updateChannel, tubeUpload, brandScore, curve, tubeReply, tubeFeed } from '../bloggeremu/js/tubesim.js';
 
 const fresh = (seed = 11) => { const s = new Sim(newState(seed)); s.register({ nick: 'kotyk.art', niche: 'pets', bio: 'Про котів', pass: 'Murchyk-2026!' }); return s; };
 const at = (sim, h) => { while (hourOf(sim.s.t) !== h) sim.advance(5); };

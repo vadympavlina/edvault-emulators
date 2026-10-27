@@ -9,7 +9,7 @@ const srv = await startServer(), b = await launch();
 const errs = [];
 const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } });
 const p = await newPage(ctx, errs);
-await p.goto(srv.url + '/emulators/windows'); await p.evaluate(() => localStorage.clear()); await p.reload(); await signIn(p);
+await p.goto(srv.url + '/windows'); await p.evaluate(() => localStorage.clear()); await p.reload(); await signIn(p);
 const W = () => p.evaluate(() => window.WinEmu.WM.wins.map(w => { const r = w.el.getBoundingClientRect(); return { app: w.app, min: w.min, max: w.max, x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height), z: w.z, act: w.el.classList.contains('active') }; }));
 const open = a => p.evaluate(a => { window.WinEmu.sys.open(a); }, a);
 const tb = async () => (await p.locator('#taskbar').boundingBox());
@@ -89,7 +89,7 @@ await step('діалог «Зберегти зміни?» поверх вікн�
 await step('сенсорний екран: вікно тягнеться пальцем', async () => {
   const tctx = await b.newContext({ viewport: { width: 1024, height: 768 }, hasTouch: true });
   const q = await newPage(tctx, errs);
-  await q.goto(srv.url + '/emulators/windows'); await signIn(q);
+  await q.goto(srv.url + '/windows'); await signIn(q);
   await q.evaluate(() => window.WinEmu.sys.open('explorer')); await q.waitForTimeout(300);
   const cdp = await tctx.newCDPSession(q);
   const t = await q.locator('.win[data-app="explorer"] .win-title').boundingBox();

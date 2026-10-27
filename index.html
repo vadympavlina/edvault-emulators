@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Емулятори Edvault</title>
+<meta name="description" content="Навчальні емулятори Edvault: Windows, блогер, місто й стартап. Працюють просто в браузері, без реєстрації.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+@font-face { font-family: Rubik; font-weight: 300 900; font-display: swap; src: url(startupsim/fonts/rubik-cyr.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: Rubik; font-weight: 300 900; font-display: swap; src: url(startupsim/fonts/rubik-lat.woff2) format('woff2'); unicode-range: U+0000-00FF, U+2000-206F; }
+@font-face { font-family: 'Golos Text'; font-weight: 400 900; font-display: swap; src: url(startupsim/fonts/golos-cyr.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Golos Text'; font-weight: 400 900; font-display: swap; src: url(startupsim/fonts/golos-lat.woff2) format('woff2'); unicode-range: U+0000-00FF, U+2000-206F; }
+:root { --ink: #1D2433; --tx2: #44506a; --board: #F2F5F4; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font: 16px/1.55 'Golos Text', system-ui, sans-serif; color: var(--ink); background: var(--board) radial-gradient(#d6dedb 1.3px, transparent 1.3px) 0 0 / 24px 24px; min-height: 100vh; }
+main { max-width: 1100px; margin: 0 auto; padding: 48px 20px 60px; }
+h1 { font: 700 clamp(30px, 5vw, 44px)/1.1 Rubik, sans-serif; }
+.lead { color: var(--tx2); font-size: 18px; max-width: 60ch; margin: 12px 0 34px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 24px; }
+a.card { display: flex; flex-direction: column; background: #fff; color: inherit; text-decoration: none; border: 2px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); overflow: hidden; transition: transform .12s; }
+a.card:hover { transform: translateY(-3px); }
+a.card:focus-visible { outline: 3px solid #4f46e5; outline-offset: 4px; }
+a.card img { width: 100%; aspect-ratio: 1200 / 630; object-fit: cover; display: block; border-bottom: 2px solid var(--ink); background: #e6ecea; }
+.card div { padding: 16px 18px 20px; }
+.card b { font: 700 21px Rubik, sans-serif; display: block; margin-bottom: 4px; }
+.card p { color: var(--tx2); font-size: 15px; }
+footer { margin-top: 40px; color: var(--tx2); font-size: 14px; }
+footer a { color: #3730a3; }
+@media (prefers-reduced-motion: reduce) { a.card { transition: none; } a.card:hover { transform: none; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Емулятори Edvault</h1>
+  <p class="lead">Навчальні симулятори для уроків: пробуйте сміливо — нічого не зламається. Працюють просто в браузері, без реєстрації, а гру можна зберегти у файл.</p>
+  <div class="grid">
+    <a class="card" href="windows"><img src="assets/og/windows.png" alt="" loading="lazy"><div><b>Емулятор Windows</b><p>Провідник, командний рядок, Диспетчер завдань, мережа, роутер і брандмауер. Для комп'ютера й планшета.</p></div></a>
+    <a class="card" href="blogger"><img src="assets/og/blogger.png" alt="" loading="lazy"><div><b>Симулятор блогера</b><p>Телефон із соцмережею, відеоплатформою й месенджером: дописи, коментарі, реклама й безпека в мережі.</p></div></a>
+    <a class="card" href="city"><img src="assets/og/city.png" alt="" loading="lazy"><div><b>Симулятор міста</b><p>Бюджет, транспорт, екологія, енергія й освіта. Дані, графіки й голоси жителів показують наслідки рішень.</p></div></a>
+    <a class="card" href="startup"><img src="assets/og/startup.png" alt="" loading="lazy"><div><b>Симулятор стартапу</b><p>Від ідеї до компанії: розмови з клієнтами, перша версія продукту, реклама, гроші, команда й інвестори.</p></div></a>
+  </div>
+  <footer>Частина проєкту <a href="https://www.edvault.online">Edvault</a> — інструменти для вчителя, тренажери й емулятори для учнів.</footer>
+</main>
+</body>
+</html>

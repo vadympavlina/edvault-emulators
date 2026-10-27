@@ -13,7 +13,7 @@ const errors = [];
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
 const p = await newPage(ctx, errors);
 p.setDefaultTimeout(15000);
-await p.goto(server.url + '/emulators/city');
+await p.goto(server.url + '/city');
 await p.evaluate(() => localStorage.clear());
 await p.reload();
 const S = (q = p) => q.evaluate(() => JSON.parse(JSON.stringify(window.CitySim.city.s)));
@@ -161,7 +161,7 @@ await step('збереження: файл з повним станом і ла�
 
 await step('відкриття з файлу на чистій сторінці', async () => {
   const q = await newPage(await browser.newContext({ viewport: { width: 1280, height: 800 } }), errors);
-  await q.goto(server.url + '/emulators/city'); await q.evaluate(() => localStorage.clear()); await q.reload();
+  await q.goto(server.url + '/city'); await q.evaluate(() => localStorage.clear()); await q.reload();
   await q.waitForSelector('.start [data-s-open]');
   const [fc] = await Promise.all([q.waitForEvent('filechooser'), q.click('.start [data-s-open]')]);
   await fc.setFiles(file);
@@ -210,9 +210,9 @@ await step('нове місто: підтвердження й стартови�
 
 await step('телефон: без горизонтальної прокрутки, меню й панелі вміщаються', async () => {
   const q = await newPage(await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }), errors);
-  await q.goto(server.url + '/emulators/city'); await q.evaluate(() => localStorage.clear()); await q.reload();
+  await q.goto(server.url + '/city'); await q.evaluate(() => localStorage.clear()); await q.reload();
   await q.waitForSelector('.start .sc');
-  await q.evaluate(async () => { const { newCity } = await import('/emulators/citysim/js/sim.js'); const { autoplay } = await import('/emulators/citysim/js/bots.js'); const C = newCity({ seed: 42, name: 'Сонячне', mayor: 'Тест' }); window.CitySim.begin(C); autoplay(C, 24); C.recompute(); window.CitySim.ui.speed = 0; });
+  await q.evaluate(async () => { const { newCity } = await import('/citysim/js/sim.js'); const { autoplay } = await import('/citysim/js/bots.js'); const C = newCity({ seed: 42, name: 'Сонячне', mayor: 'Тест' }); window.CitySim.begin(C); autoplay(C, 24); C.recompute(); window.CitySim.ui.speed = 0; });
   const over = () => q.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   assert.equal(await over(), 0);
   await q.click('[data-act="cat"][data-k="power"]');

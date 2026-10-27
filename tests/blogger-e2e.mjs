@@ -8,7 +8,7 @@ const browser = await launch();
 const errors = [];
 const ctx = await browser.newContext({ viewport: { width: 1366, height: 860 } });
 const p = await newPage(ctx, errors);
-await p.goto(server.url + '/emulators/blogger');
+await p.goto(server.url + '/blogger');
 await p.waitForFunction(() => window.Blogger);
 await p.click('[data-speed="0"]');
 
@@ -382,7 +382,7 @@ await step('реєстрація: можна вибрати фото для ав
     await p.evaluate(go); assert.deepEqual(await wide(), []);
   }
   // окрема сторінка — нова реєстрація
-  const ctx2 = await browser.newContext({ viewport: { width: 1366, height: 860 } }), q = await newPage(ctx2, errors); await q.goto(server.url + '/emulators/blogger'); await q.waitForFunction(() => window.Blogger);
+  const ctx2 = await browser.newContext({ viewport: { width: 1366, height: 860 } }), q = await newPage(ctx2, errors); await q.goto(server.url + '/blogger'); await q.waitForFunction(() => window.Blogger);
   await q.click('[data-app="likeer"]'); await q.click('[data-act="lk.signup"]');
   await q.fill('[data-in="reg.nick"]', 'murko.fan'); await q.click('[data-act="lk.regNext"]'); await q.click('[data-k="pets"]'); await q.click('[data-act="lk.regNext"]');
   await q.click('[data-act="lk.regImg"][data-scene="dog"]'); await q.click('[data-act="lk.regNext"]');
@@ -470,7 +470,7 @@ await step('реклама від бренду в каналі й посилан
   await p.click('[data-act="lk.saveProfile"]'); assert.match(await p.locator('.pr-link').innerText(), /t\.me\/murchyk_pryhody/);
   await p.click('.pr-link'); assert.ok(await p.locator('.tg-app').count(), 'посилання відкриває канал');
   // бренд пропонує рекламу
-  await p.evaluate(async () => { const m = await import('/emulators/bloggeremu/js/tgsim.js'), sim = Blogger.sim; m.brandOffer(sim, sim.s.tg.ch, false); const c = sim.s.tg.chats.find(x => x.id === sim.s.tg.flags.brandChat); while (c.pending?.length) m.tgDeliver(sim, c); Blogger.phone.apps.tg.stack = [{ v: 'chats' }, { v: 'chat', id: c.id }]; Blogger.phone.render(true); });
+  await p.evaluate(async () => { const m = await import('/bloggeremu/js/tgsim.js'), sim = Blogger.sim; m.brandOffer(sim, sim.s.tg.ch, false); const c = sim.s.tg.chats.find(x => x.id === sim.s.tg.flags.brandChat); while (c.pending?.length) m.tgDeliver(sim, c); Blogger.phone.apps.tg.stack = [{ v: 'chats' }, { v: 'chat', id: c.id }]; Blogger.phone.render(true); });
   await p.click('[data-act="tg.opt"][data-k="yes"]'); await p.waitForSelector('[data-act="tg.opt"][data-k="parents"]', { timeout: 15000 });
   await p.click('[data-act="tg.opt"][data-k="parents"]'); await p.waitForFunction(() => Blogger.sim.s.tg.ch.adTask, null, { timeout: 20000 });
   await p.evaluate(() => { Blogger.phone.apps.tg.stack = [{ v: 'chats' }, { v: 'chat', id: 'mych' }]; Blogger.phone.render(true); });
@@ -518,7 +518,7 @@ await step('збереження у файл: ZIP із грою й власни�
   assert.match(await p.locator('.pn-file').innerText(), /Олена Коваль[\s\S]*Збережено у файл: день/);
   // інший браузер: порожній телефон → відкрити файл
   const q = await newPage(await browser.newContext({ viewport: { width: 1366, height: 860 } }), errors);
-  await q.goto(server.url + '/emulators/blogger'); await q.waitForFunction(() => window.Blogger); await q.click('[data-speed="0"]');
+  await q.goto(server.url + '/blogger'); await q.waitForFunction(() => window.Blogger); await q.click('[data-speed="0"]');
   const [fc] = await Promise.all([q.waitForEvent('filechooser'), q.click('[data-pf="open"]')]);
   await fc.setFiles(path);
   await q.waitForSelector('.sheet.file-open');

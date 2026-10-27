@@ -1,10 +1,10 @@
 // Симулятор блогера: живе спілкування (Директ і коментарі) та реклама на YouTube — без браузера
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Sim, newState, hourOf, DAY } from '../emulators/bloggeremu/js/sim.js';
-import { intents, fill, voice, names, petName, captionComment } from '../emulators/bloggeremu/js/talk.js';
-import { createChannel, tubeUpload } from '../emulators/bloggeremu/js/tubesim.js';
-import { cpm, forecast, launchAd, reviewVideo } from '../emulators/bloggeremu/js/adsim.js';
+import { Sim, newState, hourOf, DAY } from '../bloggeremu/js/sim.js';
+import { intents, fill, voice, names, petName, captionComment } from '../bloggeremu/js/talk.js';
+import { createChannel, tubeUpload } from '../bloggeremu/js/tubesim.js';
+import { cpm, forecast, launchAd, reviewVideo } from '../bloggeremu/js/adsim.js';
 
 const fresh = (seed = 11) => { const s = new Sim(newState(seed)); s.register({ nick: 'kotyk.art', niche: 'pets', bio: 'Про котів', pass: 'Murchyk-2026!' }); return s; };
 const at = (sim, h) => { while (hourOf(sim.s.t) !== h) sim.advance(5); };

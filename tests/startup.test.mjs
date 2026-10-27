@@ -1,11 +1,11 @@
 // Симулятор стартапу · перевірка рушія (без браузера): node --test tests/startup.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { newGame, okState, Sim, money, WEEKS } from '../emulators/startupsim/js/sim.js';
-import { autoplay, smartWeek, recklessWeek } from '../emulators/startupsim/js/bots.js';
-import { IDEAS, INVESTORS } from '../emulators/startupsim/js/data.js';
-import { assumptionsVsReality } from '../emulators/startupsim/js/custom.js';
-import { packGame, unpackGame, fileName, translit, checksum } from '../emulators/startupsim/js/file.js';
+import { newGame, okState, Sim, money, WEEKS } from '../startupsim/js/sim.js';
+import { autoplay, smartWeek, recklessWeek } from '../startupsim/js/bots.js';
+import { IDEAS, INVESTORS } from '../startupsim/js/data.js';
+import { assumptionsVsReality } from '../startupsim/js/custom.js';
+import { packGame, unpackGame, fileName, translit, checksum } from '../startupsim/js/file.js';
 
 const fresh = (o = {}) => newGame({ idea: 'homework', founder: 'Тест', company: 'Тест', seed: 7, ...o });
 const build = (S, ids) => { for (const id of ids) S.s.product.built.push(id); };
@@ -357,7 +357,7 @@ test('гроші форматуються по-людськи', () => {
 });
 
 test('шлях стартапу: етапи йдуть по черзі, відкривають розділи й не відкочуються назад', async () => {
-  const { STAGES, stageInfo, isOpen, unlock, syncStage, viewStage } = await import('../emulators/startupsim/js/stages.js');
+  const { STAGES, stageInfo, isOpen, unlock, syncStage, viewStage } = await import('../startupsim/js/stages.js');
   const S = fresh();
   let i = stageInfo(S);
   assert.equal(i.cur, 0); assert.equal(i.reached, 0);
@@ -387,7 +387,7 @@ test('шлях стартапу: етапи йдуть по черзі, відк
 });
 
 test('своя ідея: товари й послуги, оцінки учня, місто чи країна, перевірка ідеї', async () => {
-  const { makeCustomIdea, ideaCheck, marketVsGuess } = await import('../emulators/startupsim/js/custom.js');
+  const { makeCustomIdea, ideaCheck, marketVsGuess } = await import('../startupsim/js/custom.js');
   const base = { name: 'Свічки ручної роботи', problem: 'нудні подарунки', pitch: 'Свічки з ароматами на замовлення.',
     segments: [{ name: 'Студенти', arch: 'students', size: 20000, price: 250 }, { name: 'Кав\'ярні', arch: 'smb' }],
     features: [{ name: 'Аромати', size: 's', core: true, segs: [0] }, { name: 'Гравіювання', size: 'm', segs: [0, 1] }, { name: 'Доставка', size: 's', segs: [1] }],

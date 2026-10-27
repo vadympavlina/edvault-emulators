@@ -2,9 +2,9 @@
 //   node --test tests/*.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FS } from '../emulators/windowsemu/js/fs.js';
-import { Cmd } from '../emulators/windowsemu/js/cmd.js';
-import { fwOf, evaluate, validPorts, validAddr, allowedApps, setAppProfile, PROGRAMS, LOG_FILE } from '../emulators/windowsemu/js/fw.js';
+import { FS } from '../windowsemu/js/fs.js';
+import { Cmd } from '../windowsemu/js/cmd.js';
+import { fwOf, evaluate, validPorts, validAddr, allowedApps, setAppProfile, PROGRAMS, LOG_FILE } from '../windowsemu/js/fw.js';
 
 const run = (c, l) => c.run(l).out.join('\n');
 const setup = () => { const fs = new FS(); return { fs, fw: fwOf(fs), user: new Cmd(fs, { live: false }), admin: new Cmd(fs, { live: false, admin: true }) }; };

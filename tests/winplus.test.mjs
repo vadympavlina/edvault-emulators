@@ -2,9 +2,9 @@
 //   node --test tests/*.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FS } from '../emulators/windowsemu/js/fs.js';
-import { Cmd } from '../emulators/windowsemu/js/cmd.js';
-import { SYS_PROCS, procState } from '../emulators/windowsemu/js/procs.js';
+import { FS } from '../windowsemu/js/fs.js';
+import { Cmd } from '../windowsemu/js/cmd.js';
+import { SYS_PROCS, procState } from '../windowsemu/js/procs.js';
 
 function setup() {
   const opened = [], st = procState();

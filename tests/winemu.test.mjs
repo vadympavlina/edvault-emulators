@@ -2,8 +2,8 @@
 //   node --test tests/*.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FS, resolve, wildcard, validName, HOME, binaryText } from '../emulators/windowsemu/js/fs.js';
-import { Cmd, tokenize, wildRename, COMMANDS } from '../emulators/windowsemu/js/cmd.js';
+import { FS, resolve, wildcard, validName, HOME, binaryText } from '../windowsemu/js/fs.js';
+import { Cmd, tokenize, wildRename, COMMANDS } from '../windowsemu/js/cmd.js';
 
 const fresh = () => { const fs = new FS(); const opened = []; const tasks = [{ name: 'notepad.exe', pid: 2210 }]; const c = new Cmd(fs, { live: false, open: (a, p) => opened.push([a, p]), tasks: () => tasks, kill: by => tasks.filter(x => x.name === by.im || x.pid === by.pid) }); return { fs, c, opened }; };
 const run = (c, line) => c.run(line).out.join('\n');

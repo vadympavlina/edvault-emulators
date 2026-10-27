@@ -1,9 +1,9 @@
 // Модель мережі емулятора Windows (net.js) і мережеві команди
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FS } from '../emulators/windowsemu/js/fs.js';
-import { Cmd } from '../emulators/windowsemu/js/cmd.js';
-import { netOf, adapters, primary, reach, resolveName, checkIPv4, diagnose, wifiConnect, maskOk, sameNet } from '../emulators/windowsemu/js/net.js';
+import { FS } from '../windowsemu/js/fs.js';
+import { Cmd } from '../windowsemu/js/cmd.js';
+import { netOf, adapters, primary, reach, resolveName, checkIPv4, diagnose, wifiConnect, maskOk, sameNet } from '../windowsemu/js/net.js';
 
 const fresh = () => { const fs = new FS(); return { fs, c: new Cmd(fs, { live: false, open() {} }) }; };
 const run = (c, l) => c.run(l).out.join('\n');
