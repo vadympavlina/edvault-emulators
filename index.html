@@ -204,6 +204,13 @@ a { color: inherit; }
   .scene { height: auto; } .stage { position: relative; height: auto; min-height: 100vh; padding-block: 60px; }
   .art { height: 520px; }
 }
+.allbtn { justify-self: start; width: max-content; display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 22px 0 24px; border-radius: 26px; background: var(--ink); color: var(--paper); font: 600 17px Rubik, sans-serif; text-decoration: none; transition: transform .15s, box-shadow .15s; }
+.allbtn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+.allbtn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,.18); }
+.allbtn:hover svg { transform: translateX(3px); }
+.allbtn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.hero .allbtn { margin-top: 28px; position: relative; animation: fade 1s .7s both; }
+.end .allbtn { margin-top: 30px; }
 </style>
 </head>
 <body>
@@ -226,6 +233,7 @@ a { color: inherit; }
   </div>
   <h1><span class="ln"><span>Натисніть</span></span><span class="ln"><span>будь-що.</span></span><span class="ln"><span>Нічого не зламається.</span></span></h1>
   <p class="lead">Три навчальні емулятори в браузері: комп'ютер з Windows, телефон блогера і власний стартап. Без встановлення і без реєстрації.</p>
+  <a class="allbtn" href="catalog">Усі емулятори<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
   <div class="cue" aria-hidden="true"><i></i>Гортайте вниз</div>
 </header>
 
@@ -309,6 +317,7 @@ IPv4-адреса . . . : 192.168.0.12
   <section class="end" aria-labelledby="h-end">
     <h2 id="h-end">Помиляйтеся тут, а не в житті.</h2>
     <p>Кожен емулятор зберігає прогрес у браузері, а гру можна записати у файл і продовжити на іншому комп'ютері. Працює на комп'ютері, планшеті й телефоні.</p>
+    <a class="allbtn" href="catalog">Усі емулятори<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     <div class="trio" aria-hidden="true"><i style="background:var(--win)"><svg><use href="#i-win"/></svg></i><i style="background:var(--blog)"><svg><use href="#i-blog"/></svg></i><i style="background:var(--start)"><svg><use href="#i-start"/></svg></i></div>
   </section>
 </main>
