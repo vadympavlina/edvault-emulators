@@ -1,6 +1,7 @@
 // Симулятор стартапу · помічники інтерфейсу: розмітка, вікна, сповіщення, графіки, терміни.
 import { icon } from './icons.js';
 import { GLOSSARY } from './data.js';
+import { logoMark } from './logo.js';
 
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const $ = (s, r = document) => r.querySelector(s);
@@ -115,5 +116,6 @@ export const delta = (v, fmt, good = 1) => { if (!v) return ''; const up = v > 0
 
 // Логотип компанії
 export function logo(company, size = 36, symIcon) {
+  if (company.mk) return logoMark({ ...company.mk, sym: company.sym }, size, symIcon);
   return `<span class="logo" style="--lc:${company.color};width:${size}px;height:${size}px">${icon(symIcon || company.sym || 'spark', Math.round(size * .56))}</span>`;
 }

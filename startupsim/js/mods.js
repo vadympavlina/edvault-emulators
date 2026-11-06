@@ -132,7 +132,7 @@ const M = {
     return (tone + font + pos * 1.4 + logo) / 4.4;
   },
   trustM(k) { return .82 + .33 * this.brandFit(k); },
-  setBrand(key, v) { if (this.s.brand[key] === v) return; this.s.brand[key] = v; const t = { font: () => `шрифт «${FONTS[v]?.t}»`, tone: () => `тон «${TONES[v]?.t}»`, position: () => v === 'vague' ? 'розмите позиціонування «для всіх»' : `позиціонування для «${this.seg(v)?.short}»` }[key]; if (t) this.log(`Бренд: ${t()}.`); },
+  setBrand(key, v) { if (this.s.brand[key] === v) return; this.s.brand[key] = v; this.s.flags.brandSet = true; const t = { font: () => `шрифт «${FONTS[v]?.t}»`, tone: () => `тон «${TONES[v]?.t}»`, position: () => v === 'vague' ? 'розмите позиціонування «для всіх»' : `позиціонування для «${this.seg(v)?.short}»` }[key]; if (t) this.log(`Бренд: ${t()}.`); },
   drawLogo() {
     // логотип своїми силами: забирає 6 годин із розробки цього тижня
     if (this.hoursNow().product < 6) return null;
@@ -274,7 +274,7 @@ const M = {
 
   /* ── бізнес-план ── */
   setCanvas(k, v) { this.s.canvas[k] = v; },
-  canvasFilled() { const c = this.s.canvas; return Object.keys(CANVAS).filter(k => { const v = c[k]; return Array.isArray(v) ? v.length > 0 : !!(v && String(v).trim().length >= 3); }).length; },
+  canvasFilled() { const c = this.s.canvas; return Object.keys(CANVAS).filter(k => { const v = c[k]; return Array.isArray(v) ? v.length > 0 : k === 'segment' ? !!v : !!(v && String(v).trim().length >= 3); }).length; },
   // Перевірка блоків даними: ok — підтверджено, warn — припущення, bad — суперечить даним
   canvasCheck() {
     const c = this.s.canvas, out = {}, seg = this.I.segments[c.segment] ? c.segment : this.s.target, K = this.insight(seg);

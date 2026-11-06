@@ -5,7 +5,8 @@ import { CANVAS, METRICS, ADVANTAGES } from './mods.js';
 import { assumptionsVsReality, marketVsGuess, KINDS, SCOPES } from './custom.js';
 import { icon } from './icons.js';
 import { esc, nl2br, term, lineChart, delta, logo } from './ui.js';
-import { STAGES, stageInfo } from './stages.js';
+import { stageInfo } from './stages.js';
+import { stageRail, stageSheet, goalCard } from './v-stages.js';
 
 const HOUR_ROWS = [
   ['product', 'Продукт', 'code', 'Робите продукт своїми руками'],
@@ -79,27 +80,14 @@ export function mentorCard(S) {
     ${more.length ? `<p class="mt-l">Ще поради</p><ul class="mt-more">${more.slice(0, 2).map(x => `<li>${x.go ? `<button class="link" data-act="go" data-to="${x.go}">${esc(x.text)}</button>` : esc(x.text)}</li>`).join('')}</ul>` : ''}</section>`;
 }
 
-/* ═════════ Етап: що зробити зараз ═════════ */
-function stageCard(S, ui, info) {
-  const i = ui.stage != null && ui.stage <= info.reached ? ui.stage : info.cur, st = info.list[i];
-  const nextOpen = STAGES[i + 1], first = st.tasks.find(y => !y.ok);
-  const head = info.allDone && i === info.cur
-    ? `<h1>Компанія стала на ноги</h1><p class="lead">Ви пройшли весь шлях від ідеї до інвестицій чи прибутку. Тепер розвивайте компанію далі: усі розділи відкриті.</p>`
-    : `<p class="stage-n">Етап ${i + 1} з ${STAGES.length}${i < info.cur ? ' · пройдено' : ''}</p><h1>${esc(st.long)}</h1><p class="lead">${esc(st.why)}</p>`;
-  const btn = x => x.go === 'file' ? `<button class="btn sm ${x === first ? 'primary' : ''}" data-act="saveFile">${esc(x.btn)}</button>` : `<button class="btn sm ${x === first ? 'primary' : ''}" data-act="go" data-to="${x.go}" ${x.hl ? `data-hl="${esc(x.hl)}"` : ''}>${esc(x.btn)}</button>`;
-  return `<section class="stage-card">${head}
-    <ol class="notes">${st.tasks.map(x => `<li class="note ${x.ok ? 'ok' : x === first ? 'now' : ''}"><span class="st">${x.ok ? `${icon('check', 15)} Виконано` : x === first ? 'Зараз' : 'Далі'}</span><b>${esc(x.t)}</b><small>${esc(x.d)}</small>${x.ok ? '<span class="stamp">готово</span>' : btn(x)}</li>`).join('')}</ol>
-    ${i === info.cur && !info.allDone && nextOpen ? `<p class="sm muted next-open">${icon('lock', 14)} Виконайте всі завдання — відкриється етап ${i + 2} «${esc(nextOpen.t)}».</p>` : ''}
-    ${i !== info.cur ? `<button class="btn sm" data-act="stage" data-i="${info.cur}">До поточного етапу</button>` : ''}</section>`;
-}
-
 /* ═════════ Головна ═════════ */
 function dash(S, ui, info = stageInfo(S)) {
   const s = S.s, h = s.history, labels = h.map(x => String(x.week + 1));
   const achs = Object.keys(s.ach);
   return `${s.over ? `<p class="note bad">${icon('alert', 16)} Гру завершено. <button class="link" data-act="go" data-to="report">Подивитися підсумки</button></p>` : ''}
-  <div class="home">
-    <div class="col">${stageCard(S, ui, info)}${weekPlan(S)}${lastWeek(S)}
+  <div class="home v2">
+    <aside class="col rail-col">${stageRail(S, ui, info)}${mentorCard(S)}${status(S)}</aside>
+    <div class="col">${stageSheet(S, ui, info)}${goalCard(S)}${weekPlan(S)}${lastWeek(S)}
       ${h.length > 1 ? `<details class="card fold"><summary>${icon('chart')} Графіки за всі тижні</summary>
         <div class="grid g2">
           <div><h4>Гроші</h4>${lineChart([{ v: h.map(x => x.cash), color: 'var(--acc)', label: 'Гроші', area: true }], { labels, fmt: x => money(x).replace(' ₴', '') })}</div>
@@ -109,7 +97,6 @@ function dash(S, ui, info = stageInfo(S)) {
       <details class="card fold"><summary>${icon('award')} Досягнення <span class="muted sm">${achs.length} з ${Object.keys(ACHIEVEMENTS).length}</span></summary>
         <div class="achs">${Object.entries(ACHIEVEMENTS).map(([k, a]) => `<div class="ach ${s.ach[k] ? 'on' : ''}" title="${esc(a.d)}">${icon(s.ach[k] ? 'star' : 'lock', 18)}<span><b>${esc(a.t)}</b><small>${s.ach[k] ? `тиждень ${s.ach[k]}` : esc(a.d)}</small></span></div>`).join('')}</div></details>
     </div>
-    <aside class="col side-col">${mentorCard(S)}${status(S)}</aside>
   </div>`;
 }
 

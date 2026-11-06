@@ -11,10 +11,21 @@ import { marketViews, marketActs, marketIns } from './v-market.js';
 import { moneyViews, moneyActs, moneyIns } from './v-money.js';
 import { peopleViews, peopleActs, peopleIns } from './v-people.js';
 import { STAGES, stageInfo, viewStage, isOpen, unlock, syncStage, ADVANCED_VIEWS, isSimple, suggestHours } from './stages.js';
+import { stageBar } from './v-stages.js';
+import { exViews, exActs, installEx, goalNow } from './ex-core.js';
+import './ex1.js';
+import './ex1b.js';
+import './ex2.js';
+import './ex3.js';
+import './ex3b.js';
+import './ex4.js';
+import './ex5.js';
+import './ex6.js';
+import './ex7.js';
 
 const KEY = 'edvault-startup', IDEA_KEY = 'edvault-startup-idea';
-const VIEWS = { ...coreViews, ...marketViews, ...moneyViews, ...peopleViews };
-const ACTS = { ...coreActs, ...marketActs, ...moneyActs, ...peopleActs };
+const VIEWS = { ...coreViews, ...marketViews, ...moneyViews, ...peopleViews, ...exViews() };
+const ACTS = { ...coreActs, ...marketActs, ...moneyActs, ...peopleActs, ...exActs };
 const INS = { ...coreIns, ...marketIns, ...moneyIns, ...peopleIns };
 // чотири вкладки й пошта; розділи всередині вкладки — другим рядком
 const TABS = [
@@ -24,7 +35,7 @@ const TABS = [
   ['people', 'Люди', 'users', ['team', 'freelance']],
   ['mail', 'Пошта', 'mail', ['inbox']],
 ];
-const tabOf = v => TABS.find(t => t[3].includes(v));
+const tabOf = v => VIEWS[v]?.ex ? TABS[0] : TABS.find(t => t[3].includes(v));
 // «що тут робити» — одне-два речення на початку кожного розділу
 const VIEW_HINTS = {
   customers: 'Натисніть «Інтерв\'ю» на картці групи й поставте три запитання. Питайте про те, що людина вже робить, а не «чи сподобається вам ідея».',
@@ -161,21 +172,9 @@ function morePop() {
     <small class="${s.flags.fileWeek != null ? '' : 'warn'}">${s.flags.fileWeek != null ? `У файл збережено на тижні ${s.flags.fileWeek + 1}` : 'Гру ще не зберігали у файл'}</small></div>`;
 }
 const closeMore = () => { if (ui.more) { ui.more = false; topbar(); } };
-// доріжка етапів — мапа: пройдена частина суцільна зелена, попереду пунктир, над поточним — «ви тут»
-const ROAD_X = [6, 28, 50, 72, 94], ROAD_Y = [80, 54, 76, 90, 52];
-function roadPath(n) {
-  const P = ROAD_X.map((x, i) => [x * 10, ROAD_Y[i]]).slice(0, n + 1);
-  let d = `M${P[0][0]} ${P[0][1]}`;
-  for (let i = 1; i < P.length; i++) { const [x0, y0] = P[i - 1], [x1, y1] = P[i], m = (x1 - x0) / 2; d += ` C${x0 + m} ${y0} ${x1 - m} ${y1} ${x1} ${y1}`; }
-  return d;
-}
+// тонка смужка поточного етапу: на головній замість неї весь маршрут, на сторінках вправ — кнопка «До етапу»
 function road(info) {
-  const done = info.allDone ? ROAD_X.length - 1 : info.cur;
-  setHtml($('#road'), `<div class="map"><svg class="path" viewBox="0 0 1000 132" preserveAspectRatio="none" aria-hidden="true"><path class="todo" d="${roadPath(ROAD_X.length - 1)}"/>${done ? `<path class="done" d="${roadPath(done)}"/>` : ''}</svg>
-    <ol>${info.list.map((st, i) => {
-      const cls = i < info.cur || (info.allDone && i === info.cur) ? 'done' : i === info.cur ? 'cur' : i <= info.reached ? 'open' : 'lock';
-      return `<li class="${cls}" style="left:${ROAD_X[i]}%;top:${ROAD_Y[i] / 1.32}%"><button data-act="stage" data-i="${i}" ${i > info.reached ? 'disabled' : ''} aria-current="${i === info.cur ? 'step' : 'false'}" aria-label="Етап ${i + 1}: ${esc(st.t)}${cls === 'done' ? ', пройдено' : cls === 'lock' ? ', ще закрито' : ''}" title="${esc(st.long)}">${i === info.cur && !info.allDone ? '<span class="here">ви тут</span>' : ''}<span class="c">${cls === 'done' ? icon('check', 18) : i + 1}</span><span class="l">${esc(st.t)}</span></button></li>`;
-    }).join('')}</ol></div>`);
+  setHtml($('#road'), ui.view === 'dash' || VIEWS[ui.view]?.ex ? '' : stageBar(S, info));
 }
 function tabs(info) {
   const s = S.s, unread = s.inbox.filter(m => !m.read || (m.choices && m.chosen == null)).length;
@@ -208,7 +207,11 @@ async function endWeek() {
   const pending = s.inbox.filter(m => m.choices && m.chosen == null && m.until === s.week);
   if (pending.length && !await confirmBox('Є листи, які чекають на ваше рішення', 'Завершити тиждень', { sub: `Якщо не відповісте цього тижня, рішення ухвалять без вас: ${pending.map(m => `«${m.title}»`).join(', ')}.` })) { C.go('inbox'); return; }
   if (hoursUsed(S) > 62 && !await confirmBox(`Ви запланували ${hoursUsed(S)} годин роботи`, 'Так, працюю', { sub: 'Енергія різко впаде, а з нею — продуктивність. Можливо, варто додати відпочинку?' })) return;
-  const rep = S.endWeek(); save();
+  const rep = S.endWeek();
+  const gs = goalNow(S);
+  if (gs && !gs.g.done && gs.status === 'done') { gs.g.done = true; S.mail({ from: 'Наставниця Ірина', kind: 'mentor', title: 'Ціль досягнуто!', body: `Ви досягли своєї SMART-цілі: ${gs.g.text}. Саме так працюють вимірні цілі: їх видно, і ними можна пишатися. Поставте нову, трохи амбітнішу.` }); toast('SMART-ціль досягнуто!', 'good'); }
+  else if (gs && gs.status === 'late' && !gs.g.left) { gs.g.left = true; S.mail({ from: 'Наставниця Ірина', kind: 'mentor', title: 'Термін цілі минув', body: `Ціль «${gs.g.text}» не досягнуто в строк. Це нормально: подумайте, що завадило — ціль була завеликою, чи бракувало дій? Поставте нову ціль у вправі SMART.` }); }
+  save();
   weekModal(rep);
   render();
 }
@@ -406,6 +409,7 @@ document.addEventListener('dragover', e => { if ([...(e.dataTransfer?.types || [
 document.addEventListener('dragleave', e => { if (!e.relatedTarget) document.body.classList.remove('drop-on'); });
 document.addEventListener('drop', e => { const f = e.dataTransfer?.files?.[0]; document.body.classList.remove('drop-on'); if (!f) return; e.preventDefault(); readFile(f); });
 
+installEx(C);
 window.Startup = { S, C, get sim() { return S; } };
 if (S) render(); else startWizard();
 $('#boot')?.remove();

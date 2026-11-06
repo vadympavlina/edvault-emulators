@@ -356,34 +356,58 @@ test('гроші форматуються по-людськи', () => {
   assert.equal(money(1500), '1 500 ₴'); assert.equal(money(45000), '45 тис. ₴'); assert.equal(money(2500000), '2,5 млн ₴'); assert.equal(money(-3000), '−3 000 ₴');
 });
 
-test('шлях стартапу: етапи йдуть по черзі, відкривають розділи й не відкочуються назад', async () => {
+const loadExercises = () => Promise.all(['ex1', 'ex1b', 'ex2', 'ex3', 'ex3b', 'ex4', 'ex5', 'ex6', 'ex7'].map(m => import(`../startupsim/js/${m}.js`)));
+
+test('шлях стартапу: дев’ять етапів по черзі, розділи й вправи не дублюються, прогрес не відкочується', async () => {
+  await loadExercises();
   const { STAGES, stageInfo, isOpen, unlock, syncStage, viewStage } = await import('../startupsim/js/stages.js');
+  const { EX, exOf } = await import('../startupsim/js/ex-core.js');
+  assert.equal(STAGES.length, 9);
   const S = fresh();
   let i = stageInfo(S);
   assert.equal(i.cur, 0); assert.equal(i.reached, 0);
-  assert.ok(isOpen(S, 'customers') && isOpen(S, 'plan') && isOpen(S, 'dash'));
-  assert.ok(!isOpen(S, 'product') && !isOpen(S, 'investors'));
+  assert.ok(isOpen(S, 'customers') && isOpen(S, 'plan') && isOpen(S, 'product') && isOpen(S, 'dash'));
+  assert.ok(!isOpen(S, 'brand') && !isOpen(S, 'investors') && !isOpen(S, 'ex-swot'));
   // кожен розділ належить рівно одному етапу
   const all = STAGES.flatMap(s => s.open);
   assert.equal(new Set(all).size, all.length);
   for (const v of ['dash', 'inbox', 'customers', 'plan', 'product', 'brand', 'marketing', 'promo', 'pricing', 'finance', 'payments', 'investors', 'invest', 'team', 'freelance', 'help', 'report']) assert.ok(all.includes(v), v);
-  // етап 1 → 2
-  S.s.know[S.s.target].n = 3; S.s.canvas.problem = 'Учні не розуміють домашку'; S.s.canvas.segment = S.s.target;
+  // кожна вправа згадана в етапі рівно один раз і лежить саме на своєму етапі
+  const seen = new Map();
+  STAGES.forEach((st, k) => [...st.req, ...st.opt].forEach(f => { const t = f(S); if (t?.ex) { assert.ok(!seen.has(t.ex), 'дубль ' + t.ex); seen.set(t.ex, k); assert.equal(EX[t.ex].stage, k, t.ex); } }));
+  assert.equal(seen.size, Object.keys(EX).length, 'усі вправи доступні з етапів');
+  for (const st of STAGES) assert.ok(exOf(st.i).length >= 4, st.t);
+  // етап 1 → 2: потрібні всі обов'язкові справи
+  const done = id => { (S.s.ex ||= { d: {}, done: {} }).done[id] = { w: 0, s: 2 }; };
+  for (const id of ['niche', 'market', 'needs', 'mvp']) done(id);
+  S.s.canvas = { problem: 'Учні не розуміють домашку', segment: S.s.target, uvp: 'Пояснення за п’ять хвилин', solution: 'Застосунок', channels: 'Реклама' };
   i = syncStage(S);
   assert.equal(i.cur, 1); assert.ok(i.list[0].done);
-  assert.ok(isOpen(S, 'product') && isOpen(S, 'brand') && !isOpen(S, 'pricing'));
-  // досягнутий етап лишається, навіть якщо завдання знову не виконане
-  S.s.canvas.problem = '';
+  assert.ok(isOpen(S, 'brand') && !isOpen(S, 'pricing') && isOpen(S, 'ex-w5') && !isOpen(S, 'ex-swot'));
+  // досягнутий етап лишається, навіть якщо справа знову не виконана
+  delete S.s.ex.done.niche;
   i = stageInfo(S);
   assert.equal(i.cur, 0); assert.equal(i.reached, 1);
-  assert.ok(isOpen(S, 'product'));
+  assert.ok(isOpen(S, 'brand'));
   // ручне відкриття розділу наперед
   assert.ok(!isOpen(S, 'team'));
   unlock(S, 'team');
   assert.ok(isOpen(S, 'team'));
-  assert.equal(viewStage('team'), 3);
-  // кожне завдання має кнопку, що веде в існуючий розділ або на збереження файлу
-  for (const st of i.list) for (const t of st.tasks) assert.ok(t.go === 'file' || all.includes(t.go), t.t);
+  assert.equal(viewStage('team'), 6); assert.equal(viewStage('ex-trading'), 8);
+  // кожна справа має кнопку, що веде в існуючий розділ або вправу
+  for (const st of i.list) for (const t of [...st.req, ...st.opt]) assert.ok(all.includes(t.go) || t.go.startsWith('ex-') && EX[t.go.slice(3)], t.t);
+});
+
+test('старе збереження з п’ятьма етапами: усе відкрите раніше лишається відкритим', async () => {
+  await loadExercises();
+  const { syncStage, isOpen } = await import('../startupsim/js/stages.js');
+  const S = fresh(); S.s.week = 12; S.s.flags.stage = 2;
+  syncStage(S);
+  for (const v of ['product', 'brand', 'pricing', 'finance', 'payments', 'marketing', 'promo', 'freelance']) assert.ok(isOpen(S, v), v);
+  assert.ok(!isOpen(S, 'invest') && !isOpen(S, 'team'));
+  assert.equal(S.s.flags.st9, 0);
+  const N = fresh(); syncStage(N);
+  assert.ok(!isOpen(N, 'pricing') && !isOpen(N, 'freelance'), 'нова гра нічого не відкриває наперед');
 });
 
 test('своя ідея: товари й послуги, оцінки учня, місто чи країна, перевірка ідеї', async () => {
