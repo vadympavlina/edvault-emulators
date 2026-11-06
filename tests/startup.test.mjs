@@ -380,7 +380,7 @@ test('шлях стартапу: дев’ять етапів по черзі, �
   // етап 1 → 2: потрібні всі обов'язкові справи
   const done = id => { (S.s.ex ||= { d: {}, done: {} }).done[id] = { w: 0, s: 2 }; };
   for (const id of ['niche', 'market', 'needs', 'mvp']) done(id);
-  S.s.canvas = { problem: 'Учні не розуміють домашку', segment: S.s.target, uvp: 'Пояснення за п’ять хвилин', solution: 'Застосунок', channels: 'Реклама' };
+  S.s.canvas = { problem: 'Учні не розуміють домашку', segment: S.s.target, uvp: 'Пояснення за п’ять хвилин', solution: ['photo'], channels: ['ads'] };
   i = syncStage(S);
   assert.equal(i.cur, 1); assert.ok(i.list[0].done);
   assert.ok(isOpen(S, 'brand') && !isOpen(S, 'pricing') && isOpen(S, 'ex-w5') && !isOpen(S, 'ex-swot'));

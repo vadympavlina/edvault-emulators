@@ -95,7 +95,7 @@ test('кожну вправу можна заповнити й завершит�
     }
     assert.equal(exCount(S), exAll().length);
     // після виконання всього етапи обов'язкових справ пройдено, коли ще виконано бізнес-план
-    S.s.canvas = { problem: 'Учні не розуміють домашку', segment: S.s.target, uvp: 'Пояснення за п’ять хвилин', solution: 'Застосунок', channels: 'Реклама' };
+    S.s.canvas = { problem: 'Учні не розуміють домашку', segment: S.s.target, uvp: 'Пояснення за п’ять хвилин', solution: ['x'], channels: ['ads'] };
     const info = syncStage(S);
     assert.ok(info.allDone, `${idea}: усі етапи пройдено; не пройдено: ${info.list.filter(x => !x.done).map(x => x.t + ' ' + x.req.filter(r => !r.ok).map(r => r.t).join('/')).join('; ')}`);
     assert.equal(info.reached, 8);

@@ -422,7 +422,7 @@ body.wz-on .app { filter: blur(3px); }
   .hide-m { display: none; }
   /* одна колонка: спершу етап, далі наставниця й цифри, потім тиждень */
   .home { display: flex; flex-direction: column; align-items: stretch; } .home > .col { display: contents; }
-  .home .col > * { order: 4; } .home .stage-card { order: 1; } .home .mentor { order: 2; } .home .status { order: 3; }
+  .home .col > * { order: 4; } .home .mentor { order: 2; } .home .status { order: 3; }
 }
 @media (max-width: 960px) {
   .grid.g2, .mail, .sprint, .deck, .survey { grid-template-columns: 1fr; }
@@ -525,7 +525,7 @@ body.drop-on::after { content: 'Відпустіть файл, щоб відкр
 }
 body { background: var(--board) radial-gradient(var(--dot) 1.3px, transparent 1.3px) 0 0 / 24px 24px; }
 h1, h2, h3, h4, .pg-h h1, .md-h h2 { font-family: Rubik, 'Golos Text', sans-serif; font-weight: 700; letter-spacing: 0; }
-.hand, .hand-s, .stamp, .here, .road .l { font-family: Caveat, 'Golos Text', cursive; }
+.hand, .hand-s { font-family: Caveat, 'Golos Text', cursive; }
 
 /* кнопки: контур і тінь, при натисканні «втискаються» */
 .btn { font-family: Rubik, sans-serif; font-weight: 600; border: 2px solid var(--ink); border-radius: 12px; box-shadow: var(--press); background: #fff; color: var(--ink); }
@@ -551,26 +551,6 @@ h1, h2, h3, h4, .pg-h h1, .md-h h2 { font-family: Rubik, 'Golos Text', sans-seri
 .btn.end-week:hover:not(:disabled) { background: var(--tan); }
 .more-pop { border: 2px solid var(--ink); box-shadow: 0 5px 0 var(--ink); }
 
-/* доріжка-мапа */
-.road { background: transparent; border: 0; padding: 0 12px; }
-.road .map { position: relative; max-width: 1240px; height: 132px; margin: 30px auto 0; }
-.road svg.path { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.road path { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; }
-.road path.todo { stroke: #8a95a8; stroke-width: 3.5; stroke-dasharray: 2 12; }
-.road path.done { stroke: var(--ok); stroke-width: 7; }
-.road ol { list-style: none; margin: 0; padding: 0; }
-.road li { position: absolute; transform: translate(-50%, -50%); }
-.road button { display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; color: var(--ink); }
-.road button:disabled { opacity: 1; cursor: default; }
-.road .c { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font: 700 18px Rubik, sans-serif; border: 2px solid var(--ink); background: #fff; box-shadow: 0 3px 0 var(--ink); transition: transform .12s; }
-.road li.done .c { background: var(--ok); color: #fff; }
-.road li.cur .c { background: var(--acc); color: #fff; width: 54px; height: 54px; font-size: 22px; }
-.road li.open .c { background: var(--sky); }
-.road li.lock .c { border-color: #a7b1c0; box-shadow: 0 3px 0 #a7b1c0; color: #8a95a8; }
-.road .l { font-size: 21px; font-weight: 700; line-height: 1; background: var(--board); padding: 0 6px; border-radius: 6px; white-space: nowrap; }
-.road li.lock .l { color: #586375; }
-.road button:not(:disabled):hover .c { transform: translateY(-2px); }
-.road .here { position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%) rotate(-4deg); background: var(--yel); font-size: 19px; font-weight: 700; padding: 0 10px; white-space: nowrap; box-shadow: 0 6px 10px -6px rgba(0,0,0,.45); }
 
 /* вкладки */
 .navtabs { position: static; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; border: 0; padding: 4px 12px 0; }
@@ -603,25 +583,8 @@ h1, h2, h3, h4, .pg-h h1, .md-h h2 { font-family: Rubik, 'Golos Text', sans-seri
 .opt.on, .seg-ctl button.on { border-color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
 .tbl th { text-transform: none; letter-spacing: 0; font-size: 12.5px; }
 
-/* головна: заголовок етапу, стікери, тиждень, наставниця */
+/* головна: тиждень, наставниця */
 .home { gap: 26px; }
-.stage-card { margin-bottom: 26px; }
-.stage-card h1 { font-size: 30px; line-height: 1.15; margin: 2px 0 6px; }
-.stage-card .lead { max-width: 64ch; margin-bottom: 0; }
-.stage-n { font: 700 22px Caveat, cursive; color: var(--tx2); }
-.notes { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin: 22px 0 6px; padding: 0; }
-.note-x, .notes .note { position: relative; padding: 24px 16px 16px; min-height: 186px; display: flex; flex-direction: column; gap: 6px; border: 0; border-radius: 2px; margin: 0; font-size: 14px; color: #2f3a4d; box-shadow: 0 10px 18px -12px rgba(29,36,51,.55); background: var(--yel); }
-.notes .note:nth-child(1) { background: var(--mint); transform: rotate(-1.2deg); }
-.notes .note:nth-child(2) { background: var(--yel); transform: rotate(.9deg); }
-.notes .note:nth-child(3) { background: var(--pink); transform: rotate(-.5deg); }
-.notes .note::before { content: ''; position: absolute; top: -10px; left: 50%; width: 68px; height: 22px; margin-left: -34px; background: rgba(255,255,255,.72); transform: rotate(-3deg); }
-.notes .st { font: 600 13px Rubik, sans-serif; display: flex; gap: 5px; align-items: center; color: #8a5a00; }
-.notes .note.ok .st { color: #166b3a; }
-.notes .note b { font: 700 17px/1.25 Rubik, sans-serif; color: var(--ink); }
-.notes .note.ok b { color: #4b5a52; }
-.notes .note .btn, .notes .stamp { margin-top: auto; align-self: flex-start; }
-.notes .stamp { font-size: 23px; font-weight: 700; color: #166b3a; border: 2px solid #166b3a; border-radius: 8px; padding: 0 10px; transform: rotate(-6deg); line-height: 1.3; }
-.next-open { display: flex; align-items: center; gap: 6px; margin-top: 12px; }
 .pin { position: relative; background: #fff; border-radius: 4px; padding: 22px 20px 18px; margin-bottom: 26px; box-shadow: 0 12px 24px -16px rgba(29,36,51,.6), 0 0 0 1px rgba(29,36,51,.06); }
 .pin::before { content: ''; position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #E5484D; box-shadow: inset -3px -3px 0 rgba(0,0,0,.22); }
 .pin.status { transform: rotate(.6deg); }
@@ -676,29 +639,20 @@ h1, h2, h3, h4, .pg-h h1, .md-h h2 { font-family: Rubik, 'Golos Text', sans-seri
 .passport dt { color: var(--tx3); } .passport dd { margin: 0; }
 .tbl td.ok { color: var(--ok); font-weight: 600; } .tbl td.warn { color: #b45309; font-weight: 600; }
 
-@media (max-width: 1180px) { .notes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 960px) {
-  .road .map { height: 104px; }
-  .road .l { display: none; } .road li.cur .l { display: block; }
-  .road .c { width: 38px; height: 38px; font-size: 15px; } .road li.cur .c { width: 46px; height: 46px; font-size: 19px; }
-  .notes { grid-template-columns: 1fr; gap: 18px; } .notes .note { min-height: 0; }
   .hcols { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 16px; }
 }
 @media (max-width: 640px) {
   .top { width: calc(100% - 16px); margin-top: 8px; }
-  .stage-card h1 { font-size: 24px; }
-  .road .map { margin: 30px 16px 0; }
   .wz-three { grid-template-columns: 1fr; }
   .passport { grid-template-columns: 1fr; }
 }
-@media (prefers-reduced-motion: reduce) { .road .c, .hcol .tube i, .btn { transition: none; } .btn:active:not(:disabled) { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .hcol .tube i, .btn { transition: none; } .btn:active:not(:disabled) { transform: none; } }
 @media print { body { background: #fff; } .card, .kpi { box-shadow: none; } }
 
 /* ═════════════ Читабельність: контраст ≥ 4,5:1, текст не дрібніший за 12 px, цілі для пальця ═════════════ */
 small { font-size: max(12.5px, .85em); }
 .tab .badge, .tab.on .badge { background: var(--tan); color: var(--ink); font-size: 12.5px; }
-.notes .st { color: #6b4600; }
-.notes .note small { font-size: 13px; line-height: 1.4; }
 .hcol small { font-size: 12.5px; }
 .tp-s small { font-size: 12px; }
 .tp-brand { flex: none; }
@@ -730,3 +684,5 @@ body.simple .adv { display: none; }
 .wk-say .ic { flex: none; margin-top: 2px; color: var(--acc-tx); }
 .sheet .card-h .row { flex-wrap: wrap; justify-content: flex-end; }
 @media (max-width: 640px) { .view-hint { flex-wrap: wrap; } .view-hint .btn { margin-left: 30px; } }
+
+.road { padding: 0 12px; }

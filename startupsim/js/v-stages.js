@@ -2,7 +2,7 @@
 import { icon } from './icons.js';
 import { esc } from './ui.js';
 import { STAGES } from './stages.js';
-import { stars, exStars, goalNow } from './ex-core.js';
+import { stars, exStars, goalNow, exAll, exDone, X, STAGE_T, exCount } from './ex-core.js';
 
 const plural = (n, a, b, c) => { const m = n % 100, k = m % 10; return m > 10 && m < 20 ? c : k === 1 ? a : k >= 2 && k <= 4 ? b : c; };
 
@@ -51,4 +51,20 @@ export function goalCard(S) {
   const { g, M, now, pct, left, status } = q;
   const msg = status === 'done' ? 'Ціль досягнуто. Поставте нову, амбітнішу.' : status === 'late' ? 'Термін минув. Проаналізуйте, що завадило, і поставте нову ціль.' : `Лишилось ${Math.max(0, left)} ${plural(Math.max(0, left), 'тиждень', 'тижні', 'тижнів')}`;
   return `<section class="goalcard ${status}" aria-label="SMART-ціль"><span class="ex-ic">${icon(status === 'done' ? 'check' : 'flag', 22)}</span><div class="gb"><small>Ваша SMART-ціль</small><b>${esc(g.text)}</b><div class="x-bar" role="meter" aria-valuenow="${Math.round(pct * 100)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct * 100}%"></i></div><small>Зараз: ${esc(M.fmt(now))} · ${msg}</small></div><button class="btn sm" data-act="go" data-to="ex-smart">Змінити</button></section>`;
+}
+
+// короткий результат вправи для підсумкового звіту й файлу
+const list = a => a.filter(Boolean).join(', ');
+const SUMM = {
+  niche: (S, d) => d.pickName && `ніша: ${d.pickName}`, w5: (S, d) => { const m = d.segs?.find(x => x.id === d.main); return m && `головний сегмент: ${m.name}`; }, strategy: (S, d) => d.goal && `мета: ${d.goal}`,
+  smart: (S, d) => S.s.goal?.text, logo: (S, d) => d.name && `знак для «${d.name}»`, usp: (S, d) => d.pick && d[d.pick] && 'унікальну пропозицію записано в бізнес-план', naming: (S, d) => d.final && `назва: ${d.final}`,
+  price: (S, d) => d.final && `ціна ${Math.round(d.final).toLocaleString('uk-UA')} ₴`, sources: (S, d) => `потреба ${Math.round(d.need).toLocaleString('uk-UA')} ₴`, assort: (S, d) => d.items && `варіантів: ${d.items.length}`,
+  channels: (S, d) => d.sel && `канали: ${d.sel.length}`, leadership: (S, d) => d.mine && ({ a: 'авторитарний', d: 'демократичний', l: 'ліберальний', c: 'коучинг' }[d.mine] || ''), hiring: (S, d) => d.pick && `обрано кандидата: ${d.pick}`,
+  exchanges: (S, d) => d.pick && `старт: ${({ global: 'міжнародна біржа', ua: 'українська біржа', social: 'соцмережі', direct: 'прямі замовники', market: 'маркетплейс' })[d.pick] || d.pick}`, fop: (S, d) => d.form && `форма: ${d.form === 'fop' ? 'ФОП' : 'ТОВ'}`,
+  portfolio: (S, d) => d.al && `інструментів у портфелі: ${Object.values(d.al).filter(v => v > 0).length}`,
+};
+export function exSummary(S) {
+  const n = exCount(S); if (!n) return '';
+  const rows = STAGE_T.map((t, i) => { const ex = exAll().filter(e => e.stage === i && exDone(S, e.id)); return ex.length ? `<tr><th scope="row">${i + 1}. ${esc(t)}</th><td>${ex.map(e => { const r = SUMM[e.id]?.(S, X(S, e.id)); return `<div class="xsr"><b>${esc(e.t)}</b>${r ? ` <span class="muted">· ${esc(r)}</span>` : ''} ${stars(exStars(S, e.id))}</div>`; }).join('')}</td></tr>` : ''; }).join('');
+  return `<section class="card"><header class="card-h"><h3>${icon('award')} Вправи етапів</h3><span class="chip ok">${n} з ${exAll().length}</span></header><table class="tbl xrep"><tbody>${rows}</tbody></table></section>`;
 }

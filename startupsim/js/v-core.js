@@ -6,7 +6,7 @@ import { assumptionsVsReality, marketVsGuess, KINDS, SCOPES } from './custom.js'
 import { icon } from './icons.js';
 import { esc, nl2br, term, lineChart, delta, logo } from './ui.js';
 import { stageInfo } from './stages.js';
-import { stageRail, stageSheet, goalCard } from './v-stages.js';
+import { stageRail, stageSheet, goalCard, exSummary } from './v-stages.js';
 
 const HOUR_ROWS = [
   ['product', 'Продукт', 'code', 'Робите продукт своїми руками'],
@@ -165,6 +165,7 @@ export function report(S) {
       <div class="kpi"><span class="kpi-l">Команда</span><b>${s.team.length + 1} ${plural(s.team.length + 1, 'людина', 'людини', 'людей')}</b></div>
     </div>
     <section class="card"><header class="card-h"><h3>Бізнес-план (Lean Canvas)</h3></header><div class="canvas ro">${Object.keys(CANVAS).map(block).join('')}</div></section>
+    ${exSummary(S)}
     <div class="grid g2">
       <section class="card"><header class="card-h"><h3>Гроші</h3></header>${lineChart([{ v: h.map(x => x.cash), color: 'var(--acc)', label: 'Гроші', area: true }], { labels, fmt: x => money(x).replace(' ₴', '') })}</section>
       <section class="card"><header class="card-h"><h3>Користувачі</h3></header>${lineChart([{ v: h.map(x => x.users), color: '#0ea5e9', label: 'Активні' }, { v: h.map(x => x.paid), color: '#16a34a', label: 'Платні' }], { labels, fmt: num })}</section>

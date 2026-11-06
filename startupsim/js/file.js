@@ -3,6 +3,8 @@
 // стан інтерфейсу й короткий підсумок, який викладач може прочитати навіть у блокноті.
 import { okState, money, num, pct, dateText, WEEKS } from './sim.js';
 import { checksum, translit, slug } from '../../shared/savefile.js';
+import { exCount, exAll } from './ex-core.js';
+import { STAGES } from './stages.js';
 export { checksum, translit };
 
 export const FILE_APP = 'edvault-startup';
@@ -26,6 +28,8 @@ export function summaryOf(S) {
     'Оцінка компанії': money(S.valuation()),
     'Частка учня': pct(S.stake(), 1),
     "Інтерв'ю з клієнтами": String(Object.values(s.know).reduce((a, k) => a + k.n, 0)),
+    'Етап шляху': `${Math.min((s.flags.st9 || 0) + 1, STAGES.length)} з ${STAGES.length}: ${STAGES[Math.min(s.flags.st9 || 0, STAGES.length - 1)].t}`,
+    'Виконано вправ': `${exCount(S)} з ${exAll().length || 0}`,
     'Досягнення': String(Object.keys(s.ach).length),
     'Записів у журналі рішень': String((s.journal || []).length),
   };

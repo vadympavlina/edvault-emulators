@@ -51,6 +51,7 @@ reg({
     if (len(d.why) < 25) return { ok: false, msg: 'Поясніть свій вибір хоча б двома реченнями' };
     return { ok: true, stars: 1 + (d.own.length ? 1 : 0) + (len(d.why) >= 90 || d.w.length ? 1 : 0), pick: pick?.t };
   },
+  finish(S, d) { d.pickName = nicheRows(S, d).find(r => r.id === d.pick)?.t || ''; },
 });
 
 /* ═════════ Ринок і конкуренти ═════════ */

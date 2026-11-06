@@ -11,9 +11,10 @@ export const reg = (...defs) => defs.forEach(d => { EX[d.id] = d; });
 const R = S => (S.s.ex ||= { d: {}, done: {} });
 // дані вправи: створюються з початкових значень при першому відкритті
 export const X = (S, id) => (R(S).d[id] ||= EX[id]?.data ? EX[id].data(S) : {});
-export const exDone = (S, id) => !!R(S).done[id];
-export const exStars = (S, id) => R(S).done[id]?.s || 0;
-export const exCount = S => Object.keys(R(S).done).length;
+// читання не створює s.ex: інакше підрахунок змінював би стан гри
+export const exDone = (S, id) => !!S.s.ex?.done?.[id];
+export const exStars = (S, id) => S.s.ex?.done?.[id]?.s || 0;
+export const exCount = S => Object.keys(S.s.ex?.done || {}).length;
 export const exAll = () => Object.values(EX);
 export const exOf = stage => exAll().filter(e => e.stage === stage);
 
@@ -187,12 +188,12 @@ export function installEx(C) {
     if (!drag || e.pointerId !== drag.pid) return;
     const mx = e.clientX - drag.x0, my = e.clientY - drag.y0;
     if (!drag.moved && Math.hypot(mx, my) < 5) return;
-    drag.moved = true; drag.el.classList.add('dragging'); drag.el.style.transform = `translate(${mx}px, ${my}px)`;
+    drag.moved = true; drag.el.classList.add('dragging'); drag.el.style.setProperty('--dx', mx + 'px'); drag.el.style.setProperty('--dy', my + 'px');
     const z = zoneAt(e.clientX, e.clientY); document.querySelectorAll('[data-drop].over').forEach(n => n !== z && n.classList.remove('over')); z?.classList.add('over');
   });
   const end = e => {
     if (!drag || e.pointerId !== drag.pid) return;
-    const dd = drag; drag = null; dd.el.classList.remove('dragging'); dd.el.style.transform = '';
+    const dd = drag; drag = null; dd.el.classList.remove('dragging'); dd.el.style.removeProperty('--dx'); dd.el.style.removeProperty('--dy');
     document.querySelectorAll('[data-drop].over').forEach(n => n.classList.remove('over'));
     if (!dd.moved || e.type === 'pointercancel') return;
     const z = zoneAt(e.clientX, e.clientY), def = EX[dd.ex]; if (!z || !def?.drop) return;

@@ -34,23 +34,25 @@ await step('майстер: без імені й назви далі не пус
   assert.equal(await p.getAttribute('[data-w="mode"][data-v="simple"]', 'aria-pressed'), 'true', 'простий режим — за замовчуванням');
   await p.click('[data-w="mode"][data-v="full"]'); // цей тест перевіряє всі розділи, тож повний режим
   await p.click('[data-w="next"]');
-  await p.waitForSelector('#main .stage-card');
+  await p.waitForSelector('#main .ws');
   const s = await S();
   assert.equal(s.flags.simple, false);
   assert.equal(s.idea, 'booking'); assert.equal(s.founder.bg, 'sales'); assert.equal(s.company.name, 'Записатись'); assert.equal(s.cash, 450000);
   assert.match(await p.locator('.top').innerText(), /Записатись/);
-  // етап 1: три завдання, наступні етапи закриті
-  assert.equal(await p.locator('.road li.cur').count(), 1);
-  assert.match(await p.locator('.road li.cur').innerText(), /Клієнти/);
-  assert.equal(await p.locator('.stage-card .notes .note').count(), 3);
-  assert.equal(await p.locator('.road .here').count(), 1);
+  // етап 1 із дев'яти: п'ять обов'язкових справ, решта етапів закриті
+  assert.equal(await p.locator('.rail .rs.cur').count(), 1);
+  assert.match(await p.locator('.rail .rs.cur').innerText(), /Ніша й продукт/);
+  assert.equal(await p.locator('.rail .rs').count(), 9);
+  assert.equal(await p.locator('.rail .rs.lock').count(), 8);
+  assert.equal(await p.locator('.ws > .steps > .step').count(), 5);
   assert.equal(await p.locator('.navtabs .tab').count(), 5);
 });
 
 await step('етапи: розділ наступного етапу закритий, але його можна відкрити вручну', async () => {
   await p.click('.tab[data-k="market"]');
   assert.match(await p.locator('.pg-h').innerText(), /Клієнти/);
-  assert.equal(await p.locator('.st-it.locked[data-to="product"]').count(), 1);
+  assert.equal(await p.locator('.st-it.locked[data-to="brand"]').count(), 1);
+  assert.equal(await p.locator('.st-it.locked[data-to="product"]').count(), 0, 'продукт відкрито вже на першому етапі');
   await p.click('.st-it[data-to="brand"]');
   await p.waitForSelector('.md.confirm');
   assert.match(await p.locator('.md.confirm').innerText(), /етапі 2/);
@@ -65,7 +67,7 @@ await step('етапи: розділ наступного етапу закри�
   await p.waitForSelector('.md.confirm', { state: 'detached' });
   assert.match(await p.locator('.pg-h').innerText(), /Бренд/);
   await p.click('.tab[data-k="home"]');
-  await p.waitForSelector('#main .stage-card');
+  await p.waitForSelector('#main .ws');
 });
 
 await step('план тижня: стовпчики й кнопки годин оновлюють суму, фокус лишається на кнопці', async () => {
@@ -220,7 +222,7 @@ await step('кілька тижнів поспіль, звіт і збереже
   await go('report');
   assert.match(await p.locator('.report').innerText(), /Записатись[\s\S]*Lean Canvas/);
   await p.reload();
-  await p.waitForSelector('#main .stage-card, #main .pg-h');
+  await p.waitForSelector('#main .ws, #main .pg-h');
   assert.equal((await S()).week, week);
   assert.equal((await S()).flags.reportMade, true);
 });
@@ -247,7 +249,7 @@ await step('файл: зберегти всю гру у файл і відкри
   await q.waitForSelector('.md.file-open');
   assert.match(await q.locator('.md.file-open').innerText(), /Файл цілий/);
   await q.click('.md.file-open [data-f="play"]');
-  await q.waitForSelector('#main .stage-card, #main .pg-h');
+  await q.waitForSelector('#main .ws, #main .pg-h');
   assert.equal(await q.locator('.wizard').count(), 0);
   const back = await q.evaluate(() => JSON.parse(JSON.stringify(window.Startup.sim.s)));
   assert.deepEqual(back, cur, 'гра відновилась повністю');
@@ -280,7 +282,7 @@ await step('телефон: вкладки, етапи й розділи без 
   await m.goto(server.url + '/startup');
   await m.evaluate(() => localStorage.clear()); await m.reload();
   await m.click('[data-w="next"]'); await m.click('[data-w="next"]'); await m.fill('[data-w="name"]', 'Ія'); await m.click('[data-w="next"]'); await m.fill('[data-w="company"]', 'Тест'); await m.click('[data-w="next"]'); await m.click('[data-w="next"]');
-  await m.waitForSelector('#main .stage-card');
+  await m.waitForSelector('#main .ws');
   assert.equal(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, 'головна без горизонтальної прокрутки');
   await m.click('.tab[data-k="market"]');
   assert.match(await m.locator('.pg-h').innerText(), /Клієнти/);
@@ -324,7 +326,7 @@ await step('власна ідея: конструктор у майстрі, п�
   await q.fill('[data-w="name"]', 'Остап'); await q.click('[data-w="next"]');
   await q.fill('[data-w="company"]', 'КнигоОбмін'); await q.click('[data-w="next"]');
   await q.click('[data-w="next"]');
-  await q.waitForSelector('#main .stage-card');
+  await q.waitForSelector('#main .ws');
   const s = await q.evaluate(() => JSON.parse(JSON.stringify(window.Startup.sim.s)));
   assert.equal(s.idea, 'custom'); assert.equal(s.custom.t, 'Обмін книжками');
   assert.deepEqual(Object.values(s.custom.segments).map(g => g.t), ['Школярі', 'Шкільні бібліотеки']);
@@ -334,7 +336,7 @@ await step('власна ідея: конструктор у майстрі, п�
   assert.match(await q.locator('#main').innerText(), /Школярі[\s\S]*Шкільні бібліотеки/);
   await q.evaluate(() => window.Startup.C.go('report'));
   assert.match(await q.locator('.report').innerText(), /Ваші припущення ↔ реальність[\s\S]*Каталог книжок/);
-  await q.reload(); await q.waitForSelector('#main .stage-card, #main .pg-h');
+  await q.reload(); await q.waitForSelector('#main .ws, #main .pg-h');
   assert.equal(await q.evaluate(() => window.Startup.sim.I.t), 'Обмін книжками');
   // ідея запам'ятовується: нова гра пропонує її доопрацювати
   assert.equal(await q.evaluate(() => JSON.parse(localStorage.getItem('edvault-startup-idea')).name), 'Обмін книжками');
@@ -364,7 +366,7 @@ await step('простий режим: складне сховано, підка
   const h = (await S()).hours;
   assert.equal(Object.values(h).reduce((a, b) => a + b, 0), 50);
   // кнопка завдання переводить у розділ і підсвічує, що натиснути
-  const btn = p.locator('.notes .note:not(.ok) [data-hl]').first();
+  const btn = p.locator('.ws .step:not(.ok) [data-hl]').first();
   if (await btn.count()) { await btn.click(); await p.waitForSelector('.flash'); }
   await p.click('[data-act="more"]'); await p.click('.more-pop [data-act="simple"]');
   assert.equal((await S()).flags.simple, false);
