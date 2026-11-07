@@ -24,7 +24,7 @@ const ALTS = [
 const nicheRows = (S, d) => [{ id: 'me', t: S.I.t, s: d.me, mine: true }, ...ALTS.map(a => ({ ...a, s: d.alt[a.id] })), ...d.own.map((o, i) => ({ id: 'own' + i, i, t: o.t, s: o.s, own: true }))];
 const nicheScore = (s, w) => { const ws = CRIT.map(([k]) => (w.includes(k) ? 2 : 1)); return sumOf(CRIT.map(([k], i) => s[k] * ws[i])) / (5 * sumOf(ws)); };
 reg({
-  id: 'niche', stage: 0, t: 'Оцініть нішу', d: 'Оцініть свою ідею за п’ятьма критеріями й порівняйте з іншими нішами.', icon: 'compass', min: 10,
+  id: 'niche', stage: 0, ord: 1, t: 'Оцініть нішу', d: 'Оцініть свою ідею за п’ятьма критеріями й порівняйте з іншими нішами.', icon: 'compass', min: 10,
   intro: `${term('Ніша', 'Ніша')} — вузька частина ринку, де ви можете стати найкращим. Оцініть свою ідею, порівняйте з іншими й додайте власну нішу. Немає «правильних» цифр: важливо, щоб ви могли пояснити свій вибір.`,
   data: () => ({ me: { need: 3, size: 3, comp: 3, skill: 3, money: 3 }, alt: Object.fromEntries(ALTS.map(a => [a.id, { ...a.s }])), own: [], w: [], touched: 0, pick: 'me', why: '' }),
   onSet: (S, d, p) => { if (/^(me|alt|own)\./.test(p)) d.touched = (d.touched || 0) + 1; },
@@ -54,81 +54,10 @@ reg({
   finish(S, d) { d.pickName = nicheRows(S, d).find(r => r.id === d.pick)?.t || ''; },
 });
 
-/* ═════════ Ринок і конкуренти ═════════ */
-const AXES = { pq: ['Ціна', 'нижча', 'вища', 'Якість і зручність', 'вища', 'нижча'], sf: ['Простота', 'складніше', 'простіше', 'Можливості', 'більше', 'менше'], sp: ['Швидкість', 'повільніше', 'швидше', 'Персональний підхід', 'більше', 'менше'] };
-// вільна ділянка карти: клітинка, найвіддаленіша від усіх точок
-const gapCell = pts => { let best = null; for (let i = 0; i < 6; i++) for (let j = 0; j < 4; j++) { const x = (i + .5) / 6, y = (j + .5) / 4, m = Math.min(...pts.map(p => Math.hypot((p.x - x) * 1.3, p.y - y))); if (!best || m > best.m) best = { x: i / 6, y: j / 4, m }; } return best; };
-reg({
-  id: 'market', stage: 0, t: 'Ринок і конкуренти', d: 'Нанесіть конкурентів на карту й знайдіть вільне місце.', icon: 'search', min: 12,
-  intro: `Ви не перші: клієнти вже якось розв’язують свою проблему. Нанесіть конкурентів на ${term('Карта позиціонування', 'карту позиціонування')}, запишіть їхні сильні й слабкі сторони та знайдіть місце, яке ніхто не займає.`,
-  data: S => ({ ax: 'pq', comps: S.I.competitors.map((c, i) => ({ t: c.t, price: c.price || 0, x: clamp((c.price || 0) / 3200, .08, .92), y: .22 + (hash(c.t) % 55) / 100, plus: '', minus: '' })), me: { x: .5, y: .5, moved: false }, why: '' }),
-  view(S, d) {
-    const A = AXES[d.ax], pts = [...d.comps, ...(d.me.moved ? [d.me] : [])], gap = d.comps.length >= 3 ? gapCell(pts) : null;
-    const dot = (id, p, label, cls) => `<button type="button" class="pdot ${cls} ${p.x < .3 ? 'al' : p.x > .7 ? 'ar' : ''}" data-drag="${id}" data-ex="market" data-zone="map" data-fx="${p.x}" data-fy="${p.y}" style="left:${p.x * 100}%;top:${p.y * 100}%" aria-label="${esc(label)}. Стрілки зсувають точку"><i></i><span>${esc(label)}</span></button>`;
-    return `${box('Карта позиціонування', `<div class="xrow" style="margin-bottom:10px"><span class="xf-l">Осі:</span>${Object.entries(AXES).map(([k, a]) => xp('market', 'ax', k, `${a[0]} × ${a[3].toLowerCase()}`, d.ax === k)).join('')}</div>
-      <div class="pmapw"><span class="ay">${esc(A[3])}</span><div class="pmap" data-drop="map">${gap ? `<div class="pgap" style="left:${gap.x * 100}%;top:${gap.y * 100}%"><small>вільне місце</small></div>` : ''}
-        ${d.comps.map((c, i) => dot(i, c, c.t, 'comp')).join('')}${dot('me', d.me, 'Ми', 'me' + (d.me.moved ? '' : ' fresh'))}
-        <b class="pt">${esc(A[4])}</b><b class="pb">${esc(A[5])}</b></div><div class="axx"><small>${esc(A[1])}</small><span>${esc(A[0])}</span><small>${esc(A[2])}</small></div></div>
-      ${d.me.moved ? '' : tip('Перетягніть точку «Ми» туди, де ви хочете бути. Конкурентів теж можна пересувати: ви краще знаєте, де вони.')}`, { ic: 'target' })}
-    ${box('Конкуренти докладно', `<div class="xscroll"><table class="xtable cmp-t"><thead><tr><th>Конкурент</th><th>Ціна, ₴</th><th>Чим він добрий</th><th>Чим слабкий</th><th></th></tr></thead><tbody>
-      ${d.comps.map((c, i) => `<tr><td><b>${esc(c.t)}</b></td><td data-l="Ціна, ₴">${xnum('market', `comps.${i}.price`, d, { min: 0, max: 100000, step: 10 }).replace('<span class="xf-l"></span>', '')}</td><td data-l="Чим він добрий">${xin('market', `comps.${i}.plus`, d, { ph: 'Сильна сторона', max: 90 })}</td><td data-l="Чим слабкий">${xin('market', `comps.${i}.minus`, d, { ph: 'Слабка сторона', max: 90 })}</td><td>${xb('market', 'delComp', '', { i, ic: 'trash', cls: 'ib', title: 'Прибрати' })}</td></tr>`).join('')}</tbody></table></div>
-      ${d.comps.length < 8 ? `<div class="xadd" style="margin-top:12px"><input class="inp" id="market-new" maxlength="200" placeholder="Додайте конкурента або заміну: «просять у друзів», «роблять самі»…">${xb('market', 'addComp', 'Додати', { ic: 'plus' })}</div>` : ''}
-      <p class="sm muted" style="margin-top:8px">Конкурент — це не лише така сама компанія. Це будь-що, що клієнт робить зараз замість вашого продукту.</p>`, { ic: 'users', side: `${d.comps.length} ${d.comps.length === 1 ? 'конкурент' : 'конкурентів'}` })}
-    ${box('Ваше місце на ринку', `${xin('market', 'why', d, { label: 'Чим ви будете відрізнятися від них?', area: true, max: 300, ph: 'Ми різні тим, що…', hint: 'Спирайтеся на слабкі сторони конкурентів і вільне місце на карті.' })}`, { ic: 'flag' })}`;
-  },
-  acts: {
-    addComp(S, d) { const el = document.getElementById('market-new'), v = (el?.value || '').trim(); if (!v) { el?.focus(); return false; } d.comps.push({ t: v, price: 0, x: .5, y: .5, plus: '', minus: '' }); },
-    delComp(S, d, el) { d.comps.splice(+el.dataset.i, 1); },
-  },
-  drop(S, d, id, zone, { fx, fy }) { const p = id === 'me' ? d.me : d.comps[+id]; if (!p) return; p.x = +fx.toFixed(3); p.y = +fy.toFixed(3); if (id === 'me') p.moved = true; },
-  ready(S, d) {
-    // конкуренти необов'язкові: завершити можна й без них, але з ними вправа дає більше зірок
-    if (!d.me.moved) return { ok: false, msg: 'Поставте точку «Ми» на карту' };
-    if (len(d.why) < 25) return { ok: false, msg: 'Напишіть, чим ви відрізнятиметеся' };
-    const described = d.comps.filter(c => len(c.plus) || len(c.minus)).length;
-    return { ok: true, stars: 1 + (d.comps.length >= 3 ? 1 : 0) + (d.comps.length >= 3 && described >= 2 ? 1 : 0) };
-  },
-});
-
-/* ═════════ Потреби клієнтів ═════════ */
-const QUAD = [
-  ['says', 'Каже', 'Що людина говорить про проблему?', ['Це забирає купу часу', 'Це занадто дорого', 'Не знаю, з чого почати']],
-  ['thinks', 'Думає', 'Про що думає, але не каже вголос?', ['А раптом це не спрацює?', 'Інші справляються краще', 'Нема коли з цим розбиратися']],
-  ['does', 'Робить', 'Що робить зараз, щоб упоратися?', ['Питає в друзів', 'Шукає в інтернеті', 'Відкладає на потім']],
-  ['feels', 'Відчуває', 'Що її тривожить чи радує?', ['Роздратування', 'Тривогу', 'Полегшення, коли виходить']],
-];
-const talks = S => sumOf(Object.values(S.s.know).map(k => k.n));
-reg({
-  id: 'needs', stage: 0, t: 'Потреби клієнтів', d: 'Поговоріть із клієнтами й складіть карту емпатії.', icon: 'users', min: 15,
-  intro: `Продукт потрібен тим, хто має проблему. Щоб зрозуміти потреби, ${term('Mom Test', 'поговоріть з людьми')} (мінімум три розмови в розділі «Клієнти»), а потім складіть карту емпатії й сформулюйте головну потребу.`,
-  data: S => ({ seg: S.s.target, says: [], thinks: [], does: [], feels: [], jtbd: { when: '', want: '', so: '' } }),
-  view(S, d) {
-    const n = talks(S), seg = S.segIds.includes(d.seg) ? d.seg : S.s.target, ins = S.insight(seg), g = S.seg(seg);
-    const quad = ([k, t, q, ex]) => `<div class="quad ${k}"><h4>${t}</h4><small>${q}</small><ul class="xlist">${d[k].map((x, i) => `<li class="xitem"><span>${esc(x)}</span>${xb('needs', 'del', '', { p: k, i, ic: 'x', cls: 'ib', title: 'Прибрати' })}</li>`).join('')}</ul>
-      <div class="xadd"><input class="inp" id="nq-${k}" maxlength="280" placeholder="Додайте своє…" aria-label="${t}">${xb('needs', 'add', '', { p: k, from: '#nq-' + k, max: 8, ic: 'plus', cls: 'ib', title: 'Додати' })}</div>
-      <div class="xrow sg">${ex.filter(e => !d[k].includes(e)).map(e => `<button type="button" class="xchip" data-act="ex" data-ex="needs" data-do="addv" data-p="${k}" data-v="${esc(e)}">+ ${esc(e)}</button>`).join('')}</div></div>`;
-    return `${box('Що ви дізналися від клієнтів', `<div class="xg c3">${S.segIds.map(k => { const q = S.insight(k), gg = S.seg(k); return `<div class="seginfo ${k === seg ? 'on' : ''}"><b>${esc(gg.short)}</b>${q.n ? `<span>Розмов: <b>${q.n}</b></span><span>Наскільки болить: <b>${q.pain == null ? '—' : pc(q.pain)}</b> <small>(довіра: ${q.painConf})</small></span><span>Витрачають зараз: <b>${q.wtp ? money(q.wtp) : '—'}</b></span>${q.feats[0] ? `<span>Бракує найбільше: <b>${esc(S.feature(q.feats[0][0])?.t || '')}</b></span>` : ''}` : `<span class="muted">Розмов ще не було</span>`}</div>`; }).join('')}</div>
-      <div class="xrow" style="margin-top:12px"><span class="chip ${n >= 3 ? 'ok' : ''}">${n >= 3 ? icon('check', 14) : ''} Розмов: ${n} з 3</span>${n >= 3 ? '' : `<button class="btn sm primary" data-act="go" data-to="customers" data-hl='[data-act="interview"]'>Поговорити з клієнтами</button>`}${n < 3 ? '<small class="muted">Питайте про минуле й факти, а не «чи сподобається вам ідея»</small>' : ''}</div>`, { ic: 'chart' })}
-    ${box('Карта емпатії', `<div class="xrow" style="margin-bottom:12px"><span class="xf-l">Для кого:</span>${S.segIds.map(k => xp('needs', 'seg', k, esc(S.seg(k).short), seg === k)).join('')}</div><div class="xg c2 quads">${QUAD.map(quad).join('')}</div>`, { ic: 'heart', side: `записів: ${sumOf(QUAD.map(q => d[q[0]].length))}` })}
-    ${box('Головна потреба', `<p class="sub">Сформулюйте її так: «Коли… я хочу… щоб…». Це допоможе не плутати потребу з рішенням.</p><div class="xg c3">${xin('needs', 'jtbd.when', d, { label: 'Коли (ситуація)', ph: g.who?.[0] ? `Коли ${g.who[0]} сідає за…` : 'Коли…', max: 100 })}${xin('needs', 'jtbd.want', d, { label: 'Я хочу (дія)', ph: 'швидко зрозуміти…', max: 100 })}${xin('needs', 'jtbd.so', d, { label: 'Щоб (результат)', ph: 'не витрачати вечір на…', max: 100 })}</div>
-      <p class="jt">${d.jtbd.when || d.jtbd.want || d.jtbd.so ? `«Коли ${esc(d.jtbd.when || '…')}, я хочу ${esc(d.jtbd.want || '…')}, щоб ${esc(d.jtbd.so || '…')}.»` : ''}</p>`, { ic: 'flag' })}`;
-  },
-  acts: {
-    addv(S, d, el) { const p = el.dataset.p; if (d[p].length < 8 && !d[p].includes(el.dataset.v)) d[p].push(el.dataset.v); },
-  },
-  ready(S, d) {
-    const n = talks(S), notes = sumOf(QUAD.map(q => d[q[0]].length)), j = d.jtbd;
-    if (n < 3) return { ok: false, msg: `Проведіть ще ${3 - n} ${3 - n === 1 ? 'інтерв’ю' : 'інтерв’ю'} у розділі «Клієнти»` };
-    if (notes < 4 || QUAD.filter(q => d[q[0]].length).length < 3) return { ok: false, msg: 'Заповніть карту емпатії: хоча б 4 записи в трьох чвертях' };
-    if (len(j.when) < 5 || len(j.want) < 5 || len(j.so) < 5) return { ok: false, msg: 'Сформулюйте головну потребу: «коли… хочу… щоб…»' };
-    return { ok: true, stars: 1 + (notes >= 8 ? 1 : 0) + (n >= 6 ? 1 : 0) };
-  },
-});
-
 /* ═════════ Що в першу версію (MVP) ═════════ */
 const CLS = [['must', 'Обов’язково', 'без цього продукту немає'], ['should', 'Бажано', 'додамо, якщо вистачить сил'], ['could', 'Можна пізніше', 'приємний додаток'], ['wont', 'Не зараз', 'свідомо відкладаємо']];
 reg({
-  id: 'mvp', stage: 0, t: 'Що в першу версію', d: 'Розподіліть функції за важливістю й поставте обов’язкові в розробку.', icon: 'box', min: 12,
+  id: 'mvp', stage: 0, ord: 4, t: 'Що в першу версію', d: 'Розподіліть функції за важливістю й поставте обов’язкові в розробку.', icon: 'box', min: 12,
   intro: `${term('MVP', 'Перша версія (MVP)')} — найпростіше, що вже можна дати людям. Розкладіть функції за методом MoSCoW: що обов’язкове, що бажане, що можна відкласти. Обсяг першої версії має вміститися у ваш бюджет розробки.`,
   data: () => ({ cls: {}, budget: 30, applied: false }),
   view(S, d) {
@@ -157,7 +86,7 @@ reg({
 /* ═════════ Модель заробітку ═════════ */
 const MODEL_X = { free: { su: .4, pay: 1, arpu: 3, hint: 'Заробіток із реклами: 3 ₴ на місяць з користувача.' }, freemium: { su: .12, pay: .05, hint: 'Платить 5 із 100 зареєстрованих.' }, trial: { su: .06, pay: .35, hint: 'Реєструється менше, а платить третина.' }, device: { su: .015, pay: 1, once: true, hint: 'Платять одразу, але є собівартість товару.' }, b2b: { su: .004, pay: .5, mult: 25, hint: 'Клієнтів мало, зате кожен — це організація.' } };
 reg({
-  id: 'bmodel', stage: 0, opt: true, t: 'Модель заробітку', d: 'Порівняйте способи заробляти й оберіть свій.', icon: 'coins', min: 10,
+  id: 'bmodel', stage: 0, ord: 5, opt: true, t: 'Модель заробітку', d: 'Порівняйте способи заробляти й оберіть свій.', icon: 'coins', min: 10,
   intro: `${term('Бізнес-модель', 'Бізнес-модель')} відповідає на питання: хто платить, за що і як. Порівняйте умовні розрахунки для різних моделей на однакових відвідувачах і оберіть ту, що пасує вашій ідеї.`,
   data: S => ({ visitors: 2000, price: Math.round(S.seg().wtp * .8 / 10) * 10, pick: '', why: '', applied: false }),
   view(S, d) {

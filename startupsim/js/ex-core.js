@@ -16,7 +16,7 @@ export const X = (S, id) => (R(S).d[id] ||= EX[id]?.data ? EX[id].data(S) : {});
 export const exDone = (S, id) => !!S.s.ex?.done?.[id];
 export const exStars = (S, id) => S.s.ex?.done?.[id]?.s || 0;
 export const exCount = S => Object.keys(S.s.ex?.done || {}).length;
-export const exAll = () => Object.values(EX);
+export const exAll = () => Object.values(EX).sort((a, b) => (a.ord || 0) - (b.ord || 0));
 export const exOf = stage => exAll().filter(e => e.stage === stage);
 
 /* ═════════ шляхи в об'єкті ═════════ */

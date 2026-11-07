@@ -13,6 +13,7 @@ import { STAGES, stageInfo, viewStage, isOpen, unlock, syncStage, ADVANCED_VIEWS
 import { stageBar } from './v-stages.js';
 import { exViews, exActs, installEx, goalNow, STAGE_T, exOf, exDone, exStars, stars } from './ex-core.js';
 import './ex1.js';
+import './ex-need.js';
 import './ex1b.js';
 import './ex-brand.js';
 import './ex2.js';

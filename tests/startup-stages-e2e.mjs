@@ -64,18 +64,35 @@ await step('збереження: текст, який щойно набрали
   assert.equal((await S()).ex.done.niche != null, true, 'виконані вправи теж на місці');
 });
 
-await step('перетягування: точку «Ми» можна перенести мишею й зсунути стрілками', async () => {
-  await p.evaluate(() => window.scrollTo(0, 0));
-  const dot = p.locator('.pdot.me'), map = p.locator('.pmap'), mb = await map.boundingBox(), db = await dot.boundingBox();
-  const sx = db.x + db.width / 2, sy = db.y + db.height / 2;
-  await p.mouse.move(sx, sy); await p.mouse.down(); await p.mouse.move(mb.x + mb.width * .8, mb.y + mb.height * .2, { steps: 8 }); await p.mouse.up();
-  const me = (await S()).ex.d.market.me;
-  assert.equal(me.moved, true); assert.ok(me.x > .65 && me.y < .35, `координати ${me.x}/${me.y}`);
-  await p.locator('.pdot.me').focus(); await p.keyboard.press('ArrowLeft');
-  const me2 = (await S()).ex.d.market.me;
-  assert.ok(Math.abs(me2.x - (me.x - .05)) < .001, 'стрілка зсуває на 5%');
-  // пересування дрібної цілі не зламало «вільне місце»
-  assert.ok(await p.locator('.pgap').count() >= 1);
+await step('конкуренти: додати конкурента, оцінити кружечками, підказка фрази, порівняння', async () => {
+  await go('ex-market');
+  const n0 = (await S()).ex.d.market.comps.length;
+  await p.click('.xchip:has-text("Роблять самі")');
+  assert.equal((await S()).ex.d.market.comps.length, n0 + 1);
+  await p.fill('#market-new', 'Власний сервіс'); await p.click('[data-do="addComp"]:not(.xchip)');
+  assert.equal((await S()).ex.d.market.comps.length, n0 + 2);
+  await p.click('.rcard.me .rrow:nth-of-type(1) .rdot >> nth=4');
+  assert.equal((await S()).ex.d.market.me.r.price, 5, 'оцінка кружечком');
+  assert.match(await p.locator('.cmpv').innerText(), /Ціна для клієнта/);
+  await p.click('[data-do="hint"]');
+  assert.match((await S()).ex.d.market.why, /^На відміну від «/);
+  await p.click('[data-do="delComp"] >> nth=0');
+  assert.equal((await S()).ex.d.market.comps.length, n0 + 1);
+});
+
+await step('що болить клієнтам: болі з оцінками, спосіб зараз, головна потреба', async () => {
+  await go('ex-needs');
+  await p.click('.xchip:has-text("Це дорого")'); await p.click('.xchip:has-text("Це забирає багато часу")');
+  let d = (await S()).ex.d.needs; assert.equal(d.pains.length, 2);
+  await p.click('.pli >> nth=1 >> .rdot >> nth=4'); await p.click('.pli >> nth=1 >> .xp:has-text("Щодня")');
+  d = (await S()).ex.d.needs; assert.equal(d.pains[1].s, 5); assert.equal(d.pains[1].f, 'often');
+  assert.match(await p.locator('.big-pain').innerText(), /Це забирає багато часу/, 'головна проблема — з найвищою важливістю');
+  await p.click('.xp:has-text("списую")'); assert.equal((await S()).ex.d.needs.now.length, 1);
+  await p.click('[data-do="fill"]');
+  const j = (await S()).ex.d.needs.jtbd; assert.ok(j.when.length > 5 && j.want.length > 5 && j.so.length > 5, 'потреба підставлена');
+  assert.match(await p.locator('.jt').innerText(), /Коли .*, я хочу .*, щоб /);
+  await p.click('.ex-foot .btn.primary'); await p.waitForSelector('#main .ws');
+  assert.ok((await S()).ex.done.needs, 'вправа виконана');
 });
 
 await step('канали: клітинки календаря перемикаються, підсумок рахується', async () => {

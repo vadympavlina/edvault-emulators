@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { newGame, okState, Sim } from '../startupsim/js/sim.js';
 import { packGame, unpackGame } from '../startupsim/js/file.js';
 
-await Promise.all(['ex1', 'ex1b', 'ex-brand', 'ex2', 'ex3', 'ex3b', 'ex4', 'ex5', 'ex6', 'ex7', 'ex8', 'ex9'].map(m => import(`../startupsim/js/${m}.js`)));
+await Promise.all(['ex1', 'ex-need', 'ex1b', 'ex-brand', 'ex2', 'ex3', 'ex3b', 'ex4', 'ex5', 'ex6', 'ex7', 'ex8', 'ex9'].map(m => import(`../startupsim/js/${m}.js`)));
 const { EX, X, exDone, exCount, exPage, exAll } = await import('../startupsim/js/ex-core.js');
 const { STAGES, stageInfo, syncStage, isOpen } = await import('../startupsim/js/stages.js');
 const { stageRail, stageSheet, stageBar, goalCard } = await import('../startupsim/js/v-stages.js');
@@ -18,8 +18,8 @@ const SW = ['S', 'W', 'O', 'T'];
 // Заповнює вправу так, щоб її можна було завершити
 const FILL = {
   niche: (S, d) => { d.touched = 3; d.why = long; },
-  market: (S, d) => { while (d.comps.length < 3) d.comps.push({ t: 'Ще один', price: 0, x: .5, y: .5, plus: '', minus: '' }); d.comps.forEach(c => { c.plus = 'зручно'; c.minus = 'дорого'; }); d.me.moved = true; d.why = long; },
-  needs: (S, d) => { S.s.know[S.segIds[0]].n = 3; d.says = ['а', 'б']; d.thinks = ['в']; d.does = ['г']; d.feels = ['д']; d.jtbd = { when: 'вечір перед контрольною', want: 'швидко зрозуміти', so: 'не втрачати вечір' }; },
+  market: (S, d) => { while (d.comps.length < 3) d.comps.push({ t: 'Ще один', type: 'sub', price: 0, r: {}, plus: '', minus: '' }); d.comps.forEach(c => { c.plus = 'зручно'; c.minus = 'дорого'; }); d.t = 3; d.why = long; },
+  needs: (S, d) => { S.s.know[S.segIds[0]].n = 3; d.pains = [{ t: 'Не розумію тему', s: 4, f: 'often' }, { t: 'Це дорого', s: 3, f: 'some' }, { t: 'Немає кому допомогти', s: 2, f: 'rare' }]; d.now = ['питаю друзів']; d.jtbd = { when: 'вечір перед контрольною', want: 'швидко зрозуміти', so: 'не втрачати вечір' }; },
   mvp: (S, d) => { Object.entries(S.I.features).forEach(([id, f], i) => { d.cls[id] = f.core || f.pay ? 'must' : i < 7 ? 'should' : 'could'; }); d.applied = true; d.budget = 80; },
   bmodel: (S, d) => { d.pick = S.I.models[0]; d.why = long; },
   w5: (S, d) => { while (d.segs.length < 2) d.segs.push({ id: 'c1', link: null, name: 'Інший сегмент', a: {}, size: 3, pay: 3, reach: 3 }); d.segs.slice(0, 2).forEach(s => { s.a = { what: 'Підписку', who: 'Батьки', why: 'Заощадити час', when: 'Щодня', where: 'В інтернеті' }; }); d.main = d.segs[0].id; },
