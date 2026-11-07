@@ -542,3 +542,6 @@ div.rs { cursor: default; } div.rs:not(.cur):hover { background: transparent; }
 .bbook footer { border-top: 1px solid var(--bd, #e3e6ee); padding-top: 10px; }
 .ex .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media print { .bbook footer { display: none; } }
+
+/* старі стилі полотна (.cv-b.problem тощо) задають grid-area: у новому плані блоки йдуть по порядку */
+.bp-b.cv-b { grid-area: auto; display: grid; }

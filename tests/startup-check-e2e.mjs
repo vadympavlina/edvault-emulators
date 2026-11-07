@@ -55,6 +55,8 @@ await step('вправи: відповіді учня видно, але змі�
 
 await step('план, інтерв’ю, звіт відкриваються; своя гра не чіпається', async () => {
   await p.click('[data-tab="plan"]'); await p.waitForSelector('.ck-ro');
+  const ov = await p.evaluate(() => { const r = [...document.querySelectorAll('.bp-b')].map(e => e.getBoundingClientRect()); let n = 0; for (let i = 0; i < r.length; i++) for (let j = i + 1; j < r.length; j++) if (r[i].left < r[j].right - 1 && r[j].left < r[i].right - 1 && r[i].top < r[j].bottom - 1 && r[j].top < r[i].bottom - 1) n++; return [r.length, n]; });
+  assert.deepEqual(ov, [9, 0], 'блоки бізнес-плану не накладаються');
   await p.click('[data-tab="iv"]'); assert.match(await p.locator('.ck-view').innerText(), /Оксана/);
   await p.locator('.ck-iv summary').click(); assert.match(await p.locator('.ck-view').innerText(), /У зошиті/);
   await p.click('[data-tab="rep"]'); await p.waitForSelector('.ck-ro');
