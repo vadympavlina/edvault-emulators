@@ -689,3 +689,12 @@ body.simple .adv { display: none; }
 @media (max-width: 640px) { .view-hint { flex-wrap: wrap; } .view-hint .btn { margin-left: 30px; } }
 
 .road { padding: 0 12px; }
+
+/* створення компанії за етапами */
+.wz-stage { margin: 0 0 6px; font-size: 13px; color: var(--tx2); } .wz-stage b { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--acc-bg, #eef0ff); color: var(--acc-tx); font-weight: 700; margin-right: 4px; }
+.wz-route { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; max-width: 700px; margin: 18px auto; padding: 0; text-align: left; counter-reset: none; }
+.wz-route li { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: #f7f8fb; border-radius: 12px; font-size: 14.5px; font-weight: 600; }
+.wz-route li span { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--acc); color: #fff; font-size: 13px; font-weight: 700; }
+.wz-later { display: flex; gap: 12px; align-items: flex-start; margin-top: 18px; padding: 12px 14px; border-radius: 14px; background: #f7f8fb; font-size: 14px; color: var(--tx2); } .wz-later .ic { flex: none; color: var(--acc-tx); margin-top: 2px; }
+.wz-later p, .wz-later ul { margin: 4px 0 0; } .wz-later ul { padding-left: 18px; }
+@media (max-width: 640px) { .wz-route { grid-template-columns: 1fr; } }

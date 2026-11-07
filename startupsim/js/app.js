@@ -1,7 +1,6 @@
 // Симулятор стартапу · оболонка: меню, верхня панель, маршрути, старт, підсумки тижня, збереження.
 import { IDEAS, BACKGROUNDS, ACHIEVEMENTS } from './data.js';
 import { Sim, newGame, okState, money, num, pct, plural, dateText, WEEKS, HOURS } from './sim.js';
-import { SYMBOLS, PALETTE } from './mods.js';
 import { ARCH, KINDS, SIZES, SCOPES, ideaCheck } from './custom.js';
 import { packGame, unpackGame, fileName } from './file.js';
 import { icon } from './icons.js';
@@ -12,7 +11,7 @@ import { moneyViews, moneyActs, moneyIns } from './v-money.js';
 import { peopleViews, peopleActs, peopleIns } from './v-people.js';
 import { STAGES, stageInfo, viewStage, isOpen, unlock, syncStage, ADVANCED_VIEWS, isSimple, suggestHours } from './stages.js';
 import { stageBar } from './v-stages.js';
-import { exViews, exActs, installEx, goalNow } from './ex-core.js';
+import { exViews, exActs, installEx, goalNow, STAGE_T } from './ex-core.js';
 import './ex1.js';
 import './ex1b.js';
 import './ex2.js';
@@ -253,19 +252,22 @@ function startWizard() {
   try { const saved = JSON.parse(localStorage.getItem(IDEA_KEY)); if (saved?.segments?.length && saved.features?.length) { w.c = { ...blankC, ...saved }; w.restored = true; } } catch { /* немає збереженої ідеї */ }
   const el = h('<div class="wizard" role="dialog" aria-modal="true" aria-label="Новий стартап"></div>');
   document.body.appendChild(el); document.body.classList.add('wz-on'); $('.app').inert = true;
-  const steps = () => ['hello', 'idea', ...(w.idea === 'custom' ? ['cIdea', 'cSegs', 'cFeats', 'cComp', 'cCheck'] : []), 'founder', 'company', 'money'];
-  const TITLES = { hello: 'Вітаємо', idea: 'Ідея', cIdea: 'Опис', cSegs: 'Клієнти', cFeats: 'Функції', cComp: 'Конкуренти', cCheck: 'Перевірка', founder: 'Засновник', company: 'Компанія', money: 'Гроші' };
+  // на старті лише перший етап: ніша, ідея й ви. Бренд, гроші на розвиток і решта чекають на своїх етапах
+  const steps = () => ['hello', 'idea', ...(w.idea === 'custom' ? ['cIdea', 'cSegs', 'cFeats'] : []), 'founder'];
+  const TITLES = { hello: 'Вітаємо', idea: 'Ніша', cIdea: 'Ідея', cSegs: 'Клієнти', cFeats: 'Продукт', founder: 'Ви й компанія' };
+  const TAG = { idea: 0, cIdea: 0, cFeats: 0, cSegs: 1, founder: 0 };
+  const tag = k => `<p class="wz-stage"><b>Етап ${TAG[k] + 1}</b> · ${esc(STAGE_T[TAG[k]])}</p>`;
   let c = w.c;
   const units = () => KINDS[c.kind]?.base === 'hardware', perUnit = () => units() ? 'за штуку' : 'на місяць';
   const segNames = () => c.segments.map((x, i) => x.name.trim() || `Сегмент ${i + 1}`);
   const archSel = (i, v) => `<select class="inp" data-c="segments.${i}.arch" aria-label="Тип клієнтів">${Object.entries(ARCH).map(([k, a]) => `<option value="${k}" ${v === k ? 'selected' : ''}>${esc(a.t)}</option>`).join('')}</select>`;
   const segChecks = (path, sel) => `<div class="wz-segs">${segNames().map((n, i) => `<label><input type="checkbox" data-c="${path}" value="${i}" ${sel.includes(i) ? 'checked' : ''}> ${esc(n)}</label>`).join('')}</div>`;
   const VIEW = {
-    hello: () => `<div class="wz-hero">${icon('rocket', 46)}<h1>Симулятор стартапу</h1><p>Ви засновуєте компанію з нуля. Говорите з клієнтами, будуєте продукт, створюєте бренд, шукаєте канали, рахуєте гроші, наймаєте команду й залучаєте інвестиції. Кожне рішення має наслідки.</p><ul class="wz-list"><li>${icon('users', 18)} Інтерв'ю з клієнтами й опитування</li><li>${icon('plan', 18)} Бізнес-план (Lean Canvas) і фінплан</li><li>${icon('palette', 18)} Бренд, маркетинг, акції</li><li>${icon('handshake', 18)} Гранти, інвестори, кредит, краудфандинг</li><li>${icon('laptop', 18)} Команда й підробіток</li><li>${icon('card', 18)} Платіжні системи, інвестування й криптовалюта</li></ul><p class="muted sm">Один хід — тиждень. Гра триває 2 роки, якщо раніше не закінчаться гроші. Усі люди й компанії вигадані.</p>
+    hello: () => `<div class="wz-hero">${icon('rocket', 46)}<h1>Симулятор стартапу</h1><p>Ви засновуєте компанію з нуля й проходите дев'ять етапів. На кожному робите лише свою частину справи: спершу ніша й продукт, потім бренд, ціна, гроші, просування, команда, фриланс і платежі.</p><ol class="wz-route">${STAGE_T.map((t, i) => `<li><span>${i + 1}</span>${esc(t)}</li>`).join('')}</ol><p class="muted sm">Один хід — тиждень. Гра триває 2 роки, якщо раніше не закінчаться гроші. Усі люди й компанії вигадані.</p>
       <div class="wz-open"><button class="btn" data-act="openFile">${icon('open', 16)} Відкрити збережену гру з файлу</button><small class="muted">Або перетягніть файл .json на цю сторінку</small></div></div>`,
-    idea: () => `<h2>Оберіть ідею</h2><div class="wz-ideas">${Object.entries(IDEAS).filter(([k]) => k !== 'custom').map(([k, x]) => `<button class="wz-idea ${w.idea === k ? 'on' : ''}" data-w="idea" data-v="${k}" style="--ic:${x.color}"><span class="wz-ic">${icon(x.icon, 26)}</span><b>${esc(x.t)}</b><p>${esc(x.pitch)}</p><small>${{ app: 'Застосунок', hardware: 'Пристрій («залізо»)', saas: 'Сервіс для бізнесу' }[x.kind]} · сегменти: ${Object.values(x.segments).map(g => g.short.toLowerCase()).join(', ')}</small></button>`).join('')}
+    idea: () => `${tag('idea')}<h2>Оберіть нішу й ідею</h2><div class="wz-ideas">${Object.entries(IDEAS).filter(([k]) => k !== 'custom').map(([k, x]) => `<button class="wz-idea ${w.idea === k ? 'on' : ''}" data-w="idea" data-v="${k}" style="--ic:${x.color}"><span class="wz-ic">${icon(x.icon, 26)}</span><b>${esc(x.t)}</b><p>${esc(x.pitch)}</p><small>${{ app: 'Застосунок', hardware: 'Пристрій («залізо»)', saas: 'Сервіс для бізнесу' }[x.kind]} · сегменти: ${Object.values(x.segments).map(g => g.short.toLowerCase()).join(', ')}</small></button>`).join('')}
       <button class="wz-idea own ${w.idea === 'custom' ? 'on' : ''}" data-w="idea" data-v="custom" style="--ic:#111827"><span class="wz-ic">${icon('bulb', 26)}</span><b>Своя ідея</b><p>Опишіть власний стартап: проблему, клієнтів, функції й конкурентів. А ринок покаже, чи праві ви.</p><small>Ваші припущення перевірятимуться інтерв'ю</small></button></div>`,
-    cIdea: () => `<h2>Ваша ідея</h2>${w.restored ? `<p class="note">${icon('info', 16)} <span>Ми відновили вашу попередню ідею — можна доопрацювати її. <button class="link" data-w="clearIdea">Почати з чистого аркуша</button></span></p>` : ''}<div class="wz-form">
+    cIdea: () => `${tag('cIdea')}<h2>Опишіть свою ідею</h2>${w.restored ? `<p class="note">${icon('info', 16)} <span>Ми відновили вашу попередню ідею — можна доопрацювати її. <button class="link" data-w="clearIdea">Почати з чистого аркуша</button></span></p>` : ''}<div class="wz-form">
       <label class="wz-f"><span>Назва ідеї</span><input class="inp" data-c="name" value="${esc(c.name)}" maxlength="40" placeholder="Наприклад: Обмін книжками між школярами" autofocus></label>
       <div class="wz-f"><span>Що це буде</span><div class="wz-kinds">${Object.entries(KINDS).map(([k, x]) => `<button class="opt ${c.kind === k ? 'on' : ''}" data-w="kind" data-v="${k}"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></button>`).join('')}</div></div>
       <label class="wz-f"><span>Яку проблему розв'язуєте (кілька слів)</span><input class="inp" data-c="problem" value="${esc(c.problem)}" maxlength="60" placeholder="Наприклад: пошук підручників і книжок"></label>
@@ -274,40 +276,26 @@ function startWizard() {
       ${units() ? `<div class="wz-three"><label class="wz-f"><span>Собівартість однієї штуки, ₴</span><input class="inp" type="number" min="10" step="10" data-c="unitCost" value="${c.unitCost}"></label>
         <label class="wz-f"><span>Найменша партія, шт.</span><input class="inp" type="number" min="5" max="1000" step="5" data-c="batchMin" value="${c.batchMin}"></label>
         <label class="wz-f"><span>Скільки тижнів чекати партію</span><input class="inp" type="number" min="1" max="8" step="1" data-c="leadTime" value="${c.leadTime}"></label></div>` : ''}</div>`,
-    cSegs: () => `<h2>Хто ваші клієнти?</h2><p class="muted sm">Опишіть 2–3 групи. Тип групи впливає на канали й на те, скільки такі клієнти зазвичай платять. Оцінки кількості й ціни необов'язкові — але наприкінці гри ви побачите, наскільки влучили.</p>
+    cSegs: () => `${tag('cSegs')}<h2>Хто ваші клієнти?</h2><p class="muted sm">Опишіть 2–3 групи. Тип групи впливає на канали й на те, скільки такі клієнти зазвичай платять. Оцінки кількості й ціни необов'язкові — але наприкінці гри ви побачите, наскільки влучили.</p>
       <div class="wz-rows">${c.segments.map((x, i) => `<div class="wz-feat"><div class="wz-row"><input class="inp" data-c="segments.${i}.name" value="${esc(x.name)}" maxlength="40" placeholder="${['Наприклад: школярі 7–11 класів', 'Наприклад: батьки школярів', 'Наприклад: шкільні бібліотеки'][i]}" aria-label="Назва групи ${i + 1}">${archSel(i, x.arch)}${c.segments.length > 2 ? `<button class="ib" data-w="rmSeg" data-v="${i}" aria-label="Прибрати">${icon('x', 16)}</button>` : ''}</div>
         <div class="wz-two"><label class="wz-f sm"><span>Скільки таких клієнтів (ваша оцінка)</span><input class="inp" type="number" min="0" step="100" data-c="segments.${i}.size" value="${esc(x.size)}" placeholder="Наприклад: 5000"></label><label class="wz-f sm"><span>Скільки готові платити, ₴ ${perUnit()}</span><input class="inp" type="number" min="0" step="10" data-c="segments.${i}.price" value="${esc(x.price)}" placeholder="Наприклад: 150"></label></div></div>`).join('')}</div>
       ${c.segments.length < 3 ? `<button class="btn sm" data-w="addSeg">${icon('plus', 14)} Додати групу</button>` : ''}`,
-    cFeats: () => `<h2>Що вмітиме продукт?</h2><p class="muted sm">3–10 функцій. Позначте основну й кому, на вашу думку, кожна потрібна. Оплату, аналітику й сервери додамо самі.</p>
+    cFeats: () => `${tag('cFeats')}<h2>Що вмітиме перша версія?</h2><p class="muted sm">3–10 функцій. Позначте основну й кому, на вашу думку, кожна потрібна. Оплату, аналітику й сервери додамо самі.</p>
       <div class="wz-feats">${c.features.map((f, i) => `<div class="wz-feat"><div class="wz-row"><input class="inp" data-c="features.${i}.name" value="${esc(f.name)}" maxlength="40" placeholder="Назва функції" aria-label="Функція ${i + 1}"><select class="inp" data-c="features.${i}.size" aria-label="Складність">${Object.entries(SIZES).map(([k, z]) => `<option value="${k}" ${f.size === k ? 'selected' : ''}>${z.t} (${z.cost} оч.)</option>`).join('')}</select>${c.features.length > 3 ? `<button class="ib" data-w="rmFeat" data-v="${i}" aria-label="Прибрати">${icon('x', 16)}</button>` : ''}</div>
         <input class="inp sm-w" data-c="features.${i}.desc" value="${esc(f.desc)}" maxlength="90" placeholder="Коротко: що вона робить (необов'язково)" aria-label="Опис функції ${i + 1}">
         <div class="wz-row2"><label class="core"><input type="radio" name="core" data-c="core" value="${i}" ${f.core ? 'checked' : ''}> Основна</label><span class="muted sm">Кому потрібна:</span>${segChecks(`features.${i}.segs`, f.segs)}</div></div>`).join('')}</div>
-      ${c.features.length < 10 ? `<button class="btn sm" data-w="addFeat">${icon('plus', 14)} Додати функцію</button>` : ''}`,
-    cComp: () => `<h2>Хто ваші конкуренти?</h2><p class="muted sm">Конкуренти є завжди, навіть якщо це «зошит», «таблиця в Excel» чи «просто нічого не робити». Їхні слабкі місця клієнти згадуватимуть в інтерв'ю.</p>
-      <div class="wz-feats">${c.competitors.map((x, i) => `<div class="wz-feat"><div class="wz-row"><input class="inp" data-c="competitors.${i}.name" value="${esc(x.name)}" maxlength="40" placeholder="Наприклад: групи обміну у Viber" aria-label="Конкурент ${i + 1}"><input class="inp num-w" type="number" min="0" step="10" data-c="competitors.${i}.price" value="${esc(x.price)}" placeholder="Ціна, ₴" aria-label="Ціна конкурента, ₴ ${perUnit()}"><button class="ib" data-w="rmComp" data-v="${i}" aria-label="Прибрати">${icon('x', 16)}</button></div>
-        <input class="inp sm-w" data-c="competitors.${i}.weak" value="${esc(x.weak)}" maxlength="80" placeholder="Що в них погано? Наприклад: довго чекати відповіді" aria-label="Слабке місце конкурента ${i + 1}">
-        <div class="wz-row2"><span class="muted sm">З ким конкурує:</span>${segChecks(`competitors.${i}.segs`, x.segs)}</div></div>`).join('')}</div>
-      ${c.competitors.length < 4 ? `<button class="btn sm" data-w="addComp">${icon('plus', 14)} Додати конкурента</button>` : ''}`,
-    cCheck: () => { const list = ideaCheck(c), warn = list.filter(x => x.lvl === 'warn').length;
-      return `<h2>Перевірка ідеї</h2><p class="muted sm">${warn ? `Наставниця помітила ${warn} ${plural(warn, 'річ', 'речі', 'речей')}, які варто обдумати. Це поради, а не заборони: можна повернутися й виправити або йти далі.` : 'Ідея описана добре. Тепер усе вирішить ринок.'}</p>
-      <ul class="wz-check">${list.map(x => `<li class="${x.lvl}">${icon(x.lvl === 'ok' ? 'check' : 'alert', 18)}<span>${esc(x.t)}</span></li>`).join('')}</ul>`; },
-    founder: () => `<h2>Хто ви?</h2><div class="wz-two"><label class="wz-f"><span>Ваше ім'я та прізвище</span><input class="inp" data-w="name" value="${esc(w.name)}" placeholder="Наприклад, Олена Коваль" maxlength="40" autofocus></label><label class="wz-f"><span>Клас або група <small class="muted">(необов'язково)</small></span><input class="inp" data-w="group" value="${esc(w.group)}" placeholder="Наприклад, 9-Б" maxlength="20"></label></div><p class="sm muted">Ваш досвід визначає, що вам вдається найкраще.</p><div class="wz-bgs">${Object.entries(BACKGROUNDS).map(([k, b]) => `<button class="wz-bg ${w.bg === k ? 'on' : ''}" data-w="bg" data-v="${k}">${icon(b.icon, 24)}<b>${b.t}</b><small>${b.desc}</small></button>`).join('')}</div>`,
-    company: () => `<h2>Ваша компанія</h2><div class="wz-co">${logo({ color: w.color, sym: w.sym }, 72)}<b style="color:${w.color}">${esc(w.company || 'Назва')}</b></div><label class="wz-f"><span>Назва</span><input class="inp" data-w="company" value="${esc(w.company)}" placeholder="Наприклад, ${{ homework: 'Зрозумій', plant: 'Полий-ка', english: 'Speakly', booking: 'Записатись', custom: 'Моя компанія' }[w.idea]}" maxlength="24" autofocus></label>
-      <p class="sm muted">Колір і символ (потім можна змінити в розділі «Бренд»)</p><div class="swatches">${PALETTE.map(col => `<button class="sw ${w.color === col ? 'on' : ''}" style="background:${col}" data-w="color" data-v="${col}" aria-label="Колір"></button>`).join('')}</div><div class="syms">${SYMBOLS.map(sy => `<button class="sym ${w.sym === sy ? 'on' : ''}" data-w="sym" data-v="${sy}" aria-label="Символ">${icon(sy, 20)}</button>`).join('')}</div>`,
-    money: () => `<h2>Стартові гроші</h2><div class="wz-money"><div class="opt on"><b>Власні заощадження</b><p class="big">${money(150000)}</p><small>Це все, що у вас є.</small></div>
-      <button class="opt ${w.fff ? 'on' : ''}" data-w="fff">${icon(w.fff ? 'check' : 'plus', 18)}<b>Гроші від родини й друзів</b><p class="big">+${money(300000)}</p><small>В обмін на 10% компанії. Більше часу на пошук, але ви вже не єдиний власник.</small></button></div>
-      <p class="sm muted">Разом: <b>${money(150000 + (w.fff ? 300000 : 0))}</b>. Ваша частка: <b>${w.fff ? '90%' : '100%'}</b>.</p>
-      <h2 class="wz-h2">Як грати</h2><div class="wz-kinds">
-        <button class="opt ${w.simple ? 'on' : ''}" data-w="mode" data-v="simple" aria-pressed="${w.simple}"><b>Простий режим</b><small>Радимо для першої гри. Тільки головне: клієнти, продукт, реклама, ціна, команда. Складні розрахунки сховано.</small></button>
-        <button class="opt ${w.simple ? '' : 'on'}" data-w="mode" data-v="full" aria-pressed="${!w.simple}"><b>Повний режим</b><small>Усі розрахунки й розділи: спринти, A/B-тест, фінплан, платіжні системи, вкладення.</small></button></div>
-      <p class="sm muted">Режим можна змінити будь-коли в меню «Ще».</p>`,
+      ${c.features.length < 10 ? `<button class="btn sm" data-w="addFeat">${icon('plus', 14)} Додати функцію</button>` : ''}
+      ${(() => { const l = ideaCheck(c).filter(x => x.lvl === 'warn' && /функц|Проблем|груп/i.test(x.t)); return l.length ? `<div class="wz-later">${icon('bulb', 18)}<div><b>Підказки наставниці</b><ul>${l.map(x => `<li>${esc(x.t)}</li>`).join('')}</ul></div></div>` : ''; })()}`,
+    founder: () => `${tag('founder')}<h2>Хто ви і як називається компанія?</h2><div class="wz-two"><label class="wz-f"><span>Ваше ім'я та прізвище</span><input class="inp" data-w="name" value="${esc(w.name)}" placeholder="Наприклад, Олена Коваль" maxlength="40" autofocus></label><label class="wz-f"><span>Клас або група <small class="muted">(необов'язково)</small></span><input class="inp" data-w="group" value="${esc(w.group)}" placeholder="Наприклад, 9-Б" maxlength="20"></label></div>
+      <label class="wz-f"><span>Назва компанії</span><input class="inp" data-w="company" value="${esc(w.company)}" placeholder="Наприклад, ${{ homework: 'Зрозумій', plant: 'Полий-ка', english: 'Speakly', booking: 'Записатись', custom: 'Моя компанія' }[w.idea]}" maxlength="24"></label>
+      <p class="sm muted">Ваш досвід визначає, що вам вдається найкраще.</p><div class="wz-bgs">${Object.entries(BACKGROUNDS).map(([k, b]) => `<button class="wz-bg ${w.bg === k ? 'on' : ''}" data-w="bg" data-v="${k}">${icon(b.icon, 24)}<b>${b.t}</b><small>${b.desc}</small></button>`).join('')}</div>
+      <div class="wz-later">${icon('info', 18)}<div><b>Початок: ${money(150000)} власних заощаджень.</b><p>Решту ви зробите на своїх етапах: логотип і стиль — на етапі 2, гроші від родини й інвесторів — на етапі 5. Простий чи повний режим гри можна змінити в меню «Ще».</p></div></div>`,
   };
   const check = {
     cIdea: () => !c.name.trim() ? ['Придумайте назву ідеї', 'name'] : c.problem.trim().length < 3 ? ['Опишіть проблему кількома словами', 'problem'] : c.pitch.trim().length < 10 ? ['Опишіть ідею хоча б одним реченням', 'pitch'] : null,
     cSegs: () => c.segments.filter(x => x.name.trim()).length < 2 ? ['Назвіть щонайменше дві групи клієнтів', 'segments.0.name'] : null,
     cFeats: () => c.features.filter(f => f.name.trim()).length < 3 ? ['Потрібно щонайменше три функції', 'features.0.name'] : !c.features.some(f => f.core && f.name.trim()) ? ['Позначте основну функцію', null] : null,
-    founder: () => !w.name.trim() ? ['Введіть своє ім\'я', null] : null,
-    company: () => !w.company.trim() ? ['Придумайте назву компанії', null] : null,
+    founder: () => !w.name.trim() ? ['Введіть своє ім\'я', null] : !w.company.trim() ? ['Придумайте назву компанії', 'company'] : null,
   };
   const draw = () => {
     const st = steps(), key = st[w.step];
@@ -334,18 +322,18 @@ function startWizard() {
     else if (k === 'bg') w.bg = b.dataset.v;
     else if (k === 'color') w.color = b.dataset.v;
     else if (k === 'sym') w.sym = b.dataset.v;
-    else if (k === 'fff') w.fff = !w.fff;
     else if (k === 'back') w.step--;
     else if (k === 'cancel') { el.remove(); document.body.classList.remove('wz-on'); $('.app').inert = false; return; }
     else if (k === 'next') {
       const err = check[st[w.step]]?.();
-      if (err) { toast(err[0], 'bad'); (el.querySelector(err[1] ? `[data-c="${err[1]}"]` : '[data-w="name"], [data-w="company"]'))?.focus(); return; }
+      if (err) { toast(err[0], 'bad'); (el.querySelector(err[1] === 'company' ? '[data-w="company"]' : err[1] ? `[data-c="${err[1]}"]` : '[data-w="name"]'))?.focus(); return; }
       if (w.step === st.length - 1) {
         // порожні групи клієнтів відкидаємо, а посилання функцій і конкурентів на групи перенумеровуємо
+        const seedComp = (list, n) => list.length ? list : [{ name: 'Роблять усе вручну', price: 0, weak: 'довго й незручно', segs: Array.from({ length: n }, (_, i) => i) }];
         const keep = c.segments.map((x, i) => x.name.trim() ? i : -1).filter(i => i >= 0), remap = a => a.map(i => keep.indexOf(i)).filter(i => i >= 0);
-        const custom = w.idea === 'custom' ? { ...c, segments: keep.map(i => c.segments[i]), features: c.features.filter(f => f.name.trim()).map(f => ({ ...f, segs: remap(f.segs) })), competitors: c.competitors.filter(x => x.name.trim()).map(x => ({ ...x, segs: remap(x.segs) })) } : null;
+        const custom = w.idea === 'custom' ? { ...c, segments: keep.map(i => c.segments[i]), features: c.features.filter(f => f.name.trim()).map(f => ({ ...f, segs: remap(f.segs) })), competitors: seedComp(c.competitors.filter(x => x.name.trim()).map(x => ({ ...x, segs: remap(x.segs) })), keep.length) } : null;
         if (custom) try { localStorage.setItem(IDEA_KEY, JSON.stringify(c)); } catch { /* сховище недоступне */ }
-        S = newGame({ idea: w.idea === 'custom' ? 'homework' : w.idea, founder: w.name.trim(), group: w.group.trim(), bg: w.bg, company: w.company.trim(), color: w.color, sym: w.sym, fff: w.fff, custom });
+        S = newGame({ idea: w.idea === 'custom' ? 'homework' : w.idea, founder: w.name.trim(), group: w.group.trim(), bg: w.bg, company: w.company.trim(), color: w.color, sym: w.sym, fff: false, custom });
         S.s.flags.simple = w.simple;
         el.remove(); document.body.classList.remove('wz-on'); ui.view = 'dash'; render(); window.Startup.S = S;
         return;

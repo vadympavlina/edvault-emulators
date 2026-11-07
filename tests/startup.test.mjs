@@ -22,6 +22,17 @@ test('нова гра: коректний стан, лист від настав
   assert.ok(Math.abs(F.stake() - .9) < .001);
 });
 
+test('гроші від родини й друзів можна взяти пізніше, на етапі 5, і лише один раз', () => {
+  const S = fresh();
+  assert.equal(S.hasFff(), false);
+  assert.equal(S.takeFff(), true);
+  assert.equal(S.s.cash, 450000);
+  assert.ok(Math.abs(S.stake() - .9) < .001);
+  assert.equal(S.takeFff(), false, 'повторно не додає гроші');
+  assert.equal(S.s.cash, 450000);
+  assert.ok(okState(S.s));
+});
+
 test('інтерв\'ю: правильні запитання дають дані, підказувальні — оманливі', () => {
   const S = fresh();
   S.s.hours.customers = 9;

@@ -33,7 +33,11 @@ reg({
     const card = s => { const a = +d.mix[s.k] || 0; return `<article class="srcard ${a ? 'on' : ''}" style="--c:${s.col}"><header><b>${s.t}</b><span class="xtag">${s.tag}</span></header><p>${s.note}</p>
       <div class="rt"><span>Швидкість ${dots(s.sp)}</span><span>Дешевизна ${dots(s.cost)}</span><span>Контроль ${dots(s.ctl)}</span><span>Доступність ${dots(s.acc)}</span></div>${xsl('sources', `mix.${s.k}`, d, { min: 0, max: s.max, step: s.max >= 1000000 ? 100000 : 10000, label: 'Скільки беремо', u: ' ₴', v: a })}</article>`; };
     return `${box('Скільки потрібно грошей', `<div class="xg c2">${xsl('sources', 'need', d, { min: 50000, max: 3000000, step: 50000, label: 'Потреба', u: ' ₴' })}${xsl('sources', 'pre', d, { min: 1000000, max: 20000000, step: 500000, label: 'Оцінка компанії до вкладень', u: ' ₴' })}</div><p class="sm muted">Потребу можна взяти з вправи про фінансовий план. Оцінка компанії визначає, яку частку віддасте за гроші інвестора.</p>`, { ic: 'wallet' })}
-    <div class="xg c2">${SRC.map(card).join('')}</div>`;
+    <div class="xg c2">${SRC.map(card).join('')}</div>
+    ${box('Перші гроші для вашої компанії', S.hasFff() ? tip('Родина й друзі вже вклали 300 000 ₴ в обмін на 10% компанії.', 'ok') : `<p class="sm">Найпростіше джерело на старті: родина й друзі. У грі це справжні гроші: 300 000 ₴ одразу на рахунок в обмін на 10% компанії. Вирішуйте самі, чи брати їх зараз.</p>${xb('sources', 'takeFff', 'Взяти 300 000 ₴ за 10%', { cls: 'primary', ic: 'coins' })}`, { ic: 'users' })}`;
+  },
+  acts: {
+    takeFff(S, d, el, C) { if (!S.takeFff()) return false; C?.toast?.('Родина й друзі вклали 300 000 ₴', 'good'); },
   },
   live(S, d) {
     const c = srcCalc(d), items = SRC.filter(s => +d.mix[s.k] > 0).map(s => ({ v: +d.mix[s.k], color: s.col, t: s.t }));

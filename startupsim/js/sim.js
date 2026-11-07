@@ -208,6 +208,15 @@ export class Sim {
   }
   totalShares() { return sum(this.s.cap.map(c => c.shares)); }
   stake(id = 'founder') { return (this.s.cap.find(c => c.id === id)?.shares || 0) / this.totalShares(); }
+  // гроші від родини й друзів: 300 тис. ₴ за 10% компанії; можна взяти один раз, раніше це був вибір при створенні гри
+  hasFff() { return this.s.cap.some(c => c.id === 'fff'); }
+  takeFff() {
+    if (this.hasFff()) return false;
+    this.issue('fff', 'Родина й друзі', 'fff', .1);
+    this.s.cash += 300000; this.s.ledgerIn = (this.s.ledgerIn || 0) + 300000;
+    this.log('Залучено 300 тис. ₴ від родини й друзів за 10% компанії.');
+    return true;
+  }
   issue(id, t, kind, frac) { const add = Math.round(this.totalShares() * frac / (1 - frac)); const e = this.s.cap.find(c => c.id === id); if (e) e.shares += add; else this.s.cap.push({ id, t, kind, shares: add }); return add; }
 
   /* ═════════ дії гравця ═════════ */

@@ -15,8 +15,8 @@ const range = (sel, v) => p.evaluate(([sel, v]) => { const el = document.querySe
 
 async function start(page = p) {
   await page.goto(server.url + '/startup'); await page.evaluate(() => localStorage.clear()); await page.reload(); await page.waitForSelector('.wizard');
-  await page.click('[data-w="next"]'); await page.click('[data-w="next"]'); await page.fill('[data-w="name"]', 'Марта'); await page.click('[data-w="next"]'); await page.fill('[data-w="company"]', 'Записатись'); await page.click('[data-w="next"]'); await page.click('[data-w="fff"]');
-  await page.click('[data-w="next"]'); await page.waitForSelector('#main .ws');
+  await page.click('[data-w="next"]'); await page.click('[data-w="next"]'); await page.fill('[data-w="name"]', 'Марта'); await page.fill('[data-w="company"]', 'Записатись'); await page.click('[data-w="next"]');
+  await page.waitForSelector('#main .ws');
 }
 await start();
 

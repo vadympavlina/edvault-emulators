@@ -18,26 +18,27 @@ p.setDefaultTimeout(10000);
 
 await step('майстер: без імені й назви далі не пускає, потім створює компанію', async () => {
   await p.waitForSelector('.wizard');
+  assert.equal(await p.locator('.wz-route li').count(), 9, 'на вітальній сторінці видно дев’ять етапів');
   await p.click('[data-w="next"]');
   await p.click('[data-w="idea"][data-v="booking"]');
+  assert.match(await p.locator('.wz-stage').innerText(), /Етап 1/);
   await p.click('[data-w="next"]');
   await p.click('[data-w="next"]');
   assert.match(await p.locator('#toast').innerText(), /ім'я/);
   await p.fill('[data-w="name"]', 'Марта');
   await p.click('[data-w="bg"][data-v="sales"]');
   await p.click('[data-w="next"]');
-  await p.click('[data-w="next"]');
   assert.match(await p.locator('#toast').innerText(), /назву/);
+  assert.equal(await p.locator('[data-w="mode"], [data-w="fff"], [data-w="color"]').count(), 0, 'гроші, режим і бренд обирають на своїх етапах, а не при створенні');
   await p.fill('[data-w="company"]', 'Записатись');
   await p.click('[data-w="next"]');
-  await p.click('[data-w="fff"]');
-  assert.equal(await p.getAttribute('[data-w="mode"][data-v="simple"]', 'aria-pressed'), 'true', 'простий режим — за замовчуванням');
-  await p.click('[data-w="mode"][data-v="full"]'); // цей тест перевіряє всі розділи, тож повний режим
-  await p.click('[data-w="next"]');
   await p.waitForSelector('#main .ws');
-  const s = await S();
-  assert.equal(s.flags.simple, false);
-  assert.equal(s.idea, 'booking'); assert.equal(s.founder.bg, 'sales'); assert.equal(s.company.name, 'Записатись'); assert.equal(s.cash, 450000);
+  let s = await S();
+  assert.equal(s.flags.simple, true, 'простий режим — за замовчуванням');
+  assert.equal(s.idea, 'booking'); assert.equal(s.founder.bg, 'sales'); assert.equal(s.company.name, 'Записатись'); assert.equal(s.cash, 150000, 'на старті лише власні заощадження');
+  // гроші від родини беруть на етапі 5 (тут викликаємо це напряму), а цей тест перевіряє всі розділи, тож вмикаємо повний режим
+  await p.evaluate(() => { window.Startup.sim.takeFff(); window.Startup.sim.s.flags.simple = false; window.Startup.C.render(); });
+  s = await S(); assert.equal(s.cash, 450000);
   assert.match(await p.locator('.top').innerText(), /Записатись/);
   // етап 1 із дев'яти: п'ять обов'язкових справ, решта етапів закриті
   assert.equal(await p.locator('.rail .rs.cur').count(), 1);
@@ -281,7 +282,7 @@ await step('телефон: вкладки, етапи й розділи без 
   const m = await newPage(await browser.newContext({ viewport: { width: 390, height: 844 } }), errors);
   await m.goto(server.url + '/startup');
   await m.evaluate(() => localStorage.clear()); await m.reload();
-  await m.click('[data-w="next"]'); await m.click('[data-w="next"]'); await m.fill('[data-w="name"]', 'Ія'); await m.click('[data-w="next"]'); await m.fill('[data-w="company"]', 'Тест'); await m.click('[data-w="next"]'); await m.click('[data-w="next"]');
+  await m.click('[data-w="next"]'); await m.click('[data-w="next"]'); await m.fill('[data-w="name"]', 'Ія'); await m.fill('[data-w="company"]', 'Тест'); await m.click('[data-w="next"]');
   await m.waitForSelector('#main .ws');
   assert.equal(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, 'головна без горизонтальної прокрутки');
   await m.click('.tab[data-k="market"]');
@@ -315,17 +316,7 @@ await step('власна ідея: конструктор у майстрі, п�
   await q.check('[data-c="features.2.segs"][value="1"]');
   await q.uncheck('[data-c="features.2.segs"][value="0"]');
   await q.click('[data-w="next"]');
-  await q.fill('[data-c="competitors.0.name"]', 'Групи у Viber');
-  await q.fill('[data-c="competitors.0.price"]', '0');
-  await q.fill('[data-c="competitors.0.weak"]', 'Довго шукати потрібну книжку');
-  await q.click('[data-w="next"]');
-  // перевірка ідеї: поради наставниці перед стартом
-  assert.ok(await q.locator('.wz-check li').count() >= 6);
-  assert.match(await q.locator('.wz-check').innerText(), /оцінити, скільки є клієнтів/);
-  await q.click('[data-w="next"]');
-  await q.fill('[data-w="name"]', 'Остап'); await q.click('[data-w="next"]');
-  await q.fill('[data-w="company"]', 'КнигоОбмін'); await q.click('[data-w="next"]');
-  await q.click('[data-w="next"]');
+  await q.fill('[data-w="name"]', 'Остап'); await q.fill('[data-w="company"]', 'КнигоОбмін'); await q.click('[data-w="next"]');
   await q.waitForSelector('#main .ws');
   const s = await q.evaluate(() => JSON.parse(JSON.stringify(window.Startup.sim.s)));
   assert.equal(s.idea, 'custom'); assert.equal(s.custom.t, 'Обмін книжками');
