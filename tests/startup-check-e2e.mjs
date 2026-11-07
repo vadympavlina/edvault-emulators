@@ -37,7 +37,7 @@ await step('файл .edvault відкривається: підсумок і в
   assert.match(await p.locator('.ck-who').innerText(), /Марта Коваль/);
   assert.match(await p.locator('.ck-sum').innerText(), /Записатись/);
   assert.equal(await p.locator('.ck-warn').count(), 0);
-  assert.equal(await p.locator('.ck-tabs button').count(), 5);
+  assert.equal(await p.locator('.ck-tabs button').count(), 6);
 });
 
 await step('вправи: відповіді учня видно, але змінити їх неможливо', async () => {
@@ -59,6 +59,26 @@ await step('план, інтерв’ю, звіт відкриваються; с
   await p.locator('.ck-iv summary').click(); assert.match(await p.locator('.ck-view').innerText(), /У зошиті/);
   await p.click('[data-tab="rep"]'); await p.waitForSelector('.ck-ro');
   assert.equal(await p.evaluate(() => localStorage.length), 0, 'у localStorage нічого не записано');
+});
+
+await step('кілька файлів: таблиця класу, перемикання, фільтри й пошук', async () => {
+  const second = text.replace('Марта Коваль', 'Марта Коваль');
+  const other = await g.evaluate(async () => { const S = window.Startup.sim, { serializeGame } = await import('/startupsim/js/file.js'); S.s.founder.name = 'Іван Шевчук'; S.s.company.name = 'Свічка'; return serializeGame(S, {}); });
+  await p.evaluate(async ([a, b]) => window.Checker.openMany([new File([a], 'a.edvault'), new File([b], 'b.edvault')]), [second, other]);
+  await p.waitForSelector('.ck-tbl');
+  assert.equal(await p.locator('.ck-tbl tbody tr').count(), 2);
+  await p.click('[data-sort="name"]');
+  await p.click('.ck-lnk >> text=Іван Шевчук'); await p.waitForSelector('.ck-att');
+  assert.match(await p.locator('.ck-who').innerText(), /Іван Шевчук/);
+  await p.selectOption('#who', { label: 'Марта Коваль · Записатись' });
+  assert.match(await p.locator('.ck-who').innerText(), /Марта Коваль/);
+  assert.match(await p.locator('.ck-att').innerText(), /Зараз на етапі/);
+  await p.click('[data-tab="ex"]'); await p.click('[data-flt="done"]');
+  assert.equal(await p.locator('.ck-ex:not([hidden])').count(), 1);
+  await p.click('[data-flt="all"]'); await p.fill('#q', 'довго шукають');
+  assert.equal(await p.locator('.ck-ex:not([hidden])').count(), 1);
+  await p.fill('#q', 'абракадабра'); assert.equal(await p.locator('.ck-none').isVisible(), true);
+  await p.click('[data-tab="brand"]'); assert.match(await p.locator('.ck-view').innerText(), /бренд/);
 });
 
 await step('змінений файл і сміття: попередження чи помилка', async () => {
