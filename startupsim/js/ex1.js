@@ -82,11 +82,11 @@ reg({
   },
   drop(S, d, id, zone, { fx, fy }) { const p = id === 'me' ? d.me : d.comps[+id]; if (!p) return; p.x = +fx.toFixed(3); p.y = +fy.toFixed(3); if (id === 'me') p.moved = true; },
   ready(S, d) {
-    if (d.comps.length < 3) return { ok: false, msg: 'Потрібно хоча б три конкуренти' };
+    // конкуренти необов'язкові: завершити можна й без них, але з ними вправа дає більше зірок
     if (!d.me.moved) return { ok: false, msg: 'Поставте точку «Ми» на карту' };
-    if (d.comps.filter(c => len(c.plus) || len(c.minus)).length < 2) return { ok: false, msg: 'Опишіть сильні чи слабкі сторони хоча б двох конкурентів' };
     if (len(d.why) < 25) return { ok: false, msg: 'Напишіть, чим ви відрізнятиметеся' };
-    return { ok: true, stars: 1 + (d.comps.length >= 4 ? 1 : 0) + (d.comps.every(c => len(c.minus)) ? 1 : 0) };
+    const described = d.comps.filter(c => len(c.plus) || len(c.minus)).length;
+    return { ok: true, stars: 1 + (d.comps.length >= 3 ? 1 : 0) + (d.comps.length >= 3 && described >= 2 ? 1 : 0) };
   },
 });
 
