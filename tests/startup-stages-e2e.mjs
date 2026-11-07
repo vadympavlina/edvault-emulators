@@ -160,7 +160,7 @@ await step('перший етап пройдено: відкривається �
   await p.waitForSelector('.md', { state: 'detached' });
   assert.match(await p.locator('.rail .rs.cur').innerText(), /Аудиторія й бренд/);
   assert.equal(await p.locator('.rail .rs.done').count(), 1);
-  assert.match(await p.locator('.ws .k').innerText(), /Етап 2 з 9/, 'аркуш завжди показує поточний етап');
+  assert.match(await p.locator('.ws .k').innerText(), /Етап 2 з 9/i, 'аркуш завжди показує поточний етап');
   assert.match(await p.locator('.ws h1').innerText(), /Визначте, кому продаєте/);
   assert.equal(await p.locator('.ws > .steps > .step').count(), 4);
   await p.click('.tab[data-k="market"]');
