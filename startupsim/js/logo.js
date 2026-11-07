@@ -36,16 +36,16 @@ export function logoMark(m, size = 36, sym) {
 }
 
 // SVG-версія логотипа: для завантаження у файл. Символ береться з набору іконок, монограма й напис друкуються шрифтом
-export function logoSvg(m, { name = '', tag = '', layout = 'side', font = 'sans-serif', weight = 800, textColor = '#1d2433', upper = false, track = 0 } = {}) {
+export function logoSvg(m, { uid = '', name = '', tag = '', layout = 'side', font = 'sans-serif', weight = 800, textColor = '#1d2433', upper = false, track = 0 } = {}) {
   const sh = SHAPES[m.shape] || SHAPES.squircle, ang = m.ang ?? 140, style = m.style || 'solid', clipped = !!sh.clip;
   const soft = style === 'soft' || (style === 'line' && clipped), line = style === 'line' && !clipped;
   const A = (ang - 90) * Math.PI / 180, gx = Math.cos(A) / 2, gy = Math.sin(A) / 2;
   const c1 = soft ? mix(m.c1, '#ffffff', .85) : m.c1, c2 = soft ? mix(m.c2 || m.c1, '#ffffff', .85) : m.c2;
-  const grad = m.c2 ? `<linearGradient id="g" x1="${(.5 - gx).toFixed(3)}" y1="${(.5 - gy).toFixed(3)}" x2="${(.5 + gx).toFixed(3)}" y2="${(.5 + gy).toFixed(3)}"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>` : '';
-  const fill = line ? 'none' : m.c2 ? 'url(#g)' : c1, fg = soft || line ? m.c1 : m.fg, k = (clipped ? .44 : .52) * (m.scale || 1), S = 100;
+  const grad = m.c2 ? `<linearGradient id="g${uid}" x1="${(.5 - gx).toFixed(3)}" y1="${(.5 - gy).toFixed(3)}" x2="${(.5 + gx).toFixed(3)}" y2="${(.5 + gy).toFixed(3)}"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>` : '';
+  const fill = line ? 'none' : m.c2 ? `url(#g${uid})` : c1, fg = soft || line ? m.c1 : m.fg, k = (clipped ? .44 : .52) * (m.scale || 1), S = 100;
   const ic = /<svg[^>]*>([\s\S]*)<\/svg>/.exec(icon(m.sym, 24))?.[1] || '';
   const sc = k * 100 / 24;
-  const pic = m.img ? (() => { const cn = m.imgFit === 'contain', p = cn ? 14 : 0; return `<clipPath id="k">${sh.svg}</clipPath><g clip-path="url(#k)">${cn ? '<rect width="100" height="100" fill="#ffffff"/>' : ''}<image href="${String(m.img).replace(/["<>\s]/g, '')}" x="${p}" y="${p}" width="${100 - 2 * p}" height="${100 - 2 * p}" preserveAspectRatio="xMidYMid ${cn ? 'meet' : 'slice'}"/></g>`; })() : '';
+  const pic = m.img ? (() => { const cn = m.imgFit === 'contain', p = cn ? 14 : 0; return `<clipPath id="k${uid}">${sh.svg}</clipPath><g clip-path="url(#k${uid})">${cn ? '<rect width="100" height="100" fill="#ffffff"/>' : ''}<image href="${String(m.img).replace(/["<>\s]/g, '')}" x="${p}" y="${p}" width="${100 - 2 * p}" height="${100 - 2 * p}" preserveAspectRatio="xMidYMid ${cn ? 'meet' : 'slice'}"/></g>`; })() : '';
   const glyph = m.img ? '' : m.mono ? `<text x="50" y="${m.mono.length > 1 ? 63 : 68}" text-anchor="middle" font-family="${font}" font-weight="800" font-size="${(m.mono.length > 1 ? 36 : 50) * (m.scale || 1)}" fill="${fg}">${String(m.mono).replace(/[<>&]/g, '')}</text>`
     : `<g transform="translate(${(50 - 12 * sc).toFixed(2)},${(50 - 12 * sc).toFixed(2)}) scale(${sc.toFixed(3)})" fill="none" stroke="${fg}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ic}</g>`;
   const mark = m.img ? `<g fill="${m.imgFit === 'contain' ? '#ffffff' : m.c1}">${sh.svg}</g>${pic}` : `<g ${line ? `stroke="${m.c1}" stroke-width="6"` : ''} fill="${fill}">${sh.svg}</g>${glyph}`;

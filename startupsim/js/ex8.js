@@ -166,3 +166,5 @@ reg({
   },
   ready(S, d) { const r = cfRun(d); if (r.neg) return { ok: false, msg: `Залишок негативний у ${r.neg} тижнях: змініть порядок платежів` }; if (r.final < 3000) return { ok: false, msg: 'Наприкінці має лишитись хоча б 3 000 ₴' }; return { ok: true, stars: 1 + (r.min >= 5000 ? 1 : 0) + (!+d.cr ? 1 : 0) }; },
 });
+
+export { pal, MOODS };
