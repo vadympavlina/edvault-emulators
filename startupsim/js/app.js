@@ -16,6 +16,7 @@ import './ex1.js';
 import './ex-need.js';
 import './ex-start.js';
 import './ex1b.js';
+import './ex-aud.js';
 import './ex-brand.js';
 import './ex2.js';
 import './ex3.js';

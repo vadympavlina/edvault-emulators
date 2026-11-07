@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { newGame, okState, Sim } from '../startupsim/js/sim.js';
 import { packGame, unpackGame } from '../startupsim/js/file.js';
 
-await Promise.all(['ex1', 'ex-need', 'ex-start', 'ex1b', 'ex-brand', 'ex2', 'ex3', 'ex3b', 'ex4', 'ex5', 'ex6', 'ex7', 'ex8', 'ex9'].map(m => import(`../startupsim/js/${m}.js`)));
+await Promise.all(['ex1', 'ex-need', 'ex-start', 'ex1b', 'ex-aud', 'ex-brand', 'ex2', 'ex3', 'ex3b', 'ex4', 'ex5', 'ex6', 'ex7', 'ex8', 'ex9'].map(m => import(`../startupsim/js/${m}.js`)));
 const { EX, X, exDone, exCount, exPage, exAll } = await import('../startupsim/js/ex-core.js');
 const { STAGES, stageInfo, syncStage, isOpen } = await import('../startupsim/js/stages.js');
 const { stageRail, stageSheet, stageBar, goalCard } = await import('../startupsim/js/v-stages.js');

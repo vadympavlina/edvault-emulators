@@ -66,7 +66,7 @@ function review(d) {
 }
 
 reg({
-  id: 'logo', stage: 1, cols: true, t: 'Логотип і фірмовий стиль', d: 'Створіть логотип у брендовій студії: стиль, знак, кольори, напис, перевірка й макети.', icon: 'palette', min: 20,
+  id: 'logo', stage: 1, ord: 4, cols: true, t: 'Логотип і фірмовий стиль', d: 'Створіть логотип у брендовій студії: стиль, знак, кольори, напис, перевірка й макети.', icon: 'palette', min: 20,
   intro: `У студії ви збираєте логотип крок за кроком: оберіть <b>стартовий стиль</b> або починайте з нуля, налаштуйте знак, кольори й напис, перевірте логотип на читабельність і подивіться, як він виглядає на телефоні, візитці, сайті й футболці. Можна зберегти до чотирьох варіантів і порівняти їх, а готовий логотип завантажити у файл.`,
   data: S => ({ tab: 'start', name: S.s.company.name, tag: '', shape: 'squircle', sym: S.s.company.sym || 'spark', img: '', imgS: '', useImg: false, imgFit: 'cover', useMono: false, mono: '', style: 'solid', scale: 100, c1: S.s.company.color, c2: '', grad: false, ang: 140, fg: '#ffffff', font: 'modern', layout: 'side', upper: false, track: 0, bg: 'light', variants: [], t: 0 }),
   onSet: (S, d, p) => { if (p !== 'tab' && p !== 'bg') d.t = (d.t || 0) + 1; },

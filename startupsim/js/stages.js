@@ -14,7 +14,7 @@ export const STAGES = [
     topics: ['Вибір ніші', 'Ринок і конкуренти', 'Потреби клієнтів', 'Бізнес-план і модель', 'Створення продукту'],
     open: ['dash', 'inbox', 'customers', 'plan', 'product', 'help', 'report'],
     req: [E('niche'), E('market'), E('needs'),
-      A(S => ({ t: 'Опишіть бізнес-план', d: `Заповнено ${Math.min(S.canvasFilled(), 5)} з 5 блоків. Розділ «Бізнес-план» показує, що з написаного підтверджено інтерв’ю.`, ok: S.canvasFilled() >= 5, go: 'plan', btn: 'До плану', hl: '.canvas', ic: 'plan' })),
+      A(S => ({ t: 'Опишіть бізнес-план', d: `Заповнено ${Math.min(S.canvasFilled(), 5)} з 5 блоків. Розділ «Бізнес-план» показує, що з написаного підтверджено інтерв’ю.`, ok: S.canvasFilled() >= 5, go: 'plan', btn: 'До плану', hl: '.bp', ic: 'plan' })),
       E('mvp')],
     opt: [E('interview'), E('bmodel'), A(S => ({ t: 'Запустіть першу версію', d: S.s.product.launched ? 'Продукт запущено.' : S.canLaunch() ? 'Одна функція вже готова — можна запускати.' : 'Стане можливим, коли буде готова хоч одна функція (потрібен час: завершуйте тижні).', ok: S.s.product.launched, go: 'product', btn: 'До продукту', hl: '.launch', ic: 'rocket' }))] },
   { id: 'brand', t: STAGE_T[1], long: 'Визначте, кому продаєте, і створіть бренд',

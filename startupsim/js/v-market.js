@@ -59,21 +59,43 @@ function interviewModal(C, k) {
 /* ═════════ Бізнес-план ═════════ */
 function plan(S) {
   const s = S.s, c = s.canvas, chk = S.canvasCheck(), filled = S.canvasFilled();
+  // простими словами: назва, підказка, приклад; у дужках — назва блока в методі Lean Canvas
+  const P = {
+    segment: ['Хто ваші клієнти?', 'Група людей, яка потрібна вам першою.', 'Сегменти клієнтів'],
+    problem: ['Яку проблему ви розв’язуєте?', 'Що болить вашим клієнтам. Пишіть про їхній біль, а не про ваш продукт.', 'Проблема', 'Наприклад: батьки щовечора по 2 години допомагають з уроками й не можуть пояснити математику'],
+    solution: ['Що вміє ваш продукт?', 'Позначте функції, які розв’язують проблему.', 'Рішення'],
+    uvp: ['Чому обирають саме вас?', 'Одне речення: яку користь отримає клієнт і чим це краще за інші способи.', 'Унікальна ціннісна пропозиція', 'Наприклад: пояснюємо будь-яку задачу за 5 хвилин і дешевше за репетитора'],
+    advantage: ['Чим ви кращі так, що важко повторити?', 'Те, що конкуренти не скопіюють за тиждень.', 'Конкурентна перевага'],
+    channels: ['Де ви знайдете клієнтів?', 'Оберіть способи, через які люди дізнаються про вас.', 'Канали'],
+    revenue: ['Як ви заробляєте?', 'За що й скільки платять клієнти.', 'Потоки доходів', `Наприклад: ${MODELS[S.modelOf(s.target)].t.toLowerCase()}, ${money(s.price[s.target])}`],
+    costs: ['На що йдуть гроші?', 'Що доведеться оплачувати щомісяця.', 'Структура витрат', 'Зарплати, сервери, реклама, податки…'],
+    metrics: ['За якими цифрами стежите?', 'Показники, за якими видно, що справи йдуть добре.', 'Ключові метрики'],
+  };
   const st = k => chk[k] ? `<p class="cv-st ${chk[k].s}">${icon(chk[k].s === 'ok' ? 'check' : chk[k].s === 'warn' ? 'info' : 'alert', 14)} ${esc(chk[k].m)}</p>` : '';
-  const ta = (k, ph) => `<textarea class="inp" rows="3" data-in="canvas" data-k="${k}" placeholder="${esc(ph)}">${esc(c[k] || '')}</textarea>`;
+  const done = k => { const v = c[k]; return Array.isArray(v) ? v.length > 0 : k === 'segment' || k === 'advantage' ? !!v : !!(v && String(v).trim().length >= 3); };
+  const ta = (k) => `<textarea class="inp" rows="3" data-in="canvas" data-k="${k}" placeholder="${esc(P[k][3] || '')}">${esc(c[k] || '')}</textarea>`;
   const checks = (k, items) => `<div class="cv-checks">${items.map(([id, t]) => `<label><input type="checkbox" data-in="canvasList" data-k="${k}" value="${id}" ${(c[k] || []).includes(id) ? 'checked' : ''}> ${esc(t)}</label>`).join('')}</div>`;
-  const B = (k, body, cls = '') => `<div class="cv-b ${k} ${cls}"><header><b>${CANVAS[k].t}</b><small>${CANVAS[k].hint}</small></header>${body}${st(k)}</div>`;
-  return `<p class="lead">Lean Canvas — бізнес-план на одній сторінці. Заповніть усі 9 блоків. Позначки показують, що підтверджено вашими даними, а що поки — лише припущення. Заповнено: <b>${filled} / 9</b>.</p>
-  <div class="canvas">
-    ${B('problem', ta('problem', 'Наприклад: батьки щовечора по 2 години допомагають з уроками й не можуть пояснити математику'))}
-    ${B('solution', checks('solution', Object.entries(S.I.features).filter(([, f]) => !f.infra && !f.analytics).map(([id, f]) => [id, f.t])))}
-    ${B('uvp', ta('uvp', 'Одне речення: чому обирають саме вас'))}
-    ${B('advantage', `<div class="cv-checks">${Object.entries(ADVANTAGES).map(([id, a]) => `<label><input type="radio" name="adv" data-in="canvas" data-k="advantage" value="${id}" ${c.advantage === id ? 'checked' : ''}> ${esc(a.t)}</label>`).join('')}</div>`)}
-    ${B('segment', `<select class="inp" data-in="canvas" data-k="segment"><option value="">Оберіть…</option>${S.segIds.map(k => `<option value="${k}" ${c.segment === k ? 'selected' : ''}>${esc(S.seg(k).t)}</option>`).join('')}</select>`)}
-    ${B('metrics', checks('metrics', Object.entries(METRICS)))}
-    ${B('channels', checks('channels', Object.entries(CHANNELS).map(([id, ch]) => [id, ch.t])))}
-    ${B('costs', ta('costs', 'Зарплати, сервери, реклама, податки…'))}
-    ${B('revenue', ta('revenue', `Наприклад: ${MODELS[S.modelOf(s.target)].t.toLowerCase()}, ${money(s.price[s.target])}`))}
+  const inputs = {
+    problem: () => ta('problem'), uvp: () => ta('uvp'), costs: () => ta('costs'), revenue: () => ta('revenue'),
+    solution: () => checks('solution', Object.entries(S.I.features).filter(([, f]) => !f.infra && !f.analytics).map(([id, f]) => [id, f.t])),
+    advantage: () => `<div class="cv-checks">${Object.entries(ADVANTAGES).map(([id, a]) => `<label><input type="radio" name="adv" data-in="canvas" data-k="advantage" value="${id}" ${c.advantage === id ? 'checked' : ''}> ${esc(a.t)}</label>`).join('')}</div>`,
+    segment: () => `<select class="inp" data-in="canvas" data-k="segment"><option value="">Оберіть…</option>${S.segIds.map(k => `<option value="${k}" ${c.segment === k ? 'selected' : ''}>${esc(S.seg(k).t)}</option>`).join('')}</select>`,
+    metrics: () => checks('metrics', Object.entries(METRICS)), channels: () => checks('channels', Object.entries(CHANNELS).map(([id, ch]) => [id, ch.t])),
+  };
+  let n = 0;
+  const B = k => { n++; return `<div class="bp-b cv-b ${k} ${done(k) ? 'done' : ''}"><header><span class="bp-n">${done(k) ? icon('check', 14) : n}</span><div><b>${P[k][0]}</b><small>${P[k][1]}</small><em>${P[k][2]}</em></div></header>${inputs[k]()}${st(k)}</div>`; };
+  const G = [['Про кого й про що', ['segment', 'problem']], ['Що ви пропонуєте', ['solution', 'uvp', 'advantage']], ['Де клієнти й гроші', ['channels', 'revenue']], ['Витрати й показники', ['costs', 'metrics']]];
+  const order = G.flatMap(g => g[1]), next = order.find(k => !done(k));
+  const seg = c.segment && S.seg(c.segment)?.t, feats = (c.solution || []).map(id => S.I.features[id]?.t).filter(Boolean), chs = (c.channels || []).map(id => CHANNELS[id]?.t).filter(Boolean), adv = ADVANTAGES[c.advantage]?.t;
+  const para = [seg && `Ми працюємо для групи «${esc(seg)}».`, c.problem && `Їхня проблема: ${esc(c.problem.trim())}`, c.uvp && `Наша пропозиція: ${esc(c.uvp.trim())}`, feats.length && `Продукт уміє: ${esc(feats.join(', ').toLowerCase())}.`, adv && `Наша перевага: ${esc(adv.toLowerCase())}.`, chs.length && `Клієнтів шукаємо через: ${esc(chs.join(', ').toLowerCase())}.`, c.revenue && `Заробляємо так: ${esc(c.revenue.trim())}`, c.costs && `Основні витрати: ${esc(c.costs.trim())}`].filter(Boolean);
+  const eg = `Проблема: ${S.I.problem}. Пропозиція: ${S.I.pitch}`;
+  return `<p class="lead">Бізнес-план — це відповіді на дев’ять простих запитань про вашу компанію (їх ще називають Lean Canvas). Йдіть зверху вниз: праворуч з відповідей складається короткий опис вашого бізнесу. Позначки під блоками показують, що підтверджено інтерв’ю й даними, а що поки лише припущення.</p>
+  <div class="bp">
+    <div class="bp-main">${G.map(([t, ks], i) => `<section class="bp-g"><h3><span class="ex-n">${i + 1}</span>${t}<small>${ks.filter(done).length} з ${ks.length}</small></h3><div class="bp-grid ${ks.length === 3 ? 'g3' : ''}">${ks.map(B).join('')}</div></section>`).join('')}</div>
+    <aside class="bp-side"><section class="card"><header class="card-h"><h3>${icon('plan')} Ваш бізнес-план</h3><span class="muted sm">${filled} з 9</span></header>${meter(filled / 9, { color: filled >= 9 ? 'var(--ok)' : 'var(--acc)' })}
+      <p class="bp-sum">${para.length ? para.join(' ') : '<span class="muted">Тут з’явиться короткий опис вашого бізнесу, коли ви заповните перші блоки.</span>'}</p>
+      ${next ? `<p class="bp-next">${icon('bulb', 16)} <span>Далі: <b>${P[next][0]}</b></span></p>` : `<p class="bp-next ok">${icon('check', 16)} <span>Усі дев’ять блоків заповнено. Перевірте позначки: чи підтверджує їх реальність.</span></p>`}
+      <details class="bp-eg"><summary>Показати приклад</summary><p>${esc(eg)}. Подивіться, як у прикладі проблема написана про клієнта, а пропозиція про користь.</p></details></section></aside>
   </div>`;
 }
 
