@@ -309,7 +309,7 @@ function startWizard() {
       ${(() => { const l = ideaCheck(c).filter(x => x.lvl === 'warn' && /функц|Проблем|груп/i.test(x.t)); return l.length ? `<div class="wz-later">${icon('bulb', 18)}<div><b>Підказки наставниці</b><ul>${l.map(x => `<li>${esc(x.t)}</li>`).join('')}</ul></div></div>` : ''; })()}`,
     founder: () => `${tag('founder')}<h2>Хто ви і як називається компанія?</h2><div class="wz-two"><label class="wz-f"><span>Ваше ім'я та прізвище</span><input class="inp" data-w="name" value="${esc(w.name)}" placeholder="Наприклад, Олена Коваль" maxlength="40" autofocus></label><label class="wz-f"><span>Клас або група <small class="muted">(необов'язково)</small></span><input class="inp" data-w="group" value="${esc(w.group)}" placeholder="Наприклад, 9-Б" maxlength="20"></label></div>
       <label class="wz-f"><span>Назва компанії</span><input class="inp" data-w="company" value="${esc(w.company)}" placeholder="Наприклад, ${{ homework: 'Зрозумій', plant: 'Полий-ка', english: 'Speakly', booking: 'Записатись', custom: 'Моя компанія' }[w.idea]}" maxlength="24"></label>
-      <p class="sm muted">Ваш досвід визначає, що вам вдається найкраще.</p><div class="wz-bgs">${Object.entries(BACKGROUNDS).map(([k, b]) => `<button class="wz-bg ${w.bg === k ? 'on' : ''}" data-w="bg" data-v="${k}">${icon(b.icon, 24)}<b>${b.t}</b><small>${b.desc}</small></button>`).join('')}</div>
+      <div class="wz-f"><span>Ваш досвід</span></div><p class="sm muted wz-sub">Він визначає, що вам вдається найкраще. Обрати можна лише одне.</p><div class="wz-bgs">${Object.entries(BACKGROUNDS).map(([k, b]) => `<button class="wz-bg ${w.bg === k ? 'on' : ''}" data-w="bg" data-v="${k}">${icon(b.icon, 24)}<b>${b.t}</b><small>${b.desc}</small></button>`).join('')}</div>
       <div class="wz-later">${icon('info', 18)}<div><b>Початок: ${money(150000)} власних заощаджень.</b><p>Решту ви зробите на своїх етапах: логотип і стиль — на етапі 2, гроші від родини й інвесторів — на етапі 5. Простий чи повний режим гри можна змінити в меню «Ще».</p></div></div>`,
   };
   const check = {
@@ -320,7 +320,7 @@ function startWizard() {
   };
   const draw = () => {
     const st = steps(), key = st[w.step];
-    el.innerHTML = `<div class="wz-card"><div class="wz-steps">${st.map((k, i) => `<span class="${i === w.step ? 'on' : i < w.step ? 'done' : ''}">${i < w.step ? icon('check', 14) : i + 1}<small>${TITLES[k]}</small></span>`).join('')}</div>
+    el.innerHTML = `<div class="wz-card"><div class="wz-steps">${st.map((k, i) => `<span class="${i === w.step ? 'on' : i < w.step ? 'done' : ''}"><i>${i < w.step ? icon('check', 14) : i + 1}</i><small>${TITLES[k]}</small></span>`).join('')}</div>
       <div class="wz-body">${VIEW[key]()}</div>
       <div class="wz-nav">${w.step ? `<button class="btn" data-w="back">${icon('left', 16)} Назад</button>` : S ? `<button class="btn ghost" data-w="cancel">Скасувати</button>` : '<span></span>'}<button class="btn primary lg" data-w="next">${w.step === st.length - 1 ? `${icon('rocket', 18)} Заснувати компанію` : `Далі ${icon('right', 16)}`}</button></div></div>`;
     el.querySelector('[autofocus]')?.focus();

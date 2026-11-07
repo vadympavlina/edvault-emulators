@@ -706,3 +706,16 @@ body.simple .adv { display: none; }
 .tab { padding: 10px 18px; }
 .main > .ex, .main > .home, .main > .pg, .main > * { scroll-margin-top: 90px; }
 @media (max-width: 640px) { .top { margin-top: 8px; top: 6px; padding: 8px 8px; min-height: 60px; } .navtabs { padding: 12px 8px 4px; } .tab { padding: 8px 11px; } }
+
+/* майстер створення: стабільна висота, рівні підписи кроків, компактні картки ідей */
+.wz-steps span { gap: 4px; }
+.wz-steps i { font-style: normal; height: 18px; display: flex; align-items: center; line-height: 1; }
+.wz-steps small { line-height: 1.2; }
+.wz-body { min-height: min(500px, calc(100vh - 230px)); }
+.wz-ideas { gap: 10px; }
+.wz-idea { display: grid; grid-template-columns: 46px minmax(0, 1fr); column-gap: 14px; row-gap: 2px; align-items: start; padding: 14px 16px; }
+.wz-idea .wz-ic { grid-row: 1 / span 3; }
+.wz-idea.own { grid-column: 1 / -1; }
+.wz-sub { margin: -2px 0 10px; }
+@media (max-width: 760px) { .wz-body { min-height: 0; } }
+.wz-body .wz-f:has(+ .wz-sub) { margin-bottom: 0; }
