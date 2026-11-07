@@ -3,7 +3,8 @@
 import { esc } from './ui.js';
 import { icon } from './icons.js';
 import { reg, xb, xp, xin, xsl, xcol, tip, box, checks, bar, clamp } from './ex-core.js';
-import { logoMark, logoSvg, SHAPES, SHAPE_KEYS } from './logo.js';
+import { logoMark, logoSvg, SHAPES, SHAPE_KEYS, shapeCss } from './logo.js';
+import { X } from './ex-core.js';
 
 const len = s => String(s || '').trim().length;
 
@@ -30,6 +31,7 @@ const TPL = [
   ['Дитячий', 'Веселий і яскравий: крапля, грайливий шрифт.', { shape: 'drop', sym: 'star', style: 'solid', c1: '#ec4899', c2: '#f59e0b', grad: true, ang: 140, fg: '#ffffff', font: 'playful', layout: 'side', upper: false, track: 0, useMono: false }],
   ['Класика', 'Довіра й традиція: арка, синій, книжковий шрифт.', { shape: 'arch', sym: 'bank', style: 'solid', c1: '#1d4ed8', c2: '', grad: false, ang: 140, fg: '#ffffff', font: 'classic', layout: 'side', upper: false, track: 0, useMono: false }],
 ];
+const ED = { z: 100, x: 0, y: 0, rot: 0, flip: false, gray: false, br: 100, ct: 100, cut: 0, bg: 'brand' };
 const SNAP = ['shape', 'sym', 'useImg', 'imgFit', 'useMono', 'mono', 'style', 'scale', 'c1', 'c2', 'grad', 'ang', 'fg', 'font', 'layout', 'upper', 'track', 'tag'];
 const TABS = [['start', 'Старт', 'rocket'], ['mark', 'Знак', 'cube'], ['color', 'Кольори', 'palette'], ['text', 'Напис', 'pen'], ['check', 'Перевірка', 'check']];
 
@@ -68,15 +70,18 @@ function review(d) {
 reg({
   id: 'logo', stage: 1, ord: 4, cols: true, t: 'Логотип і фірмовий стиль', d: 'Створіть логотип у брендовій студії: стиль, знак, кольори, напис, перевірка й макети.', icon: 'palette', min: 20,
   intro: `У студії ви збираєте логотип крок за кроком: оберіть <b>стартовий стиль</b> або починайте з нуля, налаштуйте знак, кольори й напис, перевірте логотип на читабельність і подивіться, як він виглядає на телефоні, візитці, сайті й футболці. Можна зберегти до чотирьох варіантів і порівняти їх, а готовий логотип завантажити у файл.`,
-  data: S => ({ tab: 'start', name: S.s.company.name, tag: '', shape: 'squircle', sym: S.s.company.sym || 'spark', img: '', imgS: '', useImg: false, imgFit: 'cover', useMono: false, mono: '', style: 'solid', scale: 100, c1: S.s.company.color, c2: '', grad: false, ang: 140, fg: '#ffffff', font: 'modern', layout: 'side', upper: false, track: 0, bg: 'light', variants: [], t: 0 }),
-  onSet: (S, d, p) => { if (p !== 'tab' && p !== 'bg') d.t = (d.t || 0) + 1; },
+  data: S => ({ tab: 'start', name: S.s.company.name, tag: '', shape: 'squircle', sym: S.s.company.sym || 'spark', img: '', imgS: '', imgO: '', ed: { ...ED }, useImg: false, imgFit: 'cover', useMono: false, mono: '', style: 'solid', scale: 100, c1: S.s.company.color, c2: '', grad: false, ang: 140, fg: '#ffffff', font: 'modern', layout: 'side', upper: false, track: 0, bg: 'light', variants: [], t: 0 }),
+  onSet: (S, d, p) => { if (p !== 'tab' && p !== 'bg') d.t = (d.t || 0) + 1; if (/^ed\./.test(p) || p === 'c1') rebake(d); },
   view(S, d) {
+    if (d.img && !d.imgO) d.imgO = d.img; // старі збереження: зображення без оригіналу
+    if (d.imgO && !IMGC.has(d.imgO)) rebake(d);
+    d.ed ||= { ...ED };
     const tabs = `<div class="bs-tabs" role="tablist">${TABS.map(([k, t, ic]) => `<button type="button" role="tab" aria-selected="${d.tab === k}" class="${d.tab === k ? 'on' : ''}" data-act="ex" data-ex="logo" data-do="set" data-p="tab" data-v="${k}" data-t="s">${icon(ic, 16)}<span>${t}</span></button>`).join('')}</div>`;
     const m = markOf(d);
     const panel = {
       start: () => box('Стартові стилі', `<p class="sm muted">Оберіть стиль, і він одразу застосується до вашої назви. Далі його можна змінювати на інших вкладках.</p><div class="bs-tpl">${TPL.map(([t, desc, c], i) => `<button type="button" class="bs-t" data-act="ex" data-ex="logo" data-do="tpl" data-a="${i}">${lockup({ ...d, ...c }, { size: 38 })}<b>${t}</b><small>${desc}</small></button>`).join('')}</div>
         <div class="xrow mt">${xb('logo', 'rand', 'Здивуй мене', { ic: 'refresh' })}<small class="muted">Випадкові форма, символ і кольори</small></div>`, { ic: 'rocket' }),
-      mark: () => `${box('Своє зображення', d.img ? `<div class="bs-img"><img src="${esc(d.img)}" alt="Ваше зображення"><div class="bs-imgc"><label class="switch"><input type="checkbox" data-exi="logo" data-p="useImg" ${d.useImg ? 'checked' : ''}><span></span>Використати як знак</label><div class="xrow" style="margin-top:8px">${xp('logo', 'imgFit', 'cover', 'Заповнити форму', d.imgFit !== 'contain')}${xp('logo', 'imgFit', 'contain', 'Вписати повністю', d.imgFit === 'contain')}</div><div class="xrow" style="margin-top:8px">${xb('logo', 'pickImg', 'Замінити', { ic: 'open', cls: 'sm' })}${xb('logo', 'rmImg', 'Прибрати', { ic: 'trash', cls: 'sm' })}</div></div></div>` : `<div class="bs-drop">${xb('logo', 'pickImg', 'Завантажити зображення', { ic: 'open', cls: 'primary' })}<p class="sm muted">PNG, JPG, SVG або WebP до 8 МБ. Найкраще працює квадратне зображення на однотонному тлі. Файл лишається у вашому браузері й нікуди не надсилається.</p></div>`, { ic: 'open' })}
+      mark: () => `${box('Своє зображення або фото', d.img ? photoEditor(d) : `<div class="bs-drop" data-imgdrop>${xb('logo', 'pickImg', 'Завантажити зображення', { ic: 'open', cls: 'primary' })}<button type="button" class="btn" data-act="ex" data-ex="logo" data-do="camImg">${icon('phone', 16)} Зробити фото</button><p class="sm muted">PNG, JPG, SVG або WebP до 8 МБ. Файл можна <b>перетягнути сюди</b> або <b>вставити з буфера</b> (Ctrl+V). Найкраще працює квадратне зображення. Файл лишається у вашому браузері й нікуди не надсилається.</p></div>`, { ic: 'open' })}
         ${box('Форма знака', `<div class="bs-shapes">${SHAPE_KEYS.map(k => `<button type="button" class="bs-sh ${d.shape === k ? 'on' : ''}" aria-pressed="${d.shape === k}" data-act="ex" data-ex="logo" data-do="set" data-p="shape" data-v="${k}" data-t="s" title="${SHAPES[k].t}">${logoMark({ ...m, shape: k }, 46)}<small>${SHAPES[k].t}</small></button>`).join('')}</div>`, { ic: 'cube' })}
         ${box('Символ', `<div class="xrow" style="margin-bottom:10px"><label class="switch"><input type="checkbox" data-exi="logo" data-p="useMono" ${d.useMono ? 'checked' : ''}><span></span>Літери замість символу (монограма)</label>${d.useMono ? `<label class="xf" style="width:120px"><span class="xf-l">Літери</span><input class="inp" type="text" data-exi="logo" data-p="mono" maxlength="2" value="${esc(d.mono || initials(d.name))}" autocomplete="off"></label>` : ''}</div>
           <div class="syms bs-syms ${d.useMono || (d.useImg && d.img) ? 'off' : ''}" role="group" aria-label="Символ">${SYMS.map(sy => `<button type="button" class="sym ${d.sym === sy ? 'on' : ''}" data-act="ex" data-ex="logo" data-do="set" data-p="sym" data-v="${sy}" data-t="s" aria-label="${sy}" ${d.useMono ? 'tabindex="-1"' : ''}>${icon(sy, 20)}</button>`).join('')}</div>`, { ic: 'star' })}
@@ -123,18 +128,12 @@ reg({
     saveVar(S, d, el, C) { d.variants ||= []; if (d.variants.length >= 4) { C?.toast?.('Можна зберегти до чотирьох варіантів', 'bad'); return false; } const v = {}; SNAP.forEach(k => { v[k] = d[k]; }); d.variants.push(v); C?.toast?.('Варіант збережено', 'good'); },
     openVar(S, d, el) { const v = d.variants?.[+el.dataset.i]; if (v) Object.assign(d, v); },
     delVar(S, d, el) { d.variants?.splice(+el.dataset.i, 1); },
-    pickImg(S, d, el, C) {
-      const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.hidden = true; document.body.appendChild(inp);
-      inp.addEventListener('change', async () => {
-        const f = inp.files?.[0]; inp.remove(); if (!f) return;
-        if (!/^image\//.test(f.type)) { C?.toast?.('Оберіть файл зображення: PNG, JPG, SVG або WebP', 'bad'); return; }
-        if (f.size > 8e6) { C?.toast?.('Зображення завелике: потрібно до 8 МБ', 'bad'); return; }
-        try { const im = await readImage(f); d.img = shrink(im, 320); d.imgS = shrink(im, 96); d.useImg = true; d.t = (d.t || 0) + 3; C.render(); C.saveSoon(); C?.toast?.('Зображення додано', 'good'); }
-        catch { C?.toast?.('Не вдалося прочитати зображення', 'bad'); }
-      });
-      inp.click(); return false;
-    },
-    rmImg(S, d) { d.img = ''; d.imgS = ''; d.useImg = false; },
+    pickImg(S, d, el, C) { chooseFile(C, d, false); return false; },
+    camImg(S, d, el, C) { chooseFile(C, d, true); return false; },
+    rmImg(S, d) { d.img = ''; d.imgS = ''; d.imgO = ''; d.useImg = false; d.ed = { ...ED }; },
+    rotImg(S, d, el, C) { d.ed = { ...ED, ...d.ed }; d.ed.rot = (d.ed.rot + 90) % 360; rebake(d, C); },
+    flipImg(S, d, el, C) { d.ed = { ...ED, ...d.ed }; d.ed.flip = !d.ed.flip; rebake(d, C); },
+    resetImg(S, d, el, C) { d.ed = { ...ED }; rebake(d, C); },
     dlSvg(S, d) { download(new Blob([svgOf(d)], { type: 'image/svg+xml' }), `${fileName(d)}.svg`); },
     dlPng(S, d, el, C) {
       const svg = svgOf(d), img = new Image(), w = +/width="(\d+)"/.exec(svg)[1], h = +/height="(\d+)"/.exec(svg)[1];
@@ -161,13 +160,76 @@ const fileName = d => 'logo-' + (String(d.name || 'brand').toLowerCase().replace
 const svgOf = d => { const F = BF[d.font] || BF.modern; return logoSvg(markOf(d), { name: d.name, tag: d.tag, layout: d.layout, font: F.css.replace(/"/g, "'"), weight: F.w, upper: d.upper, track: d.track || 0 }); };
 function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); }
 
-/* ── зображення: читання й зменшення, щоб у збереженні не було важких файлів ── */
-function readImage(file) {
-  return new Promise((res, rej) => { const url = URL.createObjectURL(file), im = new Image(); im.onload = () => { res(im); setTimeout(() => URL.revokeObjectURL(url), 2000); }; im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('image')); }; im.src = url; });
-}
+/* ── фото: завантаження, редагування й «запікання» у знак ── */
+const IMGC = new Map(); // кеш завантажених зображень: інакше довелося б чекати на кожну зміну повзунка
+const loadSrc = src => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error('image')); im.src = src; });
+function readImage(file) { return new Promise((res, rej) => { const url = URL.createObjectURL(file), im = new Image(); im.onload = () => { res(im); setTimeout(() => URL.revokeObjectURL(url), 2000); }; im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('image')); }; im.src = url; }); }
+function pack(cv, cap) { let u = cv.toDataURL('image/png'); if (u.length > cap) { const w = cv.toDataURL('image/webp', .86); if (w.startsWith('data:image/webp')) u = w; } return u; }
 function shrink(im, max) {
   const w0 = im.naturalWidth || max, h0 = im.naturalHeight || max, k = Math.min(1, max / Math.max(w0, h0)), w = Math.max(1, Math.round(w0 * k)), h = Math.max(1, Math.round(h0 * k));
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h; cv.getContext('2d').drawImage(im, 0, 0, w, h);
-  let u = cv.toDataURL('image/png'); if (u.length > 180000) { u = cv.toDataURL('image/webp', .85); if (!u.startsWith('data:image/webp')) u = cv.toDataURL('image/jpeg', .85); }
-  return u;
+  return pack(cv, 240000);
+}
+// малює кадр із налаштуваннями редактора: масштаб, зсув, поворот, відзеркалення, фільтри, прибирання світлого фону
+function paint(im, d, size) {
+  const e = { ...ED, ...(d.ed || {}) }, cv = document.createElement('canvas'); cv.width = cv.height = size; const ctx = cv.getContext('2d');
+  if (e.bg === 'white') { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size); } else if (e.bg === 'brand') { ctx.fillStyle = d.c1; ctx.fillRect(0, 0, size, size); }
+  const w0 = im.naturalWidth || size, h0 = im.naturalHeight || size, sw = e.rot % 180 ? h0 : w0, sh = e.rot % 180 ? w0 : h0, base = Math.max(size / sw, size / sh) * e.z / 100;
+  ctx.save(); ctx.translate(size / 2 + e.x / 100 * size, size / 2 + e.y / 100 * size); ctx.rotate(e.rot * Math.PI / 180); ctx.scale(e.flip ? -base : base, base);
+  ctx.filter = `grayscale(${e.gray ? 1 : 0}) brightness(${e.br}%) contrast(${e.ct}%)`;
+  if (e.cut > 0) { // спершу малюємо окремо, щоб прибрати світлий фон лише з самого зображення
+    const t = document.createElement('canvas'); t.width = w0; t.height = h0; const tc = t.getContext('2d'); tc.drawImage(im, 0, 0);
+    const id = tc.getImageData(0, 0, w0, h0), a = id.data, lim = 255 - e.cut * 1.6;
+    for (let i = 0; i < a.length; i += 4) { const m = Math.min(a[i], a[i + 1], a[i + 2]); if (m >= lim) a[i + 3] = 0; else if (m >= lim - 24) a[i + 3] = a[i + 3] * (lim - m) / 24; }
+    tc.putImageData(id, 0, 0); ctx.drawImage(t, -w0 / 2, -h0 / 2);
+  } else ctx.drawImage(im, -w0 / 2, -h0 / 2);
+  ctx.restore();
+  return cv;
+}
+function bake(d) { const im = IMGC.get(d.imgO); if (!im) return false; d.img = pack(paint(im, d, 320), 200000); d.imgS = pack(paint(im, d, 96), 60000); return true; }
+// перемальовує знак; якщо зображення ще не в кеші (після перезавантаження сторінки), спершу вантажить його
+function rebake(d, C) {
+  if (!d.imgO) return;
+  if (bake(d)) return;
+  loadSrc(d.imgO).then(im => { IMGC.set(d.imgO, im); bake(d); (C || window.Startup?.C)?.render(); (C || window.Startup?.C)?.saveSoon?.(); }).catch(() => {});
+}
+async function useFile(file, C, d) {
+  if (!/^image\//.test(file.type)) { C?.toast?.('Оберіть файл зображення: PNG, JPG, SVG або WebP', 'bad'); return; }
+  if (file.size > 8e6) { C?.toast?.('Зображення завелике: потрібно до 8 МБ', 'bad'); return; }
+  try {
+    const im = await readImage(file), o = shrink(im, 512), im2 = await loadSrc(o);
+    IMGC.set(o, im2); d.imgO = o; d.ed = { ...ED }; d.useImg = true; d.t = (d.t || 0) + 3; bake(d);
+    C.render(); C.saveSoon(); C?.toast?.('Зображення додано', 'good');
+  } catch { C?.toast?.('Не вдалося прочитати зображення', 'bad'); }
+}
+function chooseFile(C, d, camera) {
+  const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; if (camera) inp.setAttribute('capture', 'environment'); inp.hidden = true; document.body.appendChild(inp);
+  inp.addEventListener('change', () => { const f = inp.files?.[0]; inp.remove(); if (f) useFile(f, C, d); });
+  inp.click();
+}
+function photoEditor(d) {
+  const e = { ...ED, ...(d.ed || {}) };
+  return `<div class="imged"><div class="imgl"><div class="imgfr" data-imgfr tabindex="0" role="img" aria-label="Кадрування: перетягніть, щоб зсунути зображення" style="${shapeCss(d.shape)}"><img draggable="false" src="${esc(d.img)}" alt=""></div><small>Перетягніть кадр, щоб зсунути (або стрілки на клавіатурі)</small>
+      <label class="switch"><input type="checkbox" data-exi="logo" data-p="useImg" ${d.useImg ? 'checked' : ''}><span></span>Використати як знак</label></div>
+    <div class="imgc">${xsl('logo', 'ed.z', { ed: e }, { min: 100, max: 400, step: 5, label: 'Масштаб', u: '%' })}<div class="xg c2">${xsl('logo', 'ed.x', { ed: e }, { min: -50, max: 50, step: 1, label: 'Ліворуч / праворуч', u: '' })}${xsl('logo', 'ed.y', { ed: e }, { min: -50, max: 50, step: 1, label: 'Вгору / вниз', u: '' })}</div>
+      <div class="xrow" style="margin:8px 0">${xb('logo', 'rotImg', 'Повернути', { ic: 'refresh', cls: 'sm' })}${xb('logo', 'flipImg', 'Віддзеркалити', { ic: 'undo', cls: 'sm' })}${xp('logo', 'ed.gray', e.gray ? '0' : '1', 'Чорно-біле', e.gray, { t: 'b' })}${xb('logo', 'resetImg', 'Скинути', { ic: 'x', cls: 'sm' })}</div>
+      <div class="xg c2">${xsl('logo', 'ed.br', { ed: e }, { min: 50, max: 150, step: 5, label: 'Яскравість', u: '%' })}${xsl('logo', 'ed.ct', { ed: e }, { min: 50, max: 200, step: 5, label: 'Контраст', u: '%' })}</div>
+      ${xsl('logo', 'ed.cut', { ed: e }, { min: 0, max: 60, step: 2, label: 'Прибрати світлий фон', u: '' })}
+      <div class="xrow" style="margin-top:6px"><span class="xf-l">Тло під зображенням:</span>${[['brand', 'Колір бренду'], ['white', 'Біле'], ['none', 'Прозоре']].map(([k, t]) => xp('logo', 'ed.bg', k, t, e.bg === k)).join('')}</div>
+      <div class="xrow" style="margin-top:6px"><span class="xf-l">У формі:</span>${xp('logo', 'imgFit', 'cover', 'Заповнити', d.imgFit !== 'contain')}${xp('logo', 'imgFit', 'contain', 'Вписати', d.imgFit === 'contain')}${xb('logo', 'pickImg', 'Замінити', { ic: 'open', cls: 'sm' })}${xb('logo', 'rmImg', 'Прибрати', { ic: 'trash', cls: 'sm' })}</div></div></div>`;
+}
+// перетягування кадру, вставка з буфера й скидання файлу на вправу; працює, лише коли відкрито «Логотип»
+if (typeof document !== 'undefined') {
+  const ctx = () => { const C = window.Startup?.C; if (!C?.S || !document.querySelector('[data-ex-root="logo"]')) return null; return { C, d: X(C.S, 'logo') }; };
+  let pan = null;
+  document.addEventListener('pointerdown', e => { const fr = e.target.closest?.('[data-imgfr]'); const c = fr && ctx(); if (!c) return; const r = fr.getBoundingClientRect(); const ed = c.d.ed = { ...ED, ...(c.d.ed || {}) }; pan = { fr, c, x0: e.clientX, y0: e.clientY, ex: ed.x, ey: ed.y, w: r.width, pid: e.pointerId }; fr.setPointerCapture?.(e.pointerId); fr.classList.add('drag'); });
+  document.addEventListener('pointermove', e => { if (!pan || e.pointerId !== pan.pid) return; const ed = pan.c.d.ed; ed.x = clamp(Math.round(pan.ex + (e.clientX - pan.x0) / pan.w * 100), -50, 50); ed.y = clamp(Math.round(pan.ey + (e.clientY - pan.y0) / pan.w * 100), -50, 50); if (bake(pan.c.d)) { pan.fr.querySelector('img').src = pan.c.d.img; } });
+  const endPan = () => { if (!pan) return; const p = pan; pan = null; p.fr.classList.remove('drag'); p.c.d.t = (p.c.d.t || 0) + 1; p.c.C.render(); p.c.C.saveSoon(); };
+  document.addEventListener('pointerup', endPan); document.addEventListener('pointercancel', endPan);
+  document.addEventListener('keydown', e => { const fr = e.target.closest?.('[data-imgfr]'); const c = fr && ctx(); if (!c || !e.key.startsWith('Arrow')) return; e.preventDefault(); const ed = c.d.ed = { ...ED, ...(c.d.ed || {}) }; ed.x = clamp(ed.x + (e.key === 'ArrowRight' ? 2 : e.key === 'ArrowLeft' ? -2 : 0), -50, 50); ed.y = clamp(ed.y + (e.key === 'ArrowDown' ? 2 : e.key === 'ArrowUp' ? -2 : 0), -50, 50); rebake(c.d, c.C); c.C.render(); c.C.saveSoon(); requestAnimationFrame(() => document.querySelector('[data-imgfr]')?.focus()); });
+  document.addEventListener('paste', e => { const c = ctx(); if (!c) return; const f = [...(e.clipboardData?.files || [])].find(x => /^image\//.test(x.type)); if (f) { e.preventDefault(); useFile(f, c.C, c.d); } });
+  document.addEventListener('dragover', e => { if (ctx() && [...(e.dataTransfer?.types || [])].includes('Files')) e.preventDefault(); });
+  document.addEventListener('drop', e => { const c = ctx(); const f = e.dataTransfer?.files?.[0]; if (!c || !f || !/^image\//.test(f.type)) return; e.preventDefault(); e.stopPropagation(); useFile(f, c.C, c.d); }, true);
+  // під час руху повзунка оновлюємо картинку в кадрі, не чекаючи на перемальовування сторінки
+  document.addEventListener('input', e => { if (!e.target.closest?.('[data-p^="ed."]')) return; const c = ctx(); if (!c) return; setTimeout(() => { const im = document.querySelector('[data-imgfr] img'); if (im && c.d.img) im.src = c.d.img; }, 0); });
 }

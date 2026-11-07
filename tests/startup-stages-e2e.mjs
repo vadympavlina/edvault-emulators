@@ -137,8 +137,11 @@ await step('логотип: власне зображення завантажу
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
   const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.click('[data-do="pickImg"]')]);
   await fc.setFiles({ name: 'logo.png', mimeType: 'image/png', buffer: png });
-  await p.waitForSelector('.bs-img img');
-  assert.equal(await p.locator('.bs-img img').getAttribute('src').then(x => x.startsWith('data:image/')), true);
+  await p.waitForSelector('.imgfr img');
+  assert.equal(await p.locator('.imgfr img').getAttribute('src').then(x => x.startsWith('data:image/')), true);
+  await p.click('[data-do="rotImg"]'); await p.click('[data-do="flipImg"]');
+  assert.equal((await S()).ex.d.logo.ed.rot, 90, 'поворот'); assert.equal((await S()).ex.d.logo.ed.flip, true, 'відзеркалення');
+  await range('[data-p="ed.z"]', '200'); assert.equal((await S()).ex.d.logo.ed.z, 200, 'масштаб');
   await p.click('.ex-foot .btn.primary'); await p.waitForSelector('#main .ws');
   const mk = (await S()).company.mk;
   assert.ok(mk.img.startsWith('data:image/'), 'зображення збережено в стані гри');

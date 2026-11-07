@@ -60,3 +60,6 @@ export function logoSvg(m, { name = '', tag = '', layout = 'side', font = 'sans-
   else { W = S + 30 + tw; H = S; body = `${mark.replace(/^/, '')}${T(S + 30, tg ? 56 : 66)}${G(S + 30, 90)}`; }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${Math.round(W)} ${Math.round(H)}" width="${Math.round(W * 2)}" height="${Math.round(H * 2)}"><defs>${grad}</defs>${body}</svg>`;
 }
+
+// стиль форми для довільного блока (наприклад, рамки кадрування)
+export const shapeCss = k => { const sh = SHAPES[k] || SHAPES.squircle; return `${sh.radius ? `border-radius:${sh.radius};` : ''}${sh.clip ? `clip-path:${sh.clip};` : ''}`; };
