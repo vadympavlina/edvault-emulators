@@ -752,3 +752,4 @@ body.simple .adv { display: none; }
 .view-hint p { font-size: 14px; line-height: 1.45; color: #3b3320; }
 .view-hint .ic { margin-top: 0; color: #7a5a00; }
 .view-hint .btn { padding: 4px 10px; font-size: 13px; }
+.seg-card header { min-height: 58px; } .seg-card .ins { margin-top: 2px; }
