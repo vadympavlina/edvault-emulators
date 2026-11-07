@@ -35,12 +35,12 @@ await step('маршрут: дев’ять етапів, закриті не в
 await step('вправа: відкривається зі справи, повертається до етапу, зберігає дані й завершується', async () => {
   await p.click('.ws .step:nth-child(1) .btn');
   await p.waitForSelector('.ex[data-ex-root="niche"]');
-  assert.match(await p.locator('.pg-h').innerText(), /Оцініть нішу/);
+  assert.match(await p.locator('.pg-h').innerText(), /Чи варта ідея того/);
   assert.match(await p.locator('.ex-foot').innerText(), /Можна завершити й так/, 'пункти вправи необов’язкові');
   assert.match(await p.locator('.ex-foot .btn.primary').innerText(), /Завершити як є/);
-  await range('[data-p="me.need"]', '4'); await range('[data-p="me.size"]', '5'); await range('[data-p="me.skill"]', '2');
+  await p.click('.rdot[data-p="me.need"][data-v="4"]'); await p.click('.rdot[data-p="me.size"][data-v="5"]'); await p.click('.rdot[data-p="me.skill"][data-v="2"]');
   assert.equal((await S()).ex.d.niche.me.size, 5);
-  assert.ok(await p.locator('.nrow .ns').first().innerText());
+  assert.match(await p.locator('.big-n').innerText(), /%/, 'є загальна оцінка');
   await p.fill('[data-exi="niche"][data-p="why"]', 'Проблема болить школярам, а конкурентів небагато.');
   assert.match(await p.locator('.ex-foot .btn.primary').innerText(), /Завершити вправу/);
   await p.click('.ex-foot .btn.primary');
