@@ -318,11 +318,20 @@ function startWizard() {
     cFeats: () => c.features.filter(f => f.name.trim()).length < 3 ? ['Потрібно щонайменше три функції', 'features.0.name'] : !c.features.some(f => f.core && f.name.trim()) ? ['Позначте основну функцію', null] : null,
     founder: () => !w.name.trim() ? ['Введіть своє ім\'я', null] : !w.company.trim() ? ['Придумайте назву компанії', 'company'] : null,
   };
+  // жива картка компанії: змінюється, поки учень обирає й вводить
+  const prevHtml = () => {
+    const I = IDEAS[w.idea], own = w.idea === 'custom', col = own ? '#374151' : I.color, bg = BACKGROUNDS[w.bg];
+    const title = own ? (c.name.trim() || 'Ваша власна ідея') : I.t, nm = w.company.trim();
+    return `<div class="wzp-top" style="--pc:${col}"><span class="wzp-k">Ваша компанія</span>${logo({ color: col, sym: own ? 'bulb' : I.icon }, 76)}<b class="${nm ? '' : 'wzp-ph'}">${esc(nm || 'Назва компанії')}</b><small>${esc(title)}</small></div>
+      <dl class="wzp-f"><div><dt>Засновник</dt><dd class="${w.name.trim() ? '' : 'wzp-ph'}">${esc(w.name.trim() || 'Ваше ім’я')}${w.group.trim() ? ` · ${esc(w.group.trim())}` : ''}</dd></div>
+        <div><dt>Досвід</dt><dd>${esc(bg.t)}</dd></div><div><dt>Власні гроші на старті</dt><dd>${money(150000)}</dd></div><div><dt>Шлях</dt><dd>9 етапів, до 2 років гри</dd></div></dl>`;
+  };
+  const upPrev = () => { const a = el.querySelector('.wz-prev'); if (a) a.innerHTML = prevHtml(); };
   const draw = () => {
     const st = steps(), key = st[w.step];
-    el.innerHTML = `<div class="wz-card"><div class="wz-steps">${st.map((k, i) => `<span class="${i === w.step ? 'on' : i < w.step ? 'done' : ''}"><i>${i < w.step ? icon('check', 14) : i + 1}</i><small>${TITLES[k]}</small></span>`).join('')}</div>
+    el.innerHTML = `<div class="wz-card ${key === 'hello' ? 'solo' : ''}"><div class="wz-main"><div class="wz-steps">${st.map((k, i) => `<span class="${i === w.step ? 'on' : i < w.step ? 'done' : ''}"><i>${i < w.step ? icon('check', 14) : i + 1}</i><small>${TITLES[k]}</small></span>`).join('')}</div>
       <div class="wz-body">${VIEW[key]()}</div>
-      <div class="wz-nav">${w.step ? `<button class="btn" data-w="back">${icon('left', 16)} Назад</button>` : S ? `<button class="btn ghost" data-w="cancel">Скасувати</button>` : '<span></span>'}<button class="btn primary lg" data-w="next">${w.step === st.length - 1 ? `${icon('rocket', 18)} Заснувати компанію` : `Далі ${icon('right', 16)}`}</button></div></div>`;
+      <div class="wz-nav">${w.step ? `<button class="btn" data-w="back">${icon('left', 16)} Назад</button>` : S ? `<button class="btn ghost" data-w="cancel">Скасувати</button>` : '<span></span>'}<button class="btn primary lg" data-w="next">${w.step === st.length - 1 ? `${icon('rocket', 18)} Заснувати компанію` : `Далі ${icon('right', 16)}`}</button></div></div><aside class="wz-prev" aria-label="Ваша компанія" aria-live="polite">${prevHtml()}</aside></div>`;
     el.querySelector('[autofocus]')?.focus();
   };
   const setPath = (path, v) => { const ks = path.split('.'); let o = c; for (let i = 0; i < ks.length - 1; i++) o = o[ks[i]]; o[ks.at(-1)] = v; };
@@ -365,8 +374,8 @@ function startWizard() {
   });
   el.addEventListener('input', e => {
     const t = e.target, k = t.dataset.w, p = t.dataset.c;
-    if (k === 'name' || k === 'company' || k === 'group') { w[k] = t.value; if (k === 'company') { const x = el.querySelector('.wz-co b'); if (x) x.textContent = w.company || 'Назва'; } }
-    else if (p && t.type !== 'checkbox' && t.type !== 'radio' && t.tagName !== 'SELECT') setPath(p, t.type === 'number' ? +t.value : t.value);
+    if (k === 'name' || k === 'company' || k === 'group') { w[k] = t.value; upPrev(); }
+    else if (p && t.type !== 'checkbox' && t.type !== 'radio' && t.tagName !== 'SELECT') { setPath(p, t.type === 'number' ? +t.value : t.value); if (p === 'name') upPrev(); }
   });
   el.addEventListener('change', e => {
     const t = e.target, p = t.dataset.c; if (!p) return;
