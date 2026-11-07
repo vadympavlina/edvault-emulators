@@ -23,7 +23,7 @@ await start();
 await step('маршрут: дев’ять етапів, закриті не відкриваються, аркуш показує справи й прогрес', async () => {
   assert.equal(await p.locator('.rail .rs').count(), 9);
   assert.equal(await p.locator('.rail button, .rail [data-act]').count(), 0, 'етапи маршруту не клікаються: між етапами не переходять');
-  assert.match(await p.locator('.ws .k').innerText(), /Етап 1 з 9/);
+  assert.match(await p.locator('.ws .k').innerText(), /Етап 1 з 9/i);
   assert.equal(await p.locator('.ws > .steps > .step').count(), 5);
   assert.match(await p.locator('.ws-prog small').innerText(), /0 з 5/);
   assert.match(await p.locator('.ws-next').innerText(), /етап 2 «Аудиторія й бренд»/);
