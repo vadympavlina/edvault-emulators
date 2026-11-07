@@ -419,7 +419,6 @@ body.wz-on .app { filter: blur(3px); }
   .price-row { grid-template-columns: 150px 1fr 110px; } .price-row .pf { grid-column: 1 / -1; }
   .canvas { grid-template-columns: 1fr 1fr; grid-template-areas: 'problem solution' 'uvp advantage' 'segment metrics' 'channels costs' 'revenue revenue'; }
   .pick4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hide-m { display: none; }
   /* одна колонка: спершу етап, далі наставниця й цифри, потім тиждень */
   .home { display: flex; flex-direction: column; align-items: stretch; } .home > .col { display: contents; }
   .home .col > * { order: 4; } .home .mentor { order: 2; } .home .status { order: 3; }
@@ -698,3 +697,5 @@ body.simple .adv { display: none; }
 .wz-later { display: flex; gap: 12px; align-items: flex-start; margin-top: 18px; padding: 12px 14px; border-radius: 14px; background: #f7f8fb; font-size: 14px; color: var(--tx2); } .wz-later .ic { flex: none; color: var(--acc-tx); margin-top: 2px; }
 .wz-later p, .wz-later ul { margin: 4px 0 0; } .wz-later ul { padding-left: 18px; }
 @media (max-width: 640px) { .wz-route { grid-template-columns: 1fr; } }
+
+@media (max-width: 1000px) { .hide-m { display: none; } }

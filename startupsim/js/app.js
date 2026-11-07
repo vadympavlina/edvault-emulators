@@ -381,7 +381,7 @@ document.addEventListener('click', e => {
     if (v) C.go(v); else askUnlock(tb[3][0]);
     return;
   }
-  if (k === 'stage') { ui.stage = +a.dataset.i; C.go('dash'); return; }
+  if (k === 'stage') { ui.stage = null; C.go('dash'); return; } // між етапами не переходять: лише на головну
   if (k === 'locked') return askUnlock(a.dataset.to);
   if (k === 'saveFile') return saveFile();
   if (k === 'newGame') return confirmBox('Почати нову гру?', 'Почати заново', { danger: true, sub: 'Поточна компанія буде втрачена.' }).then(ok => { if (ok) startWizard(); });

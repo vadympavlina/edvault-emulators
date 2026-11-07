@@ -22,8 +22,7 @@ await start();
 
 await step('маршрут: дев’ять етапів, закриті не відкриваються, аркуш показує справи й прогрес', async () => {
   assert.equal(await p.locator('.rail .rs').count(), 9);
-  assert.equal(await p.locator('.rail .rs:not([disabled])').count(), 1);
-  assert.equal(await p.locator('.rail .rs[disabled]').count(), 8);
+  assert.equal(await p.locator('.rail button, .rail [data-act]').count(), 0, 'етапи маршруту не клікаються: між етапами не переходять');
   assert.match(await p.locator('.ws .k').innerText(), /Етап 1 з 9/);
   assert.equal(await p.locator('.ws > .steps > .step').count(), 5);
   assert.match(await p.locator('.ws-prog small').innerText(), /0 з 5/);
@@ -113,11 +112,8 @@ await step('перший етап пройдено: відкривається �
   await p.evaluate(() => { const S = window.Startup.sim; S.s.ex ||= { d: {}, done: {} }; for (const id of ['niche', 'market', 'needs', 'mvp']) S.s.ex.done[id] = { w: 0, s: 2 }; S.s.canvas = { problem: 'Учні не розуміють домашку', segment: S.s.target, uvp: 'Пояснення за п’ять хвилин', solution: [Object.keys(S.I.features)[0]], channels: ['ads'] }; window.Startup.C.render(); });
   await go('dash');
   assert.match(await p.locator('.rail .rs.cur').innerText(), /Аудиторія й бренд/);
-  await p.click('.rail .rs[data-i="0"]');
-  assert.match(await p.locator('.ws-next.ok').innerText(), /Етап пройдено/);
   assert.equal(await p.locator('.rail .rs.done').count(), 1);
-  await p.click('.ws-next.ok .btn');
-  assert.match(await p.locator('.ws .k').innerText(), /Етап 2 з 9/);
+  assert.match(await p.locator('.ws .k').innerText(), /Етап 2 з 9/, 'аркуш завжди показує поточний етап');
   assert.match(await p.locator('.ws h1').innerText(), /Визначте, кому продаєте/);
   assert.equal(await p.locator('.ws > .steps > .step').count(), 4);
   await p.click('.tab[data-k="market"]');

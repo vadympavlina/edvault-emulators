@@ -8,11 +8,11 @@ const plural = (n, a, b, c) => { const m = n % 100, k = m % 10; return m > 10 &&
 
 // ліворуч: дев'ять етапів вертикальним маршрутом
 export function stageRail(S, ui, info) {
-  const sel = ui.stage != null && ui.stage <= info.reached ? ui.stage : info.cur;
+  const sel = info.cur; // між етапами не переходять: гра сама веде до наступного, коли виконано всі справи
   const row = (st, i) => {
     const cls = st.done && (i < info.cur || info.allDone) ? 'done' : i === info.cur ? 'cur' : i <= info.reached ? 'open' : 'lock';
     const label = `Етап ${i + 1}: ${st.t}${cls === 'done' ? ', пройдено' : cls === 'lock' ? ', ще закрито' : `, виконано ${st.n} з ${st.m}`}`;
-    return `<li><button class="rs ${cls} ${i === sel ? 'sel' : ''}" data-act="stage" data-i="${i}" ${i > info.reached ? 'disabled' : ''} aria-current="${i === sel ? 'step' : 'false'}" aria-label="${esc(label)}"><span class="n">${cls === 'done' ? icon('check', 16) : cls === 'lock' ? icon('lock', 13) : i + 1}</span><span class="rt"><b>${esc(st.t)}</b><small>${cls === 'lock' ? 'ще закрито' : `${st.n} з ${st.m}`}</small></span></button></li>`;
+    return `<li><div class="rs ${cls} ${i === sel ? 'sel' : ''}" role="group" aria-current="${i === sel ? 'step' : 'false'}" aria-label="${esc(label)}"><span class="n">${cls === 'done' ? icon('check', 16) : cls === 'lock' ? icon('lock', 13) : i + 1}</span><span class="rt"><b>${esc(st.t)}</b><small>${cls === 'lock' ? 'ще закрито' : `${st.n} з ${st.m}`}</small></span></div></li>`;
   };
   return `<aside class="rail" aria-label="Етапи стартапу"><h2>Шлях стартапу</h2><ol>${info.list.map(row).join('')}</ol>
     <div class="rail-foot"><span>Вправ виконано</span><b>${info.ex} з ${info.exAll}</b><div class="x-bar"><i style="width:${info.exAll ? info.ex / info.exAll * 100 : 0}%"></i></div></div></aside>`;
@@ -20,7 +20,7 @@ export function stageRail(S, ui, info) {
 
 // праворуч: аркуш обраного етапу
 export function stageSheet(S, ui, info) {
-  const i = ui.stage != null && ui.stage <= info.reached ? ui.stage : info.cur, st = info.list[i], next = info.list[i + 1];
+  const i = info.cur, st = info.list[i], next = info.list[i + 1];
   const first = st.req.find(x => !x.ok);
   const btn = (x, primary) => x.go === 'file' ? '' : `<button class="btn sm ${primary ? 'primary' : ''}" data-act="go" data-to="${x.go}" ${x.hl ? `data-hl="${esc(x.hl)}"` : ''}>${esc(x.btn)}</button>`;
   const step = (x, k, o) => `<li class="step ${x.ok ? 'ok' : x === first && !o ? 'now' : ''}"><span class="sn">${x.ok ? icon('check', 18) : x.ic ? icon(x.ic, 18) : k + 1}</span>
