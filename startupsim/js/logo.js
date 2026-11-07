@@ -26,11 +26,12 @@ const mix = (h, t, k) => { const a = hex2(h), b = hex2(t); return '#' + a.map((v
 // m = { shape, c1, c2, ang, fg, sym, mono, style: 'solid'|'soft'|'line', scale }
 export function logoMark(m, size = 36, sym) {
   const sh = SHAPES[m.shape] || SHAPES.squircle, ang = m.ang ?? 140, style = m.style || 'solid', clipped = !!sh.clip;
-  const line = style === 'line' && !clipped, soft = style === 'soft' || (style === 'line' && clipped);
+  const line = !m.img && style === 'line' && !clipped, soft = !m.img && (style === 'soft' || (style === 'line' && clipped));
   const base = m.c2 ? `linear-gradient(${ang}deg, ${m.c1}, ${m.c2})` : m.c1;
-  const bg = line ? 'transparent' : soft ? (m.c2 ? `linear-gradient(${ang}deg, ${mix(m.c1, '#ffffff', .82)}, ${mix(m.c2, '#ffffff', .82)})` : mix(m.c1, '#ffffff', .85)) : base;
+  const bg = m.img ? (m.imgFit === 'contain' ? '#ffffff' : m.c1) : line ? 'transparent' : soft ? (m.c2 ? `linear-gradient(${ang}deg, ${mix(m.c1, '#ffffff', .82)}, ${mix(m.c2, '#ffffff', .82)})` : mix(m.c1, '#ffffff', .85)) : base;
   const fg = soft || line ? m.c1 : m.fg, k = (clipped ? .44 : .52) * (m.scale || 1);
-  const inner = m.mono ? `<b class="mono" style="font-size:${Math.round(size * (m.mono.length > 1 ? .36 : .5) * (m.scale || 1))}px;font-family:${m.monoFont || 'inherit'}">${String(m.mono).replace(/[<>&]/g, '')}</b>` : icon(sym || m.sym, Math.round(size * k));
+  const imgSrc = m.img ? String(m.img).replace(/["<>\s]/g, '') : '', contain = m.imgFit === 'contain';
+  const inner = imgSrc ? `<img class="lg-img" alt="" src="${imgSrc}" style="object-fit:${contain ? 'contain' : 'cover'};${contain ? `padding:${Math.round(size * .14)}px;` : ''}">` : m.mono ? `<b class="mono" style="font-size:${Math.round(size * (m.mono.length > 1 ? .36 : .5) * (m.scale || 1))}px;font-family:${m.monoFont || 'inherit'}">${String(m.mono).replace(/[<>&]/g, '')}</b>` : icon(sym || m.sym, Math.round(size * k));
   return `<span class="lgm" style="width:${size}px;height:${size}px;background:${bg};border-radius:${sh.radius || 0};${clipped ? `clip-path:${sh.clip};` : ''}${line ? `box-shadow:inset 0 0 0 ${Math.max(2, Math.round(size * .06))}px ${m.c1};` : ''}color:${fg}">${inner}</span>`;
 }
 
@@ -44,9 +45,10 @@ export function logoSvg(m, { name = '', tag = '', layout = 'side', font = 'sans-
   const fill = line ? 'none' : m.c2 ? 'url(#g)' : c1, fg = soft || line ? m.c1 : m.fg, k = (clipped ? .44 : .52) * (m.scale || 1), S = 100;
   const ic = /<svg[^>]*>([\s\S]*)<\/svg>/.exec(icon(m.sym, 24))?.[1] || '';
   const sc = k * 100 / 24;
-  const glyph = m.mono ? `<text x="50" y="${m.mono.length > 1 ? 63 : 68}" text-anchor="middle" font-family="${font}" font-weight="800" font-size="${(m.mono.length > 1 ? 36 : 50) * (m.scale || 1)}" fill="${fg}">${String(m.mono).replace(/[<>&]/g, '')}</text>`
+  const pic = m.img ? (() => { const cn = m.imgFit === 'contain', p = cn ? 14 : 0; return `<clipPath id="k">${sh.svg}</clipPath><g clip-path="url(#k)">${cn ? '<rect width="100" height="100" fill="#ffffff"/>' : ''}<image href="${String(m.img).replace(/["<>\s]/g, '')}" x="${p}" y="${p}" width="${100 - 2 * p}" height="${100 - 2 * p}" preserveAspectRatio="xMidYMid ${cn ? 'meet' : 'slice'}"/></g>`; })() : '';
+  const glyph = m.img ? '' : m.mono ? `<text x="50" y="${m.mono.length > 1 ? 63 : 68}" text-anchor="middle" font-family="${font}" font-weight="800" font-size="${(m.mono.length > 1 ? 36 : 50) * (m.scale || 1)}" fill="${fg}">${String(m.mono).replace(/[<>&]/g, '')}</text>`
     : `<g transform="translate(${(50 - 12 * sc).toFixed(2)},${(50 - 12 * sc).toFixed(2)}) scale(${sc.toFixed(3)})" fill="none" stroke="${fg}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ic}</g>`;
-  const mark = `<g ${line ? `stroke="${m.c1}" stroke-width="6"` : ''} fill="${fill}">${sh.svg}</g>${glyph}`;
+  const mark = m.img ? `<g fill="${m.imgFit === 'contain' ? '#ffffff' : m.c1}">${sh.svg}</g>${pic}` : `<g ${line ? `stroke="${m.c1}" stroke-width="6"` : ''} fill="${fill}">${sh.svg}</g>${glyph}`;
   const txt = String(upper ? name.toUpperCase() : name).replace(/[<>&]/g, ''), tg = String(tag).replace(/[<>&]/g, '');
   const cw = (upper ? 42 : 35) + (weight >= 900 ? 6 : 0), tw = Math.max(40, txt.length * cw + Math.max(0, txt.length - 1) * track * 2);
   const T = (x, y, anchor) => `<text x="${x}" y="${y}" ${anchor ? `text-anchor="${anchor}" ` : ''}font-family="${font}" font-weight="${weight}" font-size="56" letter-spacing="${track * 2}" fill="${textColor}">${txt}</text>`;

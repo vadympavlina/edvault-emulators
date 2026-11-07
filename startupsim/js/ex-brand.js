@@ -30,7 +30,7 @@ const TPL = [
   ['Дитячий', 'Веселий і яскравий: крапля, грайливий шрифт.', { shape: 'drop', sym: 'star', style: 'solid', c1: '#ec4899', c2: '#f59e0b', grad: true, ang: 140, fg: '#ffffff', font: 'playful', layout: 'side', upper: false, track: 0, useMono: false }],
   ['Класика', 'Довіра й традиція: арка, синій, книжковий шрифт.', { shape: 'arch', sym: 'bank', style: 'solid', c1: '#1d4ed8', c2: '', grad: false, ang: 140, fg: '#ffffff', font: 'classic', layout: 'side', upper: false, track: 0, useMono: false }],
 ];
-const SNAP = ['shape', 'sym', 'useMono', 'mono', 'style', 'scale', 'c1', 'c2', 'grad', 'ang', 'fg', 'font', 'layout', 'upper', 'track', 'tag'];
+const SNAP = ['shape', 'sym', 'useImg', 'imgFit', 'useMono', 'mono', 'style', 'scale', 'c1', 'c2', 'grad', 'ang', 'fg', 'font', 'layout', 'upper', 'track', 'tag'];
 const TABS = [['start', 'Старт', 'rocket'], ['mark', 'Знак', 'cube'], ['color', 'Кольори', 'palette'], ['text', 'Напис', 'pen'], ['check', 'Перевірка', 'check']];
 
 /* ── допоміжні функції кольору ── */
@@ -42,12 +42,12 @@ const fromHsl = (h, s, l) => { h = ((h % 360) + 360) % 360; s = clamp(s, 0, 100)
 const initials = n => { const w = String(n || '').trim().split(/[\s-]+/).filter(Boolean); return (w.length > 1 ? w[0][0] + w[1][0] : (w[0] || '?')[0]).toUpperCase(); };
 
 /* ── збирання знака з даних вправи ── */
-const markOf = d => ({ shape: d.shape, c1: d.c1, c2: d.grad ? (d.c2 || d.c1) : '', ang: d.ang, fg: d.fg, sym: d.sym, style: d.style, scale: (d.scale || 100) / 100, mono: d.useMono ? (d.mono || initials(d.name)) : '', monoFont: BF[d.font]?.css });
+const markOf = d => ({ shape: d.shape, c1: d.c1, c2: d.grad ? (d.c2 || d.c1) : '', ang: d.ang, fg: d.fg, sym: d.sym, style: d.style, scale: (d.scale || 100) / 100, mono: d.useMono && !(d.useImg && d.img) ? (d.mono || initials(d.name)) : '', monoFont: BF[d.font]?.css, img: d.useImg && d.img ? d.img : '', imgFit: d.imgFit });
 const lockup = (d, { size = 56, dark = false, inv = false, cls = '' } = {}) => {
   const F = BF[d.font] || BF.modern, m = markOf(d), mk = inv ? { ...m, c1: '#ffffff', c2: '', fg: d.c1, style: 'solid' } : m, col = dark ? '#ffffff' : '#1d2433';
   return `<div class="lockup ${d.layout} ${cls}" style="color:${col}">${d.layout !== 'word' ? logoMark(mk, size) : ''}${d.layout !== 'mark' ? `<span class="lw" style="font-family:${F.css};font-weight:${F.w};${d.upper ? 'text-transform:uppercase;' : ''}letter-spacing:${(d.track || 0) * .06}em;font-size:${Math.round(size * .56)}px">${esc(d.name || 'Назва')}${d.tag ? `<small>${esc(d.tag)}</small>` : ''}</span>` : ''}</div>`;
 };
-const symC = d => (d.style === 'solid' ? contrast(d.fg, d.c1) : contrast(d.c1, '#ffffff'));
+const symC = d => (d.useImg && d.img ? 4.5 : d.style === 'solid' ? contrast(d.fg, d.c1) : contrast(d.c1, '#ffffff'));
 
 /* ── оцінка логотипа ── */
 function review(d) {
@@ -68,7 +68,7 @@ function review(d) {
 reg({
   id: 'logo', stage: 1, cols: true, t: 'Логотип і фірмовий стиль', d: 'Створіть логотип у брендовій студії: стиль, знак, кольори, напис, перевірка й макети.', icon: 'palette', min: 20,
   intro: `У студії ви збираєте логотип крок за кроком: оберіть <b>стартовий стиль</b> або починайте з нуля, налаштуйте знак, кольори й напис, перевірте логотип на читабельність і подивіться, як він виглядає на телефоні, візитці, сайті й футболці. Можна зберегти до чотирьох варіантів і порівняти їх, а готовий логотип завантажити у файл.`,
-  data: S => ({ tab: 'start', name: S.s.company.name, tag: '', shape: 'squircle', sym: S.s.company.sym || 'spark', useMono: false, mono: '', style: 'solid', scale: 100, c1: S.s.company.color, c2: '', grad: false, ang: 140, fg: '#ffffff', font: 'modern', layout: 'side', upper: false, track: 0, bg: 'light', variants: [], t: 0 }),
+  data: S => ({ tab: 'start', name: S.s.company.name, tag: '', shape: 'squircle', sym: S.s.company.sym || 'spark', img: '', imgS: '', useImg: false, imgFit: 'cover', useMono: false, mono: '', style: 'solid', scale: 100, c1: S.s.company.color, c2: '', grad: false, ang: 140, fg: '#ffffff', font: 'modern', layout: 'side', upper: false, track: 0, bg: 'light', variants: [], t: 0 }),
   onSet: (S, d, p) => { if (p !== 'tab' && p !== 'bg') d.t = (d.t || 0) + 1; },
   view(S, d) {
     const tabs = `<div class="bs-tabs" role="tablist">${TABS.map(([k, t, ic]) => `<button type="button" role="tab" aria-selected="${d.tab === k}" class="${d.tab === k ? 'on' : ''}" data-act="ex" data-ex="logo" data-do="set" data-p="tab" data-v="${k}" data-t="s">${icon(ic, 16)}<span>${t}</span></button>`).join('')}</div>`;
@@ -76,9 +76,10 @@ reg({
     const panel = {
       start: () => box('Стартові стилі', `<p class="sm muted">Оберіть стиль, і він одразу застосується до вашої назви. Далі його можна змінювати на інших вкладках.</p><div class="bs-tpl">${TPL.map(([t, desc, c], i) => `<button type="button" class="bs-t" data-act="ex" data-ex="logo" data-do="tpl" data-a="${i}">${lockup({ ...d, ...c }, { size: 38 })}<b>${t}</b><small>${desc}</small></button>`).join('')}</div>
         <div class="xrow mt">${xb('logo', 'rand', 'Здивуй мене', { ic: 'refresh' })}<small class="muted">Випадкові форма, символ і кольори</small></div>`, { ic: 'rocket' }),
-      mark: () => `${box('Форма знака', `<div class="bs-shapes">${SHAPE_KEYS.map(k => `<button type="button" class="bs-sh ${d.shape === k ? 'on' : ''}" aria-pressed="${d.shape === k}" data-act="ex" data-ex="logo" data-do="set" data-p="shape" data-v="${k}" data-t="s" title="${SHAPES[k].t}">${logoMark({ ...m, shape: k }, 46)}<small>${SHAPES[k].t}</small></button>`).join('')}</div>`, { ic: 'cube' })}
+      mark: () => `${box('Своє зображення', d.img ? `<div class="bs-img"><img src="${esc(d.img)}" alt="Ваше зображення"><div class="bs-imgc"><label class="switch"><input type="checkbox" data-exi="logo" data-p="useImg" ${d.useImg ? 'checked' : ''}><span></span>Використати як знак</label><div class="xrow" style="margin-top:8px">${xp('logo', 'imgFit', 'cover', 'Заповнити форму', d.imgFit !== 'contain')}${xp('logo', 'imgFit', 'contain', 'Вписати повністю', d.imgFit === 'contain')}</div><div class="xrow" style="margin-top:8px">${xb('logo', 'pickImg', 'Замінити', { ic: 'open', cls: 'sm' })}${xb('logo', 'rmImg', 'Прибрати', { ic: 'trash', cls: 'sm' })}</div></div></div>` : `<div class="bs-drop">${xb('logo', 'pickImg', 'Завантажити зображення', { ic: 'open', cls: 'primary' })}<p class="sm muted">PNG, JPG, SVG або WebP до 8 МБ. Найкраще працює квадратне зображення на однотонному тлі. Файл лишається у вашому браузері й нікуди не надсилається.</p></div>`, { ic: 'open' })}
+        ${box('Форма знака', `<div class="bs-shapes">${SHAPE_KEYS.map(k => `<button type="button" class="bs-sh ${d.shape === k ? 'on' : ''}" aria-pressed="${d.shape === k}" data-act="ex" data-ex="logo" data-do="set" data-p="shape" data-v="${k}" data-t="s" title="${SHAPES[k].t}">${logoMark({ ...m, shape: k }, 46)}<small>${SHAPES[k].t}</small></button>`).join('')}</div>`, { ic: 'cube' })}
         ${box('Символ', `<div class="xrow" style="margin-bottom:10px"><label class="switch"><input type="checkbox" data-exi="logo" data-p="useMono" ${d.useMono ? 'checked' : ''}><span></span>Літери замість символу (монограма)</label>${d.useMono ? `<label class="xf" style="width:120px"><span class="xf-l">Літери</span><input class="inp" type="text" data-exi="logo" data-p="mono" maxlength="2" value="${esc(d.mono || initials(d.name))}" autocomplete="off"></label>` : ''}</div>
-          <div class="syms bs-syms ${d.useMono ? 'off' : ''}" role="group" aria-label="Символ">${SYMS.map(sy => `<button type="button" class="sym ${d.sym === sy ? 'on' : ''}" data-act="ex" data-ex="logo" data-do="set" data-p="sym" data-v="${sy}" data-t="s" aria-label="${sy}" ${d.useMono ? 'tabindex="-1"' : ''}>${icon(sy, 20)}</button>`).join('')}</div>`, { ic: 'star' })}
+          <div class="syms bs-syms ${d.useMono || (d.useImg && d.img) ? 'off' : ''}" role="group" aria-label="Символ">${SYMS.map(sy => `<button type="button" class="sym ${d.sym === sy ? 'on' : ''}" data-act="ex" data-ex="logo" data-do="set" data-p="sym" data-v="${sy}" data-t="s" aria-label="${sy}" ${d.useMono ? 'tabindex="-1"' : ''}>${icon(sy, 20)}</button>`).join('')}</div>`, { ic: 'star' })}
         ${box('Стиль і розмір', `<div class="xrow">${[['solid', 'Заливка'], ['soft', 'Світлий'], ['line', 'Контур']].map(([k, t]) => xp('logo', 'style', k, t, d.style === k)).join('')}</div>${xsl('logo', 'scale', d, { min: 60, max: 130, step: 5, label: 'Розмір символу', u: '%', cls: 'mt' })}${d.style === 'line' && SHAPES[d.shape].clip ? '<p class="sm muted">Для цієї форми контур замінено на світлу заливку.</p>' : ''}`, { ic: 'wrench' })}`,
       color: () => `${box('Готові палітри', `<div class="bs-pals">${PALS.map(([a, b, n]) => `<button type="button" class="bs-pal ${d.c1 === a && d.c2 === b ? 'on' : ''}" style="background:linear-gradient(135deg,${a},${b})" data-act="ex" data-ex="logo" data-do="pair" data-a="${a}" data-b="${b}" title="${n}" aria-label="Палітра ${n}"><small>${n}</small></button>`).join('')}</div>`, { ic: 'palette' })}
         ${box('Свої кольори', `<div class="xrow">${xcol('logo', 'c1', d, { label: 'Основний' })}${xcol('logo', 'fg', d, { label: 'Символ' })}<label class="switch"><input type="checkbox" data-exi="logo" data-p="grad" ${d.grad ? 'checked' : ''}><span></span>Градієнт</label>${d.grad ? xcol('logo', 'c2', d, { label: 'Другий' }) : ''}${xb('logo', 'autofg', 'Підібрати колір символу', { cls: 'sm', ic: 'bolt' })}</div>
@@ -91,7 +92,7 @@ reg({
           <div class="xrow mt"><label class="switch"><input type="checkbox" data-exi="logo" data-p="upper" ${d.upper ? 'checked' : ''}><span></span>Великі літери</label></div>${xsl('logo', 'track', d, { min: 0, max: 8, step: 1, label: 'Відстань між літерами', u: '', cls: 'mt' })}`, { ic: 'compass' })}`,
       check: () => { const r = review(d), M = markOf(d), mono = { ...M, c1: '#111827', c2: '', fg: '#ffffff', style: 'solid' }; return `${box('Перевірка логотипа', `<div class="bs-score"><b>${r.score}</b><span>з 100</span>${bar(r.score / 100, { color: r.score >= 80 ? 'var(--ok)' : '#e0a100', label: 'Оцінка логотипа' })}</div>${checks(r.list)}`, { ic: 'check' })}
         ${box('Різні розміри', `<div class="bs-sizes">${[16, 24, 36, 56, 84].map(s => `<figure>${logoMark(M, s)}<figcaption>${s} px</figcaption></figure>`).join('')}</div><p class="sm muted">Хороший знак впізнаваний навіть у 16 пікселів, як іконка вкладки браузера.</p>`, { ic: 'search' })}
-        ${box('Різні версії', `<div class="bs-vers"><figure style="background:#fff">${logoMark(mono, 56)}<figcaption>Чорно-біла</figcaption></figure><figure style="background:#111827">${logoMark({ ...M, c1: '#ffffff', c2: '', fg: d.c1, style: 'solid' }, 56)}<figcaption style="color:#fff">На темному</figcaption></figure><figure style="background:${d.c1}">${logoMark({ ...M, c1: '#ffffff', c2: '', fg: d.c1, style: 'solid' }, 56)}<figcaption style="color:#fff">На кольорі бренду</figcaption></figure><figure style="background:#fff;filter:grayscale(1)">${logoMark(M, 56)}<figcaption>Сірі тони</figcaption></figure></div><p class="sm muted">Логотип має працювати в одному кольорі й на будь-якому тлі: так його можна друкувати й штампувати.</p>`, { ic: 'eye' })}`; },
+        ${box('Різні версії', `<div class="bs-vers"><figure style="background:#fff;${M.img ? 'filter:grayscale(1) contrast(1.3)' : ''}">${logoMark(M.img ? M : mono, 56)}<figcaption>Чорно-біла</figcaption></figure><figure style="background:#111827">${logoMark({ ...M, c1: '#ffffff', c2: '', fg: d.c1, style: 'solid' }, 56)}<figcaption style="color:#fff">На темному</figcaption></figure><figure style="background:${d.c1}">${logoMark({ ...M, c1: '#ffffff', c2: '', fg: d.c1, style: 'solid' }, 56)}<figcaption style="color:#fff">На кольорі бренду</figcaption></figure><figure style="background:#fff;filter:grayscale(1)">${logoMark(M, 56)}<figcaption>Сірі тони</figcaption></figure></div><p class="sm muted">Логотип має працювати в одному кольорі й на будь-якому тлі: так його можна друкувати й штампувати.</p>`, { ic: 'eye' })}`; },
     }[d.tab]();
     return `${tabs}${panel}`;
   },
@@ -122,6 +123,18 @@ reg({
     saveVar(S, d, el, C) { d.variants ||= []; if (d.variants.length >= 4) { C?.toast?.('Можна зберегти до чотирьох варіантів', 'bad'); return false; } const v = {}; SNAP.forEach(k => { v[k] = d[k]; }); d.variants.push(v); C?.toast?.('Варіант збережено', 'good'); },
     openVar(S, d, el) { const v = d.variants?.[+el.dataset.i]; if (v) Object.assign(d, v); },
     delVar(S, d, el) { d.variants?.splice(+el.dataset.i, 1); },
+    pickImg(S, d, el, C) {
+      const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.hidden = true; document.body.appendChild(inp);
+      inp.addEventListener('change', async () => {
+        const f = inp.files?.[0]; inp.remove(); if (!f) return;
+        if (!/^image\//.test(f.type)) { C?.toast?.('Оберіть файл зображення: PNG, JPG, SVG або WebP', 'bad'); return; }
+        if (f.size > 8e6) { C?.toast?.('Зображення завелике: потрібно до 8 МБ', 'bad'); return; }
+        try { const im = await readImage(f); d.img = shrink(im, 320); d.imgS = shrink(im, 96); d.useImg = true; d.t = (d.t || 0) + 3; C.render(); C.saveSoon(); C?.toast?.('Зображення додано', 'good'); }
+        catch { C?.toast?.('Не вдалося прочитати зображення', 'bad'); }
+      });
+      inp.click(); return false;
+    },
+    rmImg(S, d) { d.img = ''; d.imgS = ''; d.useImg = false; },
     dlSvg(S, d) { download(new Blob([svgOf(d)], { type: 'image/svg+xml' }), `${fileName(d)}.svg`); },
     dlPng(S, d, el, C) {
       const svg = svgOf(d), img = new Image(), w = +/width="(\d+)"/.exec(svg)[1], h = +/height="(\d+)"/.exec(svg)[1];
@@ -138,7 +151,7 @@ reg({
   },
   finish(S, d) {
     const c = S.s.company, M = markOf(d), r = review(d);
-    c.color = d.c1; c.sym = d.sym; c.mk = { shape: M.shape, c1: M.c1, c2: M.c2, ang: M.ang, fg: M.fg, style: M.style, scale: M.scale, mono: M.mono, monoFont: M.monoFont };
+    c.color = d.c1; c.sym = d.sym; c.mk = { shape: M.shape, c1: M.c1, c2: M.c2, ang: M.ang, fg: M.fg, style: M.style, scale: M.scale, mono: M.mono, monoFont: M.monoFont, img: M.img ? (d.imgS || d.img) : '', imgFit: M.img ? M.imgFit : undefined };
     if (!S.s.brand.logo) S.s.brand.logo = { q: clamp(.45 + r.score / 100 * .45, .2, .9), by: 'self' };
   },
 });
@@ -147,3 +160,14 @@ reg({
 const fileName = d => 'logo-' + (String(d.name || 'brand').toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'brand');
 const svgOf = d => { const F = BF[d.font] || BF.modern; return logoSvg(markOf(d), { name: d.name, tag: d.tag, layout: d.layout, font: F.css.replace(/"/g, "'"), weight: F.w, upper: d.upper, track: d.track || 0 }); };
 function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 3000); }
+
+/* ── зображення: читання й зменшення, щоб у збереженні не було важких файлів ── */
+function readImage(file) {
+  return new Promise((res, rej) => { const url = URL.createObjectURL(file), im = new Image(); im.onload = () => { res(im); setTimeout(() => URL.revokeObjectURL(url), 2000); }; im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('image')); }; im.src = url; });
+}
+function shrink(im, max) {
+  const w0 = im.naturalWidth || max, h0 = im.naturalHeight || max, k = Math.min(1, max / Math.max(w0, h0)), w = Math.max(1, Math.round(w0 * k)), h = Math.max(1, Math.round(h0 * k));
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h; cv.getContext('2d').drawImage(im, 0, 0, w, h);
+  let u = cv.toDataURL('image/png'); if (u.length > 180000) { u = cv.toDataURL('image/webp', .85); if (!u.startsWith('data:image/webp')) u = cv.toDataURL('image/jpeg', .85); }
+  return u;
+}

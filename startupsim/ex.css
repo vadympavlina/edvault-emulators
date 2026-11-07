@@ -466,3 +466,7 @@ div.rs { cursor: default; } div.rs:not(.cur):hover { background: transparent; }
 .bs-t .lockup .lw { font-size: 19px !important; } .bs-t .lockup .lw small { font-size: 11px; } .bs-t .lockup.stack { gap: 6px; }
 .bm-ava .av { display: grid; place-items: center; width: 78px; height: 78px; flex: none; } .bm-ava .av .lgm { display: grid; }
 .bs-stage { overflow: hidden; padding: 12px; } .bs-stage .lockup { max-width: 100%; }
+
+.bs-drop { display: grid; gap: 10px; justify-items: start; border: 2px dashed #b9c3cf; border-radius: 14px; padding: 16px; background: #fbfcfd; } .bs-drop p { margin: 0; }
+.bs-img { display: flex; gap: 16px; align-items: center; } .bs-img > img { width: 92px; height: 92px; object-fit: contain; border: 2px solid var(--line); border-radius: 12px; background: repeating-conic-gradient(#f0f2f5 0 25%, #fff 0 50%) 0 0 / 14px 14px; flex: none; } .bs-imgc { min-width: 0; }
+.lgm .lg-img { width: 100%; height: 100%; display: block; box-sizing: border-box; }

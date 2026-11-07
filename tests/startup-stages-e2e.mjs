@@ -114,6 +114,23 @@ await step('логотип: знак потрапляє в шапку гри', a
   assert.match(await p.locator('.tp-brand .lgm').getAttribute('style'), /clip-path/);
 });
 
+await step('логотип: власне зображення завантажується, потрапляє в шапку й зберігається', async () => {
+  await go('ex-logo');
+  await p.click('.bs-tabs [data-v="mark"]');
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+  const [fc] = await Promise.all([p.waitForEvent('filechooser'), p.click('[data-do="pickImg"]')]);
+  await fc.setFiles({ name: 'logo.png', mimeType: 'image/png', buffer: png });
+  await p.waitForSelector('.bs-img img');
+  assert.equal(await p.locator('.bs-img img').getAttribute('src').then(x => x.startsWith('data:image/')), true);
+  await p.click('.ex-foot .btn.primary'); await p.waitForSelector('#main .ws');
+  const mk = (await S()).company.mk;
+  assert.ok(mk.img.startsWith('data:image/'), 'зображення збережено в стані гри');
+  assert.equal(await p.locator('.tp-brand .lg-img').count(), 1, 'зображення у шапці гри');
+  await go('ex-logo'); await p.click('.bs-tabs [data-v="mark"]');
+  await p.click('[data-do="rmImg"]'); await p.click('.ex-foot .btn.primary'); await p.waitForSelector('#main .ws');
+  assert.equal((await S()).company.mk.img, '', 'зображення можна прибрати');
+});
+
 await step('перший етап пройдено: відкривається другий, розділи наступного етапу доступні', async () => {
   await p.evaluate(() => { const S = window.Startup.sim; S.s.ex ||= { d: {}, done: {} }; for (const id of ['niche', 'market', 'needs', 'mvp']) S.s.ex.done[id] = { w: 0, s: 2 }; S.s.canvas = { problem: 'Учні не розуміють домашку', segment: S.s.target, uvp: 'Пояснення за п’ять хвилин', solution: [Object.keys(S.I.features)[0]], channels: ['ads'] }; window.Startup.C.render(); });
   await go('dash');
