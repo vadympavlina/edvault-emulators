@@ -31,7 +31,7 @@ reg({
     const best = [...d.segs].sort((a, b) => segScore(b) - segScore(a))[0], main = d.segs.find(s => s.id === d.main);
     return `${tip('Не існує «клієнтів загалом». Чим точніше опис сегмента, тим простіше придумати для нього продукт, рекламу й ціну.')}
     <div class="xg c2 personas">${d.segs.map(seg).join('')}</div>
-    ${d.segs.length < 4 ? `<div class="xadd"><input class="inp" id="w5-new" maxlength="40" placeholder="Ще один сегмент: наприклад, «студенти» чи «вчителі»">${xb('w5', 'addSeg', 'Додати сегмент', { ic: 'plus' })}</div>` : ''}
+    ${d.segs.length < 4 ? `<div class="xadd"><input class="inp" id="w5-new" maxlength="160" placeholder="Ще один сегмент: наприклад, «студенти» чи «вчителі»">${xb('w5', 'addSeg', 'Додати сегмент', { ic: 'plus' })}</div>` : ''}
     ${box('Порівняння сегментів', `${d.segs.map(s => `<div class="cmp"><span>${esc(s.name)}</span>${bar(segScore(s) / 100, { color: s.id === best.id ? 'var(--ok)' : 'var(--acc)', label: s.name })}<b>${segScore(s)}%</b></div>`).join('')}<p class="sm muted">Привабливість = розмір × платоспроможність × досяжність. Це лише підказка: ви можете обрати й інший сегмент, якщо знаєте чому.</p>
       ${main?.link ? `<div class="xrow">${xb('w5', 'target', S.s.target === main.link ? 'Цей сегмент уже цільовий у грі' : `Зробити «${esc(main.name)}» цільовим у грі`, { cls: 'primary', dis: S.s.target === main.link })}</div>` : ''}`, { ic: 'chart' })}`;
   },
@@ -171,7 +171,7 @@ reg({
   onSet: (S, d, p) => { if (p.startsWith('ax.')) d.t = (d.t || 0) + 1; },
   view(S, d) {
     const wc = d.slogan.trim().split(/\s+/).filter(Boolean).length, F = FONTS[S.s.brand.font] || FONTS.modern, c = S.s.company;
-    return `${box('Три цінності', `<div class="xrow">${[...VALUES, ...d.own].map(v => xp('brandvoice', 'vals', v, v, d.vals.includes(v), { set: 'tog', max: 3 })).join('')}</div><div class="xadd mt"><input class="inp" id="bv-own" maxlength="24" placeholder="Своя цінність">${xb('brandvoice', 'addOwn', 'Додати', { ic: 'plus' })}</div>`, { ic: 'heart', side: `обрано ${d.vals.length} з 3` })}
+    return `${box('Три цінності', `<div class="xrow">${[...VALUES, ...d.own].map(v => xp('brandvoice', 'vals', v, v, d.vals.includes(v), { set: 'tog', max: 3 })).join('')}</div><div class="xadd mt"><input class="inp" id="bv-own" maxlength="120" placeholder="Своя цінність">${xb('brandvoice', 'addOwn', 'Додати', { ic: 'plus' })}</div>`, { ic: 'heart', side: `обрано ${d.vals.length} з 3` })}
     ${box('Особистість', AXES5.map(([k, a, b]) => `<div class="ax5"><span>${a}</span>${xsl('brandvoice', `ax.${k}`, d, { min: 0, max: 100, step: 5, label: '', v: d.ax[k] })}<span>${b}</span></div>`).join(''), { ic: 'compass' })}
     ${box('Слоган', `${xin('brandvoice', 'slogan', d, { max: 70, ph: 'Коротко й запам’ятовується', label: 'Ваш слоган' })}${checks([[wc >= 2 && wc <= 7, 'Коротко: 2–7 слів', 'Слоган запам’ятовується, коли він короткий'], [!CLICHE.test(d.slogan) && wc > 0, 'Без шаблонних слів («найкращий», «якісний», «№1»)', 'Такі слова є в кожного конкурента'], [wc >= 3, 'Розповідає про вигоду чи дію, а не лише про назву']])}
       <div class="brandcard" style="--c:${c.color};font-family:${F.css}"><b>${esc(c.name)}</b><span>${esc(d.slogan || 'Ваш слоган з’явиться тут')}</span><i>${d.vals.map(esc).join(' · ')}</i></div>`, { ic: 'pen' })}`;

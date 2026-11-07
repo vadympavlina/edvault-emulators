@@ -30,9 +30,11 @@ export const stars = (n, max = 3) => `<span class="stars" aria-label="${n} з ${
 export const xb = (id, act, label, { a, b, c, i, p, v, from, max, cls = '', ic, title = '', dis = false } = {}) => `<button type="button" class="btn ${cls}" data-act="ex" data-ex="${id}" data-do="${act}"${attrs({ a, b, c, i, p, v, from, max })}${title ? ` title="${esc(title)}" aria-label="${esc(title)}"` : ''}${dis ? ' disabled' : ''}>${ic ? icon(ic, 16) : ''}${label}</button>`;
 // пілюля, що ставить значення (радіо) чи вмикає/вимикає (набір)
 export const xp = (id, p, v, label, on, { t = 's', set = 'set', cls = '', sub = '', max } = {}) => `<button type="button" class="xp ${on ? 'on' : ''} ${cls}" aria-pressed="${!!on}" data-act="ex" data-ex="${id}" data-do="${set}" data-p="${esc(p)}" data-v="${esc(v)}" data-t="${t}"${max ? ` data-max="${max}"` : ''}><span>${label}</span>${sub ? `<small>${sub}</small>` : ''}</button>`;
+// ліміт довжини м'який: числа в описах вправ — орієнтир, а не стеля (раніше тексту бракувало)
+const lim = (max, area) => area ? Math.max(max * 6, 1500) : Math.max(max * 3, 240);
 export const xin = (id, p, d, { ph = '', max = 120, label = '', area = false, rows = 3, cls = '', hint = '', v } = {}) => {
   const val = v ?? get(d, p) ?? '';
-  const el = area ? `<textarea class="inp" data-exi="${id}" data-p="${esc(p)}" rows="${rows}" maxlength="${max}" placeholder="${esc(ph)}">${esc(val)}</textarea>` : `<input class="inp" type="text" data-exi="${id}" data-p="${esc(p)}" maxlength="${max}" placeholder="${esc(ph)}" value="${esc(val)}" autocomplete="off">`;
+  const el = area ? `<textarea class="inp" data-exi="${id}" data-p="${esc(p)}" rows="${rows}" maxlength="${lim(max, true)}" placeholder="${esc(ph)}">${esc(val)}</textarea>` : `<input class="inp" type="text" data-exi="${id}" data-p="${esc(p)}" maxlength="${lim(max, false)}" placeholder="${esc(ph)}" value="${esc(val)}" autocomplete="off">`;
   return `<label class="xf ${cls}">${label ? `<span class="xf-l">${label}</span>` : ''}${el}${hint ? `<small>${hint}</small>` : ''}</label>`;
 };
 // число з розділювачами тисяч, якщо це число
