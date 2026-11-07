@@ -523,3 +523,22 @@ div.rs { cursor: default; } div.rs:not(.cur):hover { background: transparent; }
 .imgfr { width: 200px; height: 200px; overflow: hidden; background: repeating-conic-gradient(#f0f2f5 0 25%, #fff 0 50%) 0 0 / 16px 16px; cursor: grab; touch-action: none; box-shadow: 0 0 0 3px var(--ink); } .imgfr.drag { cursor: grabbing; } .imgfr img { width: 100%; height: 100%; display: block; object-fit: cover; pointer-events: none; user-select: none; } .imgfr:focus-visible { outline: 3px solid var(--acc); outline-offset: 4px; }
 .imgc .xsl { padding: 2px 0; }
 @media (max-width: 760px) { .imged { grid-template-columns: 1fr; } }
+
+/* Брендбук */
+.bbook { background: #fff; border: 1px solid var(--bd, #e3e6ee); border-radius: 14px; padding: 18px; display: grid; gap: 14px; }
+.bbook > header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--acc); padding-bottom: 8px; }
+.bbook > header span { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--mu, #667); }
+.bbook h4 { margin: 0 0 6px; font: 700 13px/1.3 Rubik, system-ui, sans-serif; color: var(--mu, #667); text-transform: uppercase; letter-spacing: .05em; }
+.bbook p { margin: 0 0 6px; }
+.bbook ul { margin: 0; padding-left: 18px; }
+.bb-sw { list-style: none; padding: 0 !important; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.bb-sw li { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.bb-sw i { width: 30px; height: 30px; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.14); flex: none; }
+.bb-sw small { display: block; color: var(--mu, #667); font-size: 11px; }
+.bb-v { display: flex; gap: 6px; flex-wrap: wrap; }
+.bb-v span { padding: 3px 10px; border-radius: 99px; background: var(--acc-bg, #eef0ff); color: var(--acc-tx, #3d3fb8); font-size: 13px; font-weight: 600; }
+.bb-sl { font: italic 600 17px/1.4 Rubik, system-ui, sans-serif; }
+.bbook .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.bbook footer { border-top: 1px solid var(--bd, #e3e6ee); padding-top: 10px; }
+.ex .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media print { .bbook footer { display: none; } }

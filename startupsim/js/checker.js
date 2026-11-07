@@ -9,7 +9,7 @@ import { coreViews } from './v-core.js';
 import { marketViews } from './v-market.js';
 import { icon } from './icons.js';
 import { esc, logo } from './ui.js';
-import './ex1.js'; import './ex-need.js'; import './ex-start.js'; import './ex1b.js'; import './ex-aud.js'; import './ex-brand.js';
+import './ex1.js'; import './ex-need.js'; import './ex-start.js'; import './ex1b.js'; import './ex-aud.js'; import './ex-brand.js'; import './ex-bbook.js';
 import './ex2.js'; import './ex3.js'; import './ex3b.js'; import './ex4.js'; import './ex5.js'; import './ex6.js'; import './ex7.js'; import './ex8.js'; import './ex9.js';
 
 const $ = id => document.getElementById(id), main = $('main'), tools = $('tools');

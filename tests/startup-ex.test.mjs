@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { newGame, okState, Sim } from '../startupsim/js/sim.js';
 import { packGame, unpackGame } from '../startupsim/js/file.js';
 
-await Promise.all(['ex1', 'ex-need', 'ex-start', 'ex1b', 'ex-aud', 'ex-brand', 'ex2', 'ex3', 'ex3b', 'ex4', 'ex5', 'ex6', 'ex7', 'ex8', 'ex9'].map(m => import(`../startupsim/js/${m}.js`)));
+await Promise.all(['ex1', 'ex-need', 'ex-start', 'ex1b', 'ex-aud', 'ex-brand', 'ex-bbook', 'ex2', 'ex3', 'ex3b', 'ex4', 'ex5', 'ex6', 'ex7', 'ex8', 'ex9'].map(m => import(`../startupsim/js/${m}.js`)));
 const { EX, X, exDone, exCount, exPage, exAll } = await import('../startupsim/js/ex-core.js');
 const { STAGES, stageInfo, syncStage, isOpen } = await import('../startupsim/js/stages.js');
 const { stageRail, stageSheet, stageBar, goalCard } = await import('../startupsim/js/v-stages.js');
@@ -58,6 +58,7 @@ const FILL = {
   portfolio: (S, d) => { d.al = { dep: 20, ovdp: 25, corp: 10, etf: 30, gold: 10, pif: 5 }; d.ran = true; d.tol = 70; d.why = long; },
   trading: (S, d) => { d.day = 30; d.done = true; d.q = { 0: 1, 1: 0, 2: 1, 3: 1 }; d.why = 'Я зрозумів, що торгівля — це ризик, а гарантованого прибутку не буває.'; },
   interview: (S, d) => { d.ask = [1, 3, 5, 7, 9]; EX.interview.acts.run(S, d, {}, { toast() {} }); d.note = long; },
+  bbook: (S, d) => { d.promise = 'Допомагаємо школярам робити домашку за п’ять хвилин, а батькам не сидіти поруч'; d.dos = ['Звертаємось на «ви»', 'Пишемо просто', '']; d.donts = ['Не лякаємо штрафами', 'Не обіцяємо неможливого', '']; },
   palette: (S, d) => { d.name = 'Ранкова кава'; d.why = long; },
   premortem: (S, d) => { const R = [[3, 3], [2, 3], [3, 2], [2, 3], [2, 2], [1, 3], [2, 1], [3, 2], [2, 2], [2, 3], [1, 3], [2, 1]]; R.forEach(([p, i], k) => { d.r[k] = { p, i }; }); d.top = [0, 1, 3]; d.mit = { 0: long, 1: long, 3: long }; },
   cashflow: (S, d) => { d.w = { adv: 1, mat: 9, ads: 10, sub: 11, tax: 12 }; },

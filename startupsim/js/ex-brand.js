@@ -234,4 +234,4 @@ if (typeof document !== 'undefined') {
   document.addEventListener('input', e => { if (!e.target.closest?.('[data-p^="ed."]')) return; const c = ctx(); if (!c) return; setTimeout(() => { const im = document.querySelector('[data-imgfr] img'); if (im && c.d.img) im.src = c.d.img; }, 0); });
 }
 
-export { markOf, svgOf, review, initials };
+export { markOf, svgOf, review, initials, lockup, toHsl };
