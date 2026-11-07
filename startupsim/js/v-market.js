@@ -33,6 +33,9 @@ function customers(S) {
   return `<p class="lead">Інтерв'ю — найдешевший спосіб не зробити продукт, який нікому не потрібен. Кожне забирає 3 години з плану тижня (рядок «Клієнти»). Цього тижня лишилося: <b>${S.talksLeft()}</b>. ${term('Mom Test', 'Як правильно питати?')}</p>
   ${S.talksLeft() === 0 && s.hours.customers < 3 ? `<p class="note warn">${icon('clock', 16)} У плані тижня немає годин на клієнтів. <button class="link" data-act="go" data-to="dash">Додати години</button></p>` : ''}
   <div class="grid g3">${cards}</div>
+  <section class="card"><header class="card-h"><h3>${icon('mic')} Минулі інтерв'ю</h3><span class="muted sm">${(s.interviews || []).length ? `усього: ${s.interviews.length}` : ''}</span></header>
+    ${(s.interviews || []).length ? `<div class="ivlist">${[...s.interviews].reverse().map(v => `<details class="ivh"><summary><b>${esc(v.name)}</b> <span class="muted">${esc(v.who)} · ${esc(S.seg(v.seg)?.short || '')} · тиждень ${v.w + 1}</span>${v.bad ? `<span class="chip warn">підказувальні запитання: ${v.bad}</span>` : `<span class="chip ok">лише факти</span>`}</summary><div class="chat">${v.log.map(l => `<p class="q">${esc(l.q)}</p><p class="a">${esc(l.a)}</p>`).join('')}</div></details>`).join('')}</div>` : `<p class="muted">Тут з'являться ваші розмови з клієнтами: їх можна буде перечитати. Розмова, де ви не поставили жодного запитання, не зараховується.</p>`}
+  </section>
   <section class="card"><header class="card-h"><h3>${icon('chart')} Опитування користувачів</h3>${term('PMF', 'Чи потрібен продукт?')}</header>
     ${s.product.launched ? `<p>Опитування показує, чи справді продукт потрібен (тест Шона Елліса: «Як би ви почувалися, якби продукт зник?»), і що просять покращити. Потрібно щонайменше 30 активних користувачів у цільовому сегменті й 2 години на клієнтів.</p>
       <button class="btn primary" data-act="survey" ${S.canSurvey() ? '' : 'disabled'}>Провести опитування</button>
@@ -50,7 +53,7 @@ function interviewModal(C, k) {
       ${done ? `<div class="iv-sum">${(() => { const bad = iv.asked.filter(q => QUESTIONS.find(x => x.id === q).bad); return bad.length ? `<p class="note warn">${icon('alert', 16)} <span><b>Обережно з висновками.</b> ${bad.map(q => esc(QUESTIONS.find(x => x.id === q).bad)).join(' ')} Такі відповіді записано окремо як ненадійні.</span></p>` : `<p class="note ok">${icon('check', 16)} Чудове інтерв'ю: лише запитання про факти й досвід. Відповіді записано в інсайти.</p>`; })()}<div class="row end"><button class="btn primary" data-md-close>Готово</button></div></div>`
       : `<div class="qs">${order.filter(q => !v.asked.includes(q.id)).map(q => `<button class="q-btn" data-q="${q.id}">${esc(S.qText(q))}</button>`).join('')}</div>`}`);
   };
-  modal({ title: 'Інтерв\'ю з клієнтом', wide: true, cls: 'iv', html: '', onOpen: api => { draw(api); api.el.addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (!b) return; S.ask(b.dataset.q); if (S.s.interview?.asked.length >= 3) S.finishInterview(); draw(api); C.save(); }); }, onClose: () => { if (S.s.interview) S.finishInterview(); C.save(); C.render(); } });
+  modal({ title: 'Інтерв\'ю з клієнтом', wide: true, cls: 'iv', html: '', onOpen: api => { draw(api); api.el.addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (!b) return; S.ask(b.dataset.q); if (S.s.interview?.asked.length >= 3) S.finishInterview(); draw(api); C.save(); }); }, onClose: () => { const empty = S.s.interview && !S.s.interview.asked.length; if (S.s.interview) S.finishInterview(); if (empty) toast('Інтерв’ю скасовано: ви не поставили жодного запитання, час повернуто', 'bad'); C.save(); C.render(); } });
 }
 
 /* ═════════ Бізнес-план ═════════ */

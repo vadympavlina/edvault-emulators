@@ -417,3 +417,7 @@ div.rs { cursor: default; } div.rs:not(.cur):hover { background: transparent; }
 .md.stage-done .sd-big { display: grid; place-items: center; width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 50%; background: #d9f3e3; color: #14663a; }
 .md.stage-done p { text-align: center; } .md.stage-done .row { justify-content: center; margin-top: 14px; }
 .ex-btns .btn:not(.primary):not(.ghost) { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.ivlist { display: grid; gap: 8px; } .ivh { border: 2px solid var(--line); border-radius: 12px; background: #fff; padding: 8px 12px; }
+.ivh[open] { border-color: var(--ink); } .ivh summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; } .ivh .chat { margin-top: 10px; }
+.ivh .chip.warn { background: #fff4d6; color: #8a5a00; }

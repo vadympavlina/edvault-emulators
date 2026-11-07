@@ -305,6 +305,8 @@ export class Sim {
   qText(q) { return q.t.replace('{problem}', this.I.problem).replace('{pitch}', `«${this.I.pitch}»`); }
   finishInterview() {
     const iv = this.s.interview; if (!iv) return null;
+    // розмову, де не поставлено жодного запитання, не зараховуємо: час повертається
+    if (!iv.asked.length) { this.s.interview = null; this.s.talks = Math.max(0, this.s.talks - 1); return null; }
     const K = this.s.know[iv.p.seg];
     const bad = iv.asked.filter(q => QUESTIONS.find(x => x.id === q)?.bad).length;
     K.n++; if (bad) K.bad++; else K.good++;
@@ -314,6 +316,9 @@ export class Sim {
     if (!je) J.push(je = { w: this.s.week, k: 'iv', t: '', n: 0, bad: 0, segs: {} });
     je.n++; if (bad) je.bad++; je.segs[sn] = (je.segs[sn] || 0) + 1;
     je.t = `Інтерв'ю з клієнтами: ${je.n} (${Object.entries(je.segs).map(([k, v]) => `${k} — ${v}`).join(', ')}), ${je.bad ? `з підказувальними запитаннями — ${je.bad}` : 'усі лише про факти'}.`;
+    // архів: минулі інтерв'ю можна переглянути в розділі «Клієнти»
+    (this.s.interviews ||= []).push({ w: this.s.week, name: iv.p.name, who: iv.p.who, seg: iv.p.seg, log: iv.log.map(l => ({ q: l.q, a: l.a })), bad });
+    if (this.s.interviews.length > 300) this.s.interviews.shift();
     this.s.interview = null;
     this.award('firstTalk');
     const all = Object.values(this.s.know); if (sum(all.map(x => x.good)) >= 10 && sum(all.map(x => x.bad)) === 0) this.award('listener');

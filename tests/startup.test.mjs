@@ -47,6 +47,8 @@ test('інтерв\'ю: правильні запитання дають дан�
   assert.equal(K.bad, 1); assert.equal(K.likes, 2); assert.equal(K.badWtps.length, 1);
   assert.ok(K.badWtps[0] > S.seg('parents').wtp * .9, 'відповідь «скільки б заплатили» завищена');
   S.startInterview('parents'); S.finishInterview();
+  assert.equal(S.talksLeft(), 1, 'порожня розмова не зараховується');
+  S.startInterview('parents'); S.ask('last'); S.finishInterview();
   assert.equal(S.talksLeft(), 0);
   assert.equal(S.startInterview('parents'), null, 'годин на інтерв\'ю більше немає');
   assert.ok(S.s.ach.firstTalk);
@@ -451,4 +453,20 @@ test('своя ідея: товари й послуги, оцінки учня, 
     assert.ok(Number.isFinite(S.s.cash) && Number.isFinite(S.mrr()), kind);
     if (kind === 'goods') assert.match(S.s.journal.map(j => j.t).join(' '), /товар/);
   }
+});
+
+
+test('інтерв’ю без жодного запитання не зараховується, а проведене потрапляє в архів', () => {
+  const S = fresh(); S.s.hours.customers = 12;
+  const k = S.segIds[0];
+  assert.ok(S.startInterview(k)); assert.equal(S.s.talks, 1);
+  S.finishInterview();
+  assert.equal(S.s.talks, 0, 'час повернуто');
+  assert.equal(S.s.know[k].n, 0);
+  assert.equal((S.s.interviews || []).length, 0);
+  S.startInterview(k); S.ask('last'); S.finishInterview();
+  assert.equal(S.s.know[k].n, 1); assert.equal(S.s.talks, 1);
+  assert.equal(S.s.interviews.length, 1);
+  assert.equal(S.s.interviews[0].log.length, 1);
+  assert.ok(okState(S.s));
 });
