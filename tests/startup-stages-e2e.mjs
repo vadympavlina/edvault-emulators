@@ -102,7 +102,13 @@ await step('SMART-ціль: після завершення з’являєть�
 
 await step('логотип: знак потрапляє в шапку гри', async () => {
   await go('ex-logo');
-  await p.click('.xp[data-p="shape"][data-v="hex"]'); await p.click('.sym[data-v="rocket"]'); await p.click('.sw2 >> nth=3');
+  await p.click('.bs-tabs [data-v="mark"]');
+  await p.click('.bs-sh[data-v="hex"]'); await p.click('.sym[data-v="rocket"]');
+  await p.click('.bs-tabs [data-v="color"]'); await p.click('.bs-pal >> nth=3');
+  await p.click('.bs-tabs [data-v="check"]');
+  assert.match(await p.locator('.bs-score').innerText(), /з 100/, 'є оцінка логотипа');
+  await p.click('[data-do="saveVar"]');
+  assert.equal(await p.locator('.bs-v').count(), 1, 'варіант збережено');
   await p.click('.ex-foot .btn.primary'); await p.waitForSelector('#main .ws');
   assert.equal((await S()).company.mk.shape, 'hex');
   assert.match(await p.locator('.tp-brand .lgm').getAttribute('style'), /clip-path/);

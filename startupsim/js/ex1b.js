@@ -4,7 +4,6 @@ import { FONTS, TONES, SYMBOLS, PALETTE } from './mods.js';
 import { esc, term } from './ui.js';
 import { icon } from './icons.js';
 import { reg, xb, xp, xin, xsl, xcol, tip, box, checks, bar, hash, clamp, sumOf, money0, goalMetrics } from './ex-core.js';
-import { logoMark } from './logo.js';
 
 const len = s => String(s || '').trim().length;
 const chips = (id, p, opts, cur, o = {}) => opts.map(v => xp(id, p, v, esc(v), cur === v, o)).join('');
@@ -108,57 +107,6 @@ function SM(S, d) {
   ];
   return { text, list, all: list.every(x => x[0]), ratio, note: ratio > 5 ? 'Ціль виглядає надто сміливою для цього терміну.' : ratio < .6 ? 'Ціль виглядає надто легкою.' : 'Ціль виглядає реалістично й трохи амбітно.' };
 }
-
-/* ═════════ Логотип і фірмовий стиль ═════════ */
-const SHAPES = [['squircle', 'Квадрат'], ['circle', 'Коло'], ['hex', 'Шестикутник'], ['shield', 'Щит'], ['diamond', 'Ромб']];
-const PAIRS = [['#6366f1', '#8b5cf6'], ['#0ea5e9', '#14b8a6'], ['#16a34a', '#84cc16'], ['#f97316', '#ef4444'], ['#ec4899', '#f59e0b'], ['#111827', '#374151'], ['#0f766e', '#0ea5e9'], ['#7c3aed', '#ec4899']];
-const lum = h => { const n = parseInt(h.slice(1), 16), f = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }; return .2126 * f(n >> 16) + .7152 * f((n >> 8) & 255) + .0722 * f(n & 255); };
-const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
-reg({
-  id: 'logo', stage: 1, cols: true, t: 'Логотип і фірмовий стиль', d: 'Створіть логотип і побачте його на візитці, іконці й футболці.', icon: 'palette', min: 15,
-  intro: `${term('Бренд', 'Бренд')} починається з упізнаваного знака. Оберіть форму, кольори, символ і шрифт, а нижче одразу побачите, як логотип виглядає в застосунку, на візитці, сайті й футболці. Готовий знак підставиться в шапку гри.`,
-  data: S => ({ name: S.s.company.name, shape: 'squircle', c1: S.s.company.color, c2: '', fg: '#ffffff', sym: S.s.company.sym || 'spark', font: 'modern', layout: 'side', grad: false, tag: '', t: 0 }),
-  onSet: (S, d) => { d.t = (d.t || 0) + 1; },
-  ctx(S, d) {
-    const g = { ...d, c2: d.grad ? (d.c2 || PAIRS.find(p => p[0] === d.c1)?.[1] || d.c1) : '' }, F = FONTS[d.font], ct = contrast(d.fg, d.c1);
-    const lockup = (big, cls = '') => `<div class="lockup ${d.layout} ${cls}">${d.layout !== 'word' ? logoMark(g, big ? 84 : 44) : ''}${d.layout !== 'mark' ? `<span class="lw" style="font-family:${F.css};font-weight:${F.w};color:${d.layout === 'word' || true ? 'inherit' : d.c1}">${esc(d.name || 'Назва')}${d.tag ? `<small>${esc(d.tag)}</small>` : ''}</span>` : ''}</div>`;
-    return { g, F, ct, lockup };
-  },
-  view(S, d) {
-    const { g, F, ct } = this.ctx(S, d);
-    return `
-      ${box('Знак', `<div class="xrow">${SHAPES.map(([k, t]) => xp('logo', 'shape', k, t, d.shape === k)).join('')}</div><div class="syms" role="group" aria-label="Символ">${SYMBOLS.map(sy => `<button type="button" class="sym ${d.sym === sy ? 'on' : ''}" data-act="ex" data-ex="logo" data-do="set" data-p="sym" data-v="${sy}" data-t="s" aria-label="Символ ${sy}">${icon(sy, 22)}</button>`).join('')}</div>`, { ic: 'cube' })}
-      ${box('Кольори', `<div class="swatches" role="group" aria-label="Готові пари кольорів">${PAIRS.map(([a, b]) => `<button type="button" class="sw2" style="background:linear-gradient(135deg,${a},${b})" data-act="ex" data-ex="logo" data-do="pair" data-a="${a}" data-b="${b}" aria-label="Пара ${a} і ${b}"></button>`).join('')}${xb('logo', 'rand', 'Випадковий', { ic: 'refresh', cls: 'sm' })}</div>
-        <div class="xrow mt">${xcol('logo', 'c1', d, { label: 'Основний' })}${xcol('logo', 'fg', d, { label: 'Символ' })}<label class="switch"><input type="checkbox" data-exi="logo" data-p="grad" ${d.grad ? 'checked' : ''}><span></span>Градієнт</label>${d.grad ? xcol('logo', 'c2', d, { label: 'Другий' }) : ''}</div>
-        <p class="sm ${ct >= 3 ? 'muted' : 'warnt'}">Контраст символу: ${ct.toFixed(1).replace('.', ',')} : 1 ${ct >= 3 ? '— добре видно.' : '— символ погано видно, спробуйте світліший чи темніший колір.'}</p>`, { ic: 'palette' })}
-      ${box('Напис', `${xin('logo', 'name', d, { label: 'Назва', max: 28 })}${xin('logo', 'tag', d, { label: 'Підпис під назвою (необов’язково)', max: 30, ph: 'наприклад, «розумна домашка»', cls: 'mt' })}
-        <div class="xrow mt">${Object.entries(FONTS).map(([k, f]) => `<button type="button" class="xp ${d.font === k ? 'on' : ''}" data-act="ex" data-ex="logo" data-do="set" data-p="font" data-v="${k}" data-t="s" style="font-family:${f.css};font-weight:${f.w}">${f.t}</button>`).join('')}</div>
-        <div class="xrow mt">${[['side', 'Знак ліворуч'], ['stack', 'Знак зверху'], ['mark', 'Лише знак'], ['word', 'Лише напис']].map(([k, t]) => xp('logo', 'layout', k, t, d.layout === k)).join('')}</div>`, { ic: 'pen' })}`;
-  },
-  live(S, d) {
-    const { g, lockup } = this.ctx(S, d);
-    return `${box('Ваш логотип', `<div class="stage">${lockup(true)}</div>`, { ic: 'star' })}
-      ${box('Де його видно', `<div class="mock">
-        <div class="m-app"><small>Іконка застосунку</small>${logoMark({ ...g, shape: 'squircle' }, 64)}</div>
-        <div class="m-card" style="--c:${d.c1}"><small>Візитка</small><div class="card2">${lockup(false)}<p>${esc(S.s.founder.name)}<br><span>засновник${S.s.founder.name.endsWith('а') ? 'ця' : ''}</span></p></div></div>
-        <div class="m-site"><small>Сайт</small><div class="browser"><i></i><i></i><i></i><div class="bar2">${lockup(false)}</div></div></div>
-        <div class="m-tee"><small>Футболка</small><div class="tee" style="--c:${d.c1}"><div class="tp">${logoMark({ ...g, c1: '#ffffff', c2: '', fg: d.c1 }, 46)}</div></div></div></div>`, { ic: 'eye' })}`;
-  },
-  acts: {
-    pair(S, d, el) { d.c1 = el.dataset.a; d.c2 = el.dataset.b; d.grad = true; d.t++; },
-    rand(S, d) { const p = PAIRS[Math.floor(Math.random() * PAIRS.length)]; d.c1 = p[0]; d.c2 = p[1]; d.grad = true; d.shape = SHAPES[Math.floor(Math.random() * SHAPES.length)][0]; d.sym = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]; d.t += 3; },
-  },
-  ready(S, d) {
-    if (len(d.name) < 2) return { ok: false, msg: 'Впишіть назву' };
-    if ((d.t || 0) < 3) return { ok: false, msg: 'Змініть щонайменше три налаштування знака' };
-    const ct = contrast(d.fg, d.c1);
-    return { ok: true, stars: 1 + (ct >= 3 ? 1 : 0) + (d.grad || len(d.tag) ? 1 : 0) };
-  },
-  finish(S, d) {
-    const c = S.s.company; c.color = d.c1; c.sym = d.sym; c.mk = { shape: d.shape, c1: d.c1, c2: d.grad ? (d.c2 || d.c1) : '', fg: d.fg };
-    if (!S.s.brand.logo) S.s.brand.logo = { q: clamp(.5 + .1 * (contrast(d.fg, d.c1) >= 3 ? 1 : 0) + (d.grad ? .05 : 0), .2, .9), by: 'self' };
-  },
-});
 
 /* ═════════ Характер бренду (необов'язкова) ═════════ */
 const VALUES = ['Чесність', 'Простота', 'Турбота', 'Швидкість', 'Якість', 'Сміливість', 'Гумор', 'Надійність', 'Креативність', 'Доступність', 'Експертність', 'Свобода'];
