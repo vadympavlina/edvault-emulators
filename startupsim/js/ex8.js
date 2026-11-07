@@ -1,5 +1,5 @@
 // Симулятор стартапу · додаткові вправи етапів 1–4: інтерв’ю з клієнтом, палітра бренду, пре-мортем, календар грошей.
-import { esc, lineChart } from './ui.js';
+import { esc, sideChart } from './ui.js';
 import { icon } from './icons.js';
 import { reg, xb, xp, xin, xsl, xsel, tip, box, checks, bar, clamp, sumOf, money0 } from './ex-core.js';
 
@@ -146,7 +146,7 @@ reg({
   live(S, d) {
     const r = cfRun(d);
     const cal = r.ev.map((list, i) => `<div class="cf-w ${r.bal[i] < 0 ? 'neg' : ''}"><b>${i + 1}</b>${list.map(([n, v]) => `<span class="${v > 0 ? 'pos' : 'out'}" title="${esc(n)}">${v > 0 ? '+' : '−'}${Math.round(Math.abs(v) / 1000)}k</span>`).join('')}<em>${Math.round(r.bal[i] / 1000)}k</em></div>`).join('');
-    return `${box('Баланс за тижнями', `${lineChart([{ v: [CF.start, ...r.bal], color: r.min < 0 ? '#e0503f' : '#6366f1', label: 'Залишок на рахунку', area: true }], { labels: ['0', ...r.ev.map((_, i) => String(i + 1))], fmt: x => Math.round(x / 1000) + 'k' })}
+    return `${box('Баланс за тижнями', `${sideChart([{ v: [CF.start, ...r.bal], color: r.min < 0 ? '#e0503f' : '#6366f1', label: 'Залишок на рахунку', area: true }], { labels: ['0', ...r.ev.map((_, i) => String(i + 1))], fmt: x => Math.round(x / 1000) + 'k' })}
       <div class="kpis3"><div><small>Найменший залишок</small><b class="${r.min < 0 ? 'neg' : ''}">${money0(r.min)}</b></div><div><small>Тижнів у мінусі</small><b class="${r.neg ? 'neg' : ''}">${r.neg}</b></div><div><small>Залишок наприкінці</small><b>${money0(r.final)}</b></div></div>
       ${r.neg ? tip(`У ${r.neg} ${r.neg === 1 ? 'тижні' : 'тижнях'} гроші закінчуються. Оплачуйте великі платежі після надходжень, а передоплату просіть раніше.`, 'bad') : tip('Усі платежі закриті вчасно: баланс не падає нижче нуля.', 'ok')}`, { ic: 'chart' })}
     ${box('Календар', `<div class="cf-cal">${cal}</div><p class="sm muted">Червоне: платіж, зелене: надходження, знизу: залишок у тисячах.</p>`, { ic: 'calendar' })}`;

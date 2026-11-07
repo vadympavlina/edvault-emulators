@@ -1,6 +1,6 @@
 // Симулятор стартапу · вправи етапу 6 «Просування»: канали й календар, воронка продажів, стимулювання збуту, рекламний креатив.
 import { FONTS, SYMBOLS } from './mods.js';
-import { esc, term, lineChart } from './ui.js';
+import { esc, term, wideChart } from './ui.js';
 import { icon } from './icons.js';
 import { logo } from './ui.js';
 import { reg, xb, xp, xin, xsl, xnum, xcol, tip, box, checks, bar, X, clamp, sumOf, pc, money0 } from './ex-core.js';
@@ -48,7 +48,7 @@ reg({
   live(S, d) {
     const c = chCalc(S, d), on = d.sel.filter(k => CHN.find(x => x.k === k).on).length, off = d.sel.length - on;
     return `${box('Що це дасть', `<div class="kpis3"><div><small>Витрати за 6 тижнів</small><b class="${c.cost > d.budget ? 'neg' : ''}">${money0(c.cost)}</b></div><div><small>Охоплення (людей)</small><b>${Math.round(c.reach).toLocaleString('uk-UA')}</b></div><div><small>Вартість платного клієнта (CAC)</small><b>${c.cac ? money0(c.cac) : '—'}</b></div></div>
-      ${lineChart([{ v: c.perWeek.map(w => Math.round(w.reach)), color: '#6366f1', label: 'Охоплення за тиждень', area: true }, { v: c.perWeek.map(w => Math.round(w.cost)), color: '#ef4444', label: 'Витрати за тиждень' }], { labels: c.perWeek.map((_, i) => String(i + 1)), fmt: x => Math.round(x).toLocaleString('uk-UA') })}
+      ${wideChart([{ v: c.perWeek.map(w => Math.round(w.reach)), color: '#6366f1', label: 'Охоплення за тиждень', area: true }, { v: c.perWeek.map(w => Math.round(w.cost)), color: '#ef4444', label: 'Витрати за тиждень' }], { labels: c.perWeek.map((_, i) => String(i + 1)), fmt: x => Math.round(x).toLocaleString('uk-UA') })}
       <p class="sm muted">Очікувані переходи на сайт: ≈ ${Math.round(c.vis)} · реєстрації ≈ ${Math.round(c.signups)} · платні клієнти ≈ ${Math.round(c.payers)}. Це оцінка: у грі результат залежить ще й від продукту. Канали одночасно частково «перетинаються» в аудиторії, тому охоплення не складається просто.</p>
       ${checks([[on >= 1 && off >= 1, 'Є і онлайн-, і офлайн-канали', 'Змішайте: різні канали бачать різні люди'], [d.sel.length >= 3, 'Обрано хоча б три канали'], [c.cells >= 6, 'Заплановано хоча б шість «клітинок»', 'Розставте канали по тижнях'], [c.cost > 0 && c.cost <= d.budget, 'Витрати вкладаються в бюджет', 'Зменште кількість тижнів чи приберіть дорогий канал']])}
       ${xin('channels', 'why', d, { label: 'Чому саме такий набір каналів?', area: true, rows: 2, max: 240, ph: 'Ми обрали ці канали, бо наша аудиторія…', cls: 'mt' })}`, { ic: 'chart' })}`;

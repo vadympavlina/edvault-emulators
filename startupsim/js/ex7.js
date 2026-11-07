@@ -1,5 +1,5 @@
 // Симулятор стартапу · вправи етапу 9 «Платежі й капітал»: платіжні інструменти, види грошей, інвестиційний портфель, крипта й трейдинг.
-import { esc, term, lineChart } from './ui.js';
+import { esc, term, wideChart } from './ui.js';
 import { icon } from './icons.js';
 import { reg, xb, xp, xin, xsl, tip, box, checks, bar, mk, hash, clamp, sumOf, pc, money0, quiz, quizOk, quizDone } from './ex-core.js';
 
@@ -100,7 +100,7 @@ reg({
   live(S, d) {
     if (!d.ran) return '';
     const R = Object.keys(SCN).map(k => [k, simPort(d.al, k, d.seed * 17 + hash(k))]), worst = Math.max(...R.map(x => x[1].dd)), labels = Array.from({ length: 11 }, (_, i) => String(i));
-    return `${box('Що буде за 10 років (було 100)', `${lineChart([...R.map(([k, r]) => ({ v: r.path, color: { calm: '#16a34a', crash: '#ef4444', boom: '#6366f1' }[k], label: SCN[k][0] })), { v: R[0][1].bench, color: '#94a3b8', label: 'Інфляція +7,5%', dash: true }], { labels, fmt: x => String(Math.round(x)), zero: false })}
+    return `${box('Що буде за 10 років (було 100)', `${wideChart([...R.map(([k, r]) => ({ v: r.path, color: { calm: '#16a34a', crash: '#ef4444', boom: '#6366f1' }[k], label: SCN[k][0] })), { v: R[0][1].bench, color: '#94a3b8', label: 'Інфляція +7,5%', dash: true }], { labels, fmt: x => String(Math.round(x)), zero: false })}
       <div class="kpis3">${R.map(([k, r]) => `<div><small>${SCN[k][0]}</small><b class="${r.end >= r.bench.at(-1) ? 'pos' : 'neg'}">${Math.round(r.end)} <small>найбільше падіння ${pc(r.dd)}</small></b></div>`).join('')}</div>
       ${worst * 100 > d.tol ? tip(`У найгіршому сценарії портфель падає на ${pc(worst)}, а ви готові пережити лише ${d.tol}%. Зробіть портфель обережнішим або змініть очікування.`, 'warn') : tip(`Найбільше падіння — ${pc(worst)}: це в межах ваших ${d.tol}%.`, 'ok')}
       ${checks([[Object.values(d.al).filter(v => v > 0).length >= 3, 'Диверсифікація: гроші розподілено хоча б між трьома інструментами', 'Не кладіть усі яйця в один кошик'], [(d.al.stock || 0) <= 40, 'Окремі акції не перевищують 40%', 'Окремі акції — найризикованіший інструмент'], [worst * 100 <= d.tol, 'Падіння вкладається у вашу толерантність']])}
@@ -129,7 +129,7 @@ reg({
   view(S, d) {
     const W = mkWorld(d.seed), price = W.p[d.day], val = d.cash + d.qty * price, profit = val - 10000;
     return `${box('Торгівля', `<div class="kpis3"><div><small>День</small><b>${d.day} з ${TS}</b></div><div><small>Ціна токена</small><b>${price.toFixed(1).replace('.', ',')} ₴</b></div><div><small>Ваш капітал</small><b class="${profit >= 0 ? 'pos' : 'neg'}">${money0(val)}</b></div></div>
-      ${lineChart([{ v: W.p.slice(0, d.day + 1), color: '#6366f1', label: 'Ціна токена', area: true }], { labels: Array.from({ length: d.day + 1 }, (_, i) => String(i)), zero: false, fmt: x => x.toFixed(0) })}
+      ${wideChart([{ v: W.p.slice(0, d.day + 1), color: '#6366f1', label: 'Ціна токена', area: true }], { labels: Array.from({ length: d.day + 1 }, (_, i) => String(i)), zero: false, fmt: x => x.toFixed(0) })}
       ${W.ev[d.day] ? `<p class="x-tip warn">${icon('info', 16)}<span><b>Новина дня:</b> ${esc(W.ev[d.day])}</span></p>` : ''}
       <p class="sm">У вас: <b>${d.qty.toFixed(2).replace('.', ',')}</b> токенів · готівкою <b>${money0(d.cash)}</b></p>
       ${d.done ? '' : `<div class="xrow">${xb('trading', 'buy', 'Купити на 25%', { a: .25, ic: 'plus', dis: d.cash < 100 })}${xb('trading', 'buy', 'Купити на все', { a: 1, ic: 'plus', dis: d.cash < 100 })}${xb('trading', 'sell', 'Продати все', { ic: 'minus', dis: d.qty <= 0 })}${xb('trading', 'next', 'Наступний день', { cls: 'primary', ic: 'next' })}${xb('trading', 'skip', '+5 днів', { cls: 'ghost', ic: 'right' })}</div><p class="sm muted">Комісія за кожну операцію — 0,5%.</p>`}

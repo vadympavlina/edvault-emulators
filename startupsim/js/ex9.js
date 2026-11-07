@@ -1,5 +1,5 @@
 // Симулятор стартапу · додаткові вправи етапів 5–9: торг з інвестором, A/B-тест, подорож клієнта, складна розмова, ціна години, шахрайство, складні відсотки.
-import { esc, lineChart } from './ui.js';
+import { esc, sideChart } from './ui.js';
 import { icon } from './icons.js';
 import { reg, xb, xp, xin, xsl, tip, box, checks, bar, mk, hash, clamp, sumOf, money0, pc } from './ex-core.js';
 
@@ -219,7 +219,7 @@ reg({
   },
   live(S, d) {
     const rows = d.pick.map(k => ({ k, g: grow(d, k) })), put = d.start + d.mo * 12 * d.yrs, key = d.real ? 'real' : 'nom';
-    return `${box(d.real ? 'Реальна вартість грошей' : 'Скільки буде грошей', rows.length ? `${lineChart(rows.map(r => ({ v: r.g[key], color: STR[r.k][2], label: STR[r.k][0] })), { labels: Array.from({ length: d.yrs + 1 }, (_, i) => String(i)), fmt: x => x >= 1e6 ? (x / 1e6).toFixed(1) + 'M' : Math.round(x / 1000) + 'k' })}
+    return `${box(d.real ? 'Реальна вартість грошей' : 'Скільки буде грошей', rows.length ? `${sideChart(rows.map(r => ({ v: r.g[key], color: STR[r.k][2], label: STR[r.k][0] })), { labels: Array.from({ length: d.yrs + 1 }, (_, i) => String(i)), fmt: x => x >= 1e6 ? (x / 1e6).toFixed(1) + 'M' : Math.round(x / 1000) + 'k' })}
       <div class="xscroll"><table class="xtable"><thead><tr><th>Стратегія</th><th class="num">Номінально</th><th class="num">З інфляцією</th><th class="num">Відсотки принесли</th></tr></thead><tbody>${rows.map(r => `<tr><td>${esc(STR[r.k][0])}</td><td class="num">${money0(r.g.nom.at(-1))}</td><td class="num">${money0(r.g.real.at(-1))}</td><td class="num pos">+${money0(r.g.nom.at(-1) - put)}</td></tr>`).join('')}</tbody></table></div>
       <p class="sm muted">Ви внесете власних грошей: ${money0(put)}. «З інфляцією»: скільки ці гроші купили б у сьогоднішніх цінах. Різниця між першою й другою колонкою — те, що забрала інфляція.</p>` : `<p class="muted">Оберіть хоча б одну стратегію.</p>`, { ic: 'chart' })}`;
   },

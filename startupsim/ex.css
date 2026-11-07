@@ -408,3 +408,4 @@
 .xp { max-width: 100%; } .xp > span { overflow-wrap: anywhere; }
 .chart .legend { flex-wrap: wrap; gap: 4px 14px; }
 .ex-live { grid-template-columns: minmax(0, 1fr); }
+.ex-body:not(.cols) > .ex-live { gap: 18px; }

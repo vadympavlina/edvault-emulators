@@ -1,6 +1,6 @@
 // Симулятор стартапу · вправи етапу 7 «Команда»: стилі лідерства, ролі, Agile/Scrum/Kanban, наймання, дистанційна робота.
 import { ROLES } from './data.js';
-import { esc, term, lineChart } from './ui.js';
+import { esc, term, wideChart } from './ui.js';
 import { icon } from './icons.js';
 import { reg, xb, xp, xin, xsl, tip, box, checks, bar, radar, mk, hash, clamp, sumOf, pc, money0, quiz, quizOk, quizDone } from './ex-core.js';
 
@@ -108,7 +108,7 @@ reg({
   live(S, d) {
     if (d.tab !== 'scrum' || !d.log.length) return '';
     const L = d.log.at(-1), days = Array.from({ length: 11 }, (_, i) => String(i));
-    return `${box(`Результат спринту ${d.log.length}`, `${lineChart([{ v: L.burn, color: '#6366f1', label: 'Залишилось очок', area: true }, { v: L.ideal, color: '#94a3b8', label: 'Ідеальна лінія', dash: true }], { labels: days, fmt: x => String(Math.round(x)) })}
+    return `${box(`Результат спринту ${d.log.length}`, `${wideChart([{ v: L.burn, color: '#6366f1', label: 'Залишилось очок', area: true }, { v: L.ideal, color: '#94a3b8', label: 'Ідеальна лінія', dash: true }], { labels: days, fmt: x => String(Math.round(x)) })}
       <div class="kpis3"><div><small>Заплановано</small><b>${L.plan} оч.</b></div><div><small>Зроблено</small><b class="${L.done >= L.plan ? 'pos' : ''}">${L.done} оч.</b></div><div><small>Цінність для клієнтів</small><b>${L.val} з ${L.maxVal}</b></div></div>
       ${L.ev.map(e => `<p class="x-tip warn">${icon('info', 16)}<span>${esc(e)}</span></p>`).join('')}
       <h4 class="h4s mt">Ретроспектива</h4><div class="xg c3">${xin('agile', 'retro.good', d, { label: 'Що вийшло добре?', area: true, rows: 2, max: 140 })}${xin('agile', 'retro.bad', d, { label: 'Що заважало?', area: true, rows: 2, max: 140 })}${xin('agile', 'retro.act', d, { label: 'Що зробимо інакше?', area: true, rows: 2, max: 140 })}</div>`, { ic: 'chart' })}`;

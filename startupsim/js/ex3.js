@@ -1,5 +1,5 @@
 // Симулятор стартапу · вправи етапу 4 «Ціна й гроші»: собівартість, ціна, фінансовий план, асортимент.
-import { esc, term, lineChart } from './ui.js';
+import { esc, term, wideChart } from './ui.js';
 import { icon } from './icons.js';
 import { reg, xb, xp, xin, xsl, xnum, tip, box, checks, bar, X, clamp, sumOf, pc, money0 } from './ex-core.js';
 
@@ -32,7 +32,7 @@ reg({
     const t = costTotals(d), max = Math.max(100, Math.min(5000, Math.ceil((t.be === Infinity ? 200 : t.be * 2) / 50) * 50)), n = 11, xs = Array.from({ length: n }, (_, i) => Math.round(max * i / (n - 1)));
     const profit = (d.price - t.u) * d.vol - t.f;
     return `${box('Беззбитковість', `<div class="kpis3"><div><small>Прибуток із однієї ${S.I.kind === 'hardware' ? 'одиниці' : 'продажі'}</small><b class="${t.m > 0 ? 'pos' : 'neg'}">${money0(t.m)}</b></div><div><small>Беззбитковість</small><b>${t.be === Infinity ? 'недосяжна' : `${t.be.toLocaleString('uk-UA')} ${noun(S)}`}</b></div><div><small>Прибуток на місяць за ${d.vol}</small><b class="${profit >= 0 ? 'pos' : 'neg'}">${money0(profit)}</b></div></div>
-      ${lineChart([{ v: xs.map(q => d.price * q), color: '#16a34a', label: 'Виручка' }, { v: xs.map(q => t.f + t.u * q), color: '#ef4444', label: 'Витрати' }], { labels: xs.map(String), fmt: x => (x / 1000).toFixed(0) + ' тис.' })}
+      ${wideChart([{ v: xs.map(q => d.price * q), color: '#16a34a', label: 'Виручка' }, { v: xs.map(q => t.f + t.u * q), color: '#ef4444', label: 'Витрати' }], { labels: xs.map(String), fmt: x => (x / 1000).toFixed(0) + ' тис.' })}
       ${t.m <= 0 ? tip('Ціна не покриває змінні витрати: чим більше продаєте, тим більше втрачаєте. Підніміть ціну або зменшіть витрати.', 'bad') : tip(`Після ${t.be.toLocaleString('uk-UA')} ${noun(S)} щомісяця кожна наступна приносить ${money0(t.m)} прибутку.`, 'ok')}`, { ic: 'chart' })}`;
   },
   acts: {
@@ -109,7 +109,7 @@ reg({
   },
   live(S, d) {
     const P = Object.fromEntries(Object.keys(SCEN).map(k => [k, plan(d, k)])), cur = P[d.scen], labels = Array.from({ length: 12 }, (_, i) => String(i + 1));
-    return `${box('Гроші на рахунку за 12 місяців', lineChart(Object.entries(SCEN).map(([k, s]) => ({ v: P[k].cashes, color: s[3], label: s[0], dash: k !== d.scen })), { labels, fmt: x => (x / 1000).toFixed(0) + ' тис.' }), { ic: 'trend' })}
+    return `${box('Гроші на рахунку за 12 місяців', wideChart(Object.entries(SCEN).map(([k, s]) => ({ v: P[k].cashes, color: s[3], label: s[0], dash: k !== d.scen })), { labels, fmt: x => (x / 1000).toFixed(0) + ' тис.' }), { ic: 'trend' })}
     ${box('За яким сценарієм плануєте?', `<div class="xrow">${Object.entries(SCEN).map(([k, s]) => xp('finplan', 'scen', k, s[0], d.scen === k, { sub: P[k].minCash < 0 ? `не вистачить ${money0(P[k].need)}` : `мінімум ${money0(P[k].minCash)}` })).join('')}</div>
       <div class="kpis3 mt"><div><small>Вихід у прибуток</small><b>${cur.be ? `${cur.be}-й місяць` : 'не в цьому році'}</b></div><div><small>Найменше грошей</small><b class="${cur.minCash < 0 ? 'neg' : ''}">${money0(cur.minCash)} (міс. ${cur.minM || 1})</b></div><div><small>Через 12 місяців</small><b class="${cur.end < 0 ? 'neg' : 'pos'}">${money0(cur.end)}</b></div></div>
       ${cur.need > 0 ? tip(`У цьому сценарії гроші закінчаться на ${cur.minM}-му місяці. Щоб дожити, потрібно додатково ≈ ${money0(Math.ceil(cur.need / 10000) * 10000)}. Це число знадобиться у вправі про джерела фінансування.`, 'bad') : tip('Грошей вистачає на весь рік. Перевірте й песимістичний сценарій: чи вистачить там?', 'ok')}

@@ -75,8 +75,8 @@ export function termPop(btn) {
 /* ── графіки (SVG) ── */
 const niceMax = v => { if (v <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))), n = v / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p; };
 // Лінійний графік: series = [{ v: [...], color, label, area }]
-export function lineChart(series, { h: H = 160, fmt = x => Math.round(x), labels = [], zero = true, id = '' } = {}) {
-  const W = 600, pl = 46, pr = 10, pt = 12, pb = 22, n = Math.max(2, ...series.map(s => s.v.length));
+export function lineChart(series, { h: H = 160, fmt = x => Math.round(x), labels = [], zero = true, id = '', w: W = 600 } = {}) {
+  const pl = 46, pr = 10, pt = 12, pb = 22, n = Math.max(2, ...series.map(s => s.v.length));
   const all = series.flatMap(s => s.v).filter(Number.isFinite);
   if (!all.length) return `<div class="chart-empty">Дані з'являться після першого тижня</div>`;
   let lo = zero ? Math.min(0, ...all) : Math.min(...all), hi = Math.max(...all, lo + 1);
@@ -119,3 +119,7 @@ export function logo(company, size = 36, symIcon) {
   if (company.mk) return logoMark({ ...company.mk, sym: company.sym }, size, symIcon);
   return `<span class="logo" style="--lc:${company.color};width:${size}px;height:${size}px">${icon(symIcon || company.sym || 'spark', Math.round(size * .56))}</span>`;
 }
+
+// ширина полотна під реальну ширину блока: текст не розтягується
+export const wideChart = (s, o = {}) => lineChart(s, { w: 940, ...o });
+export const sideChart = (s, o = {}) => lineChart(s, { w: 470, ...o });
