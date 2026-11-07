@@ -1,7 +1,8 @@
 // Симулятор стартапу · вправи: реєстр, стан у збереженні, спільні елементи розмітки, введення й перетягування.
 // Кожна вправа — це опис { id, stage, t, d, icon, intro, data, view, live, ready, acts, finish }.
 // Усе, що учень вводить чи обирає, лежить у s.ex.d[id] і потрапляє в збереження та файл разом зі станом гри.
-import { esc, term } from './ui.js';
+import { esc, term, modal, toast } from './ui.js';
+import { aiPrompts, AI_TIPS } from './ai.js';
 import { icon } from './icons.js';
 
 export const STAGE_T = ['Ніша й продукт', 'Аудиторія й бренд', 'Позиціонування', 'Ціна й гроші', 'Гроші на старт', 'Просування', 'Команда', 'Фриланс', 'Платежі й капітал'];
@@ -114,7 +115,7 @@ export function exPage(def) {
     const d = X(S, def.id), done = S.s.ex.done[def.id];
     return `<div class="ex" data-ex-root="${def.id}">
       <button class="ex-back" data-act="exBack" data-ex="${def.id}">${icon('left', 16)} Етап ${def.stage + 1} · ${esc(STAGE_T[def.stage])}</button>
-      <section class="ex-intro"><span class="ex-ic">${icon(def.icon, 26)}</span><div><p>${def.intro}</p>${def.min ? `<small>≈ ${def.min} хв${done ? ` · ви вже виконали цю вправу на тижні ${done.w + 1}` : ''}</small>` : ''}</div></section>
+      <section class="ex-intro"><span class="ex-ic">${icon(def.icon, 26)}</span><button type="button" class="ex-ai" data-act="exAi" data-ex="${def.id}" title="Приклади промптів для ШІ до цієї вправи" aria-label="Приклади промптів для ШІ">${icon('spark', 14)} ШІ</button><div><p>${def.intro}</p>${def.min ? `<small>≈ ${def.min} хв${done ? ` · ви вже виконали цю вправу на тижні ${done.w + 1}` : ''}</small>` : ''}</div></section>
       <div class="ex-body ${def.cols ? 'cols' : ''}">${def.cols ? `<div class="ex-main">${def.view(S, d, { ui, done })}</div>` : def.view(S, d, { ui, done })}${def.live ? `<div class="ex-live" data-live>${def.live(S, d, { ui, done })}</div>` : ''}</div>
       <footer class="ex-foot" role="group" aria-label="Завершення вправи">${footInner(S, def, d)}</footer></div>`;
   };
@@ -140,6 +141,21 @@ export const exActs = {
     else if (def.acts?.[k]) { if (def.acts[k](S, d, el, C) === false) return; }
     if (k === 'set' || k === 'tog') def.onSet?.(S, d, p, el.dataset.v);
     C.render(); C.saveSoon();
+  },
+  // приклади промптів для ШІ: їх можна скопіювати й вставити у свій улюблений чат-бот
+  exAi(C, el) {
+    const def = EX[el.dataset.ex]; if (!def) return;
+    const list = aiPrompts(C.S, def);
+    modal({ title: `Промпти для ШІ · ${def.t}`, wide: true, cls: 'ai-md',
+      html: `<p class="sm muted">Скопіюйте промпт, вставте його в чат із ШІ й допишіть свої дані там, де є квадратні дужки. Це приклади: змінюйте їх під себе.</p>
+        <div class="ai-list">${list.map((x, i) => `<article class="ai-it"><header><b>${esc(x.t)}</b><button type="button" class="btn sm" data-ai-copy="${i}">${icon('save', 14)} Копіювати</button></header><p>${esc(x.p)}</p></article>`).join('')}</div>
+        <ul class="ai-tips">${AI_TIPS.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`,
+      onOpen: api => api.el.addEventListener('click', async e => {
+        const b = e.target.closest('[data-ai-copy]'); if (!b) return;
+        const text = list[+b.dataset.aiCopy].p;
+        try { await navigator.clipboard.writeText(text); toast('Промпт скопійовано', 'good'); }
+        catch { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('Промпт скопійовано', 'good'); } catch { toast('Не вдалося скопіювати: виділіть текст вручну', 'bad'); } ta.remove(); }
+      }) });
   },
   exBack(C, el) { const def = EX[el.dataset.ex]; C.ui.stage = def?.stage ?? null; C.go('dash'); },
   exDone(C, el) {

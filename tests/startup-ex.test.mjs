@@ -150,3 +150,15 @@ test('вправи з наслідками для гри: ціна, модель
   for (let w = 0; w < 6 && !wins; w++) { S.s.week = w; EX.grants.acts.submit(S, gm, {}, { toast() {} }); if (gm.res.school.res === 'win') wins++; }
   if (wins) assert.ok(S.s.cash > cash, 'грант зараховано на рахунок');
 });
+
+
+test('до кожної вправи є приклади промптів для ШІ, підстановки заповнено', async () => {
+  const { aiPrompts, AI_PROMPTS } = await import('../startupsim/js/ai.js');
+  for (const [idea, o] of GAMES) {
+    const S = make(idea, o);
+    for (const def of exAll()) {
+      assert.ok(AI_PROMPTS[def.id]?.length >= 2, `${def.id}: немає власних промптів`);
+      for (const x of aiPrompts(S, def)) { assert.ok(x.t && x.p.length > 30, def.id); assert.doesNotMatch(x.p, /\{(idea|pitch|company|title)\}|undefined|null/, `${idea}/${def.id}`); }
+    }
+  }
+});

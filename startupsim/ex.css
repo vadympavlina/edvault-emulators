@@ -421,3 +421,11 @@ div.rs { cursor: default; } div.rs:not(.cur):hover { background: transparent; }
 .ivlist { display: grid; gap: 8px; } .ivh { border: 2px solid var(--line); border-radius: 12px; background: #fff; padding: 8px 12px; }
 .ivh[open] { border-color: var(--ink); } .ivh summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; } .ivh .chat { margin-top: 10px; }
 .ivh .chip.warn { background: #fff4d6; color: #8a5a00; }
+
+/* приклади промптів для ШІ */
+.ex-intro { position: relative; } .ex-intro > div { flex: 1; min-width: 0; padding-right: 56px; }
+.ex-ai { position: absolute; top: 12px; right: 14px; display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; min-height: 28px; border: 2px solid var(--ink); border-radius: 999px; background: #fff; font: 700 12.5px Rubik, sans-serif; box-shadow: 0 2px 0 var(--ink); }
+.ex-ai:hover { background: #f1f4f3; } .ex-ai:active { transform: translateY(2px); box-shadow: none; }
+.ai-list { display: grid; gap: 10px; margin: 12px 0; } .ai-it { border: 2px solid var(--line); border-radius: 12px; padding: 10px 14px; background: #fff; }
+.ai-it header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; } .ai-it p { font-size: 14.5px; line-height: 1.5; color: #2b3447; margin: 0; }
+.ai-tips { margin: 0; padding-left: 18px; color: #44506a; font-size: 13.5px; display: grid; gap: 3px; }
