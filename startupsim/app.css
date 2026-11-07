@@ -31,7 +31,7 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -.01em; }
 
 /* ── каркас ── */
 .app { min-height: 100vh; display: flex; flex-direction: column; }
-.badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--acc); color: #fff; font-size: 11.5px; font-weight: 700; display: grid; place-items: center; }
+.badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--acc); color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; }
 .badge.dot { min-width: 9px; width: 9px; height: 9px; padding: 0; }
 .founder { display: flex; gap: 10px; align-items: center; } .founder b { display: block; font-size: 14px; } .founder small { color: var(--tx3); font-size: 12px; }
 .av { --h: 220; width: 36px; height: 36px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: hsl(var(--h) 55% 32%); background: hsl(var(--h) 75% 92%); }
@@ -44,7 +44,7 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -.01em; }
 .tp-brand small { display: block; color: var(--tx3); font-size: 12.5px; white-space: nowrap; }
 .tp-stats { display: flex; gap: 6px; flex: 1; justify-content: flex-end; min-width: 0; }
 .tp-s { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px 5px 10px; border-radius: 11px; background: #f3f4f8; color: var(--tx2); white-space: nowrap; }
-.tp-s small { display: block; font-size: 11px; color: var(--tx3); line-height: 1.2; }
+.tp-s small { display: block; font-size: 12px; color: var(--tx3); line-height: 1.2; }
 .tp-s b { display: block; color: var(--tx); font-weight: 700; font-size: 14px; line-height: 1.25; }
 .tp-s.warn { background: var(--warn-bg); color: var(--warn); } .tp-s.bad { background: var(--bad-bg); color: var(--bad); } .tp-s.bad b { color: var(--bad); }
 .end-week { white-space: nowrap; }
@@ -111,7 +111,7 @@ h1, h2, h3 { line-height: 1.25; letter-spacing: -.01em; }
 .ib:hover { background: #f1f2f6; color: var(--tx); }
 .link { color: var(--acc-tx); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; padding: 0; }
 .chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: 12.5px; font-weight: 600; background: #f1f2f6; color: var(--tx2); white-space: nowrap; }
-.chip.sm { padding: 1px 8px; font-size: 11.5px; }
+.chip.sm { padding: 1px 8px; font-size: 12px; }
 .chip.ok { background: var(--ok-bg); color: var(--ok); } .chip.warn { background: var(--warn-bg); color: #b45309; } .chip.bad { background: var(--bad-bg); color: var(--bad); } .chip.acc { background: var(--acc-soft); color: var(--acc-tx); }
 .muted { color: var(--tx3); } .sm { font-size: 13.5px; } p.sm { margin-top: 6px; }
 .lead { color: var(--tx2); margin-bottom: 16px; max-width: 900px; font-size: 15px; }
@@ -165,7 +165,7 @@ output { font-weight: 600; font-size: 13.5px; white-space: nowrap; font-variant-
 .mini-stats div { background: #f7f8fb; border-radius: 10px; padding: 9px 11px; } .mini-stats span { display: block; font-size: 12px; color: var(--tx3); } .mini-stats b { font-size: 16px; font-variant-numeric: tabular-nums; }
 .ins { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 10px 0; }
 .ins > div { background: #f7f8fb; border-radius: 10px; padding: 9px 11px; min-width: 0; }
-.ins span { display: block; font-size: 12px; color: var(--tx3); } .ins b { font-size: 16px; display: block; font-variant-numeric: tabular-nums; } .ins small { font-size: 11.5px; color: var(--tx3); display: block; }
+.ins span { display: block; font-size: 12px; color: var(--tx3); } .ins b { font-size: 16px; display: block; font-variant-numeric: tabular-nums; } .ins small { font-size: 12px; color: var(--tx3); display: block; }
 .term { color: inherit; font-weight: inherit; text-decoration: underline dotted var(--acc); text-decoration-thickness: 1.5px; text-underline-offset: 3px; padding: 0; font-size: inherit; display: inline; }
 .term:hover { color: var(--acc-tx); }
 .term-pop { position: absolute; z-index: 300; background: #111827; color: #f3f4f6; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; line-height: 1.5; box-shadow: 0 12px 32px rgba(0,0,0,.25); animation: pop .15s ease-out; }
@@ -177,7 +177,7 @@ output { font-weight: 600; font-size: 13.5px; white-space: nowrap; font-variant-
 /* ── графіки ── */
 .chart svg { width: 100%; height: auto; display: block; overflow: visible; }
 .chart .g { stroke: #eef0f5; stroke-width: 1; } .chart .g.z { stroke: #cbd0dc; }
-.chart .ax { fill: #6b7280; font-size: 11px; font-family: 'Golos Text', sans-serif; }
+.chart .ax { fill: #6b7280; font-size: 12px; font-family: 'Golos Text', sans-serif; }
 .chart-empty { height: 120px; display: grid; place-items: center; color: var(--tx3); font-size: 13.5px; background: #fafbfc; border-radius: 10px; border: 1px dashed var(--line); }
 .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--tx2); margin-top: 6px; }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
@@ -304,7 +304,7 @@ output { font-weight: 600; font-size: 13.5px; white-space: nowrap; font-variant-
 .ch-ic { width: 40px; height: 40px; border-radius: 11px; background: var(--acc-soft); color: var(--acc-tx); display: grid; place-items: center; }
 .ch-t b { display: block; font-size: 14.5px; } .ch-t small { display: block; font-size: 12.5px; color: var(--tx3); line-height: 1.4; } .ch-t .fit { color: var(--acc-tx); font-weight: 600; margin-top: 2px; }
 .ch-ctl { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; } .ch-ctl small { color: var(--tx3); font-size: 12.5px; }
-.ch-v { text-align: right; } .ch-v b { display: block; font-size: 17px; font-variant-numeric: tabular-nums; } .ch-v small { font-size: 11.5px; color: var(--tx3); }
+.ch-v { text-align: right; } .ch-v b { display: block; font-size: 17px; font-variant-numeric: tabular-nums; } .ch-v small { font-size: 12px; color: var(--tx3); }
 .ch-row.wom .ch-ic { background: #ecfdf3; color: var(--ok); }
 .stepper { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 10px; padding: 2px; } .stepper b { min-width: 26px; text-align: center; }
 .ab-res { margin-top: 14px; } .ab-res .btn { margin-top: 10px; }
@@ -312,7 +312,7 @@ output { font-weight: 600; font-size: 13.5px; white-space: nowrap; font-variant-
 /* ── акції ── */
 .season { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; align-items: end; height: 120px; }
 .season div { display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
-.season i { width: 100%; max-width: 34px; border-radius: 6px 6px 3px 3px; background: #dfe3ec; } .season small { font-size: 11.5px; color: var(--tx3); }
+.season i { width: 100%; max-width: 34px; border-radius: 6px 6px 3px 3px; background: #dfe3ec; } .season small { font-size: 12px; color: var(--tx3); }
 .season .now i { background: var(--acc); } .season .now small { color: var(--acc-tx); font-weight: 700; }
 .promo { display: flex; flex-direction: column; gap: 8px; margin-bottom: 0; } .promo h3 { font-size: 15px; display: flex; gap: 8px; align-items: center; } .promo h3 .ic { color: var(--acc-tx); } .promo p { font-size: 13.5px; color: var(--tx2); flex: 1; }
 .promo .btn, .promo .chip { align-self: flex-start; } .promo.on { border-color: #bbe5c8; background: linear-gradient(#fff, #f6fdf8); }
@@ -489,10 +489,10 @@ body.wz-on .app { filter: blur(3px); }
 }
 /* таблиці на телефоні: компактніше й з горизонтальною прокруткою, а не за межі екрана */
 .ab-res { overflow-x: auto; }
-@media (max-width: 640px) { .tbl th, .tbl td { padding: 7px 6px; } .tbl th { letter-spacing: 0; font-size: 11px; } }
+@media (max-width: 640px) { .tbl th, .tbl td { padding: 7px 6px; } .tbl th { letter-spacing: 0; font-size: 12px; } }
 .season { grid-template-columns: repeat(12, minmax(0, 1fr)); } .season small { overflow: hidden; max-width: 100%; }
 .report .rp-h > div { min-width: 0; }
-@media (max-width: 480px) { .season { gap: 2px; } .season small { font-size: 10px; } .report .rp-h { flex-wrap: wrap; } .report .rp-h > .row { flex: 1 1 100%; } }
+@media (max-width: 480px) { .season { gap: 2px; } .season small { font-size: 12px; } .report .rp-h { flex-wrap: wrap; } .report .rp-h > .row { flex: 1 1 100%; } }
 /* збереження у файл */
 .wz-open { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line2); }
 .wz-two { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; } @media (max-width: 560px) { .wz-two { grid-template-columns: 1fr; } }
@@ -613,7 +613,7 @@ h1, h2, h3, h4, .pg-h h1, .md-h h2 { font-family: Rubik, 'Golos Text', sans-seri
 .hcol .ht { display: flex; align-items: center; gap: 4px; font: 600 13px Rubik, sans-serif; margin-top: 4px; }
 .hcol .ht .ic { color: var(--tx3); }
 .hcol output { font: 700 15px Rubik, sans-serif; }
-.hcol small { font-size: 11.5px; color: var(--tx3); line-height: 1.2; min-height: 14px; }
+.hcol small { font-size: 12px; color: var(--tx3); line-height: 1.2; min-height: 14px; }
 .hr-pm { display: flex; gap: 6px; margin-top: 2px; }
 .hr-pm .ib { width: 34px; height: 34px; border: 2px solid var(--ink); background: #fff; box-shadow: 0 2px 0 var(--ink); }
 .hr-pm .ib:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
@@ -741,3 +741,14 @@ body.simple .adv { display: none; }
 .iv .chat { max-height: 260px; }
 @media (max-width: 760px) { .iv-qs { grid-template-columns: minmax(0, 1fr); } }
 .iv .chat { display: flex; flex-direction: column; }
+
+/* читабельність: вимкнені кнопки лишаються читабельними, а не напівпрозорими */
+.btn:disabled { opacity: 1; background: #e8ebf0; color: #556072; border-color: #c4cad6; box-shadow: none; cursor: not-allowed; }
+.btn.primary:disabled { background: #d9dde6; color: #475166; border-color: #b9c0cd; }
+.btn:disabled .ic { opacity: .8; }
+
+/* підказка до розділу: коротка спокійна смужка замість великої жовтої наліпки */
+.view-hint { background: #fff8d9; border: 1.5px solid #ecd978; border-radius: 12px; padding: 8px 12px; margin: -4px 0 14px; box-shadow: none; align-items: center; }
+.view-hint p { font-size: 14px; line-height: 1.45; color: #3b3320; }
+.view-hint .ic { margin-top: 0; color: #7a5a00; }
+.view-hint .btn { padding: 4px 10px; font-size: 13px; }
