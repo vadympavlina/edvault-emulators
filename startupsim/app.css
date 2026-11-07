@@ -646,6 +646,9 @@ h1, h2, h3, h4, .pg-h h1, .md-h h2 { font-family: Rubik, 'Golos Text', sans-seri
   .top { width: calc(100% - 16px); margin-top: 8px; }
   .wz-three { grid-template-columns: 1fr; }
   .passport { grid-template-columns: 1fr; }
+  .hcols { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .hcol:last-child:nth-child(3n + 1) { grid-column: 2; }
+  .hcol .ht { font-size: 12.5px; gap: 3px; }
 }
 @media (prefers-reduced-motion: reduce) { .hcol .tube i, .btn { transition: none; } .btn:active:not(:disabled) { transform: none; } }
 @media print { body { background: #fff; } .card, .kpi { box-shadow: none; } }
