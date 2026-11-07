@@ -20,25 +20,38 @@ const IQ = [
   { q: 'Якщо я це зроблю, ви купите?', good: 0, a: 'Давайте подивимось, коли буде готово.', why: 'Ввічлива відмова: «подивимось» майже завжди означає «ні».' },
   { q: 'Покажіть, як ви це робите зараз?', good: 1, a: 'Так, приходьте: покажу таблицю в Excel і чат із репетитором.', why: 'Людина запрошує вас у свій процес: найкращий знак зацікавленості.' },
 ];
+const runs = d => d.runs || [];
+const stat = r => { const g = r.ask.filter(i => IQ[i].good).length; return { g, b: r.ask.length - g }; };
 reg({
-  id: 'interview', stage: 0, opt: true, cols: true, t: 'Інтерв’ю з клієнтом', d: 'Поставте правильні запитання й відрізніть факти від ввічливих слів.', icon: 'mic', min: 12,
-  intro: `Люди рідко кажуть «це не спрацює»: не хочуть вас образити. Тому питайте не про вашу ідею, а про <b>їхнє минуле</b>: що було востаннє, скільки це коштувало, що вже пробували. Оберіть п’ять-шість запитань для розмови з Мариною, мамою школяра, і подивіться, що вона відповість.`,
-  data: () => ({ ask: [], note: '' }),
+  id: 'interview', stage: 0, opt: true, cols: true, t: 'Інтерв’ю з клієнтом', d: 'Складіть розмову з правильних запитань, проведіть її й відрізніть факти від ввічливих слів.', icon: 'mic', min: 12,
+  intro: `Люди рідко кажуть «це не спрацює»: не хочуть вас образити. Тому питайте не про вашу ідею, а про <b>їхнє минуле</b>: що було востаннє, скільки це коштувало, що вже пробували. Оберіть п’ять-шість запитань, натисніть «Провести розмову» й подивіться, що відповість Марина, мама школяра. Розмова зараховується лише після цього, а минулі розмови можна перечитати.`,
+  data: () => ({ ask: [], runs: [], sel: null, note: '' }),
   view(S, d) {
-    return `${box('Запитання', `<p class="sm muted">Оберіть п’ять-шість запитань: розмова триватиме в тому порядку, як ви їх обирали.</p><div class="qlist">${IQ.map((x, i) => xp('interview', 'ask', i, esc(x.q), d.ask.includes(i), { set: 'tog', t: 'n', max: 6, cls: 'card' })).join('')}</div>`, { ic: 'mic', side: `${d.ask.length} з 6` })}
+    return `${box('Підготуйте запитання', `<p class="sm muted">Оберіть п’ять-шість запитань: розмова піде в тому порядку, як ви їх обрали. Відповіді з’являться, коли ви проведете розмову.</p><div class="qlist">${IQ.map((x, i) => xp('interview', 'ask', i, esc(x.q), d.ask.includes(i), { set: 'tog', t: 'n', max: 6, cls: 'card' })).join('')}</div>
+      <div class="xrow" style="margin-top:12px">${xb('interview', 'run', 'Провести розмову', { cls: 'primary', ic: 'mic', dis: d.ask.length < 3 })}<span class="chip">${d.ask.length} з 6 запитань${d.ask.length < 3 ? ' · потрібно хоча б три' : ''}</span></div>`, { ic: 'mic', side: `проведено розмов: ${runs(d).length}` })}
     ${box('Ваш висновок', xin('interview', 'note', d, { area: true, max: 300, label: 'Що ви зрозуміли про клієнтку й що зробите далі?', ph: 'Марина вже платить…, тому я…' }), { ic: 'pen' })}`;
   },
   live(S, d) {
-    const g = d.ask.filter(i => IQ[i].good).length, b = d.ask.length - g;
-    return `${box('Розмова з Мариною', d.ask.length ? `<div class="chat">${d.ask.map(i => `<div class="msg me"><span>${esc(IQ[i].q)}</span></div><div class="msg her ${IQ[i].good ? 'fact' : 'fog'}"><b>Марина</b><span>${esc(IQ[i].a)}</span><small>${IQ[i].good ? 'Факт' : 'Туман'}: ${esc(IQ[i].why)}</small></div>`).join('')}</div>` : `<p class="muted">Оберіть перше запитання, і розмова з’явиться тут.</p>`, { ic: 'users' })}
-    <div class="kpis3"><div><small>Фактів</small><b>${g}</b></div><div><small>Туману</small><b>${b}</b></div><div><small>Запитань</small><b>${d.ask.length} з 6</b></div></div>`;
+    const R = runs(d), i = d.sel != null && R[d.sel] ? d.sel : R.length - 1, r = R[i];
+    const hist = R.length ? `<div class="xrow" style="margin-bottom:10px">${R.map((x, k) => { const st = stat(x); return xp('interview', 'sel', k, `Розмова ${k + 1} · фактів ${st.g}`, k === i, { t: 'n' }); }).join('')}</div>` : '';
+    const st = r ? stat(r) : { g: 0, b: 0 };
+    return `${box('Розмова з Мариною', r ? `${hist}<div class="chat">${r.ask.map(q => `<div class="msg me"><span>${esc(IQ[q].q)}</span></div><div class="msg her ${IQ[q].good ? 'fact' : 'fog'}"><b>Марина</b><span>${esc(IQ[q].a)}</span><small>${IQ[q].good ? 'Факт' : 'Туман'}: ${esc(IQ[q].why)}</small></div>`).join('')}</div>` : `<p class="muted">Ще не проведено жодної розмови. Оберіть запитання ліворуч і натисніть «Провести розмову».</p>`, { ic: 'users' })}
+    <div class="kpis3"><div><small>Фактів у розмові</small><b>${st.g}</b></div><div><small>Туману</small><b>${st.b}</b></div><div><small>Розмов проведено</small><b>${R.length}</b></div></div>`;
+  },
+  acts: {
+    run(S, d, el, C) {
+      if (d.ask.length < 3) { C?.toast?.('Оберіть хоча б три запитання', 'bad'); return false; }
+      (d.runs ||= []).push({ ask: [...d.ask], w: S.s.week }); d.ask = []; d.sel = d.runs.length - 1;
+    },
   },
   ready(S, d) {
-    const g = d.ask.filter(i => IQ[i].good).length, b = d.ask.length - g;
-    if (d.ask.length < 5) return { ok: false, msg: 'Оберіть хоча б п’ять запитань' };
-    if (g < 3) return { ok: false, msg: 'Потрібно щонайменше три запитання, що дають факти' };
+    const R = runs(d);
+    if (!R.length) return { ok: false, msg: 'Проведіть хоча б одну розмову' };
+    const best = R.map(stat).reduce((m, x) => x.g > m.g ? x : m, { g: -1, b: 0 }), long = R.find(r => r.ask.length >= 5);
+    if (!long) return { ok: false, msg: 'Проведіть розмову хоча б із п’яти запитань' };
+    if (best.g < 3) return { ok: false, msg: 'У розмові має бути щонайменше три запитання, що дають факти' };
     if (len(d.note) < 20) return { ok: false, msg: 'Запишіть висновок із розмови' };
-    return { ok: true, stars: 1 + (g >= 4 ? 1 : 0) + (b <= 1 ? 1 : 0) };
+    return { ok: true, stars: 1 + (best.g >= 4 ? 1 : 0) + (R.some(r => stat(r).b <= 1 && r.ask.length >= 5) ? 1 : 0) };
   },
 });
 
