@@ -356,7 +356,7 @@ test('гроші форматуються по-людськи', () => {
   assert.equal(money(1500), '1 500 ₴'); assert.equal(money(45000), '45 тис. ₴'); assert.equal(money(2500000), '2,5 млн ₴'); assert.equal(money(-3000), '−3 000 ₴');
 });
 
-const loadExercises = () => Promise.all(['ex1', 'ex1b', 'ex2', 'ex3', 'ex3b', 'ex4', 'ex5', 'ex6', 'ex7'].map(m => import(`../startupsim/js/${m}.js`)));
+const loadExercises = () => Promise.all(['ex1', 'ex1b', 'ex2', 'ex3', 'ex3b', 'ex4', 'ex5', 'ex6', 'ex7', 'ex8', 'ex9'].map(m => import(`../startupsim/js/${m}.js`)));
 
 test('шлях стартапу: дев’ять етапів по черзі, розділи й вправи не дублюються, прогрес не відкочується', async () => {
   await loadExercises();

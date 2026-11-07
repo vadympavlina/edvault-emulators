@@ -29,7 +29,7 @@ await step('маршрут: дев’ять етапів, закриті не в
   assert.match(await p.locator('.ws-prog small').innerText(), /0 з 5/);
   assert.match(await p.locator('.ws-next').innerText(), /етап 2 «Аудиторія й бренд»/);
   assert.equal(await p.locator('.ws .topics li').count(), 5);
-  assert.equal(await p.locator('.ws-opt .step').count(), 2, 'додаткові справи згорнуто в окремий блок');
+  assert.equal(await p.locator('.ws-opt .step').count(), 3, 'додаткові справи згорнуто в окремий блок');
   assert.doesNotMatch(await p.locator('#main').innerText(), /[Уу]рок/, 'у тексті немає слова «урок»');
 });
 

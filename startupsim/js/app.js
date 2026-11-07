@@ -22,6 +22,8 @@ import './ex4.js';
 import './ex5.js';
 import './ex6.js';
 import './ex7.js';
+import './ex8.js';
+import './ex9.js';
 
 const KEY = 'edvault-startup', IDEA_KEY = 'edvault-startup-idea';
 const VIEWS = { ...coreViews, ...marketViews, ...moneyViews, ...peopleViews, ...exViews() };
