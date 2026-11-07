@@ -111,6 +111,10 @@ await step('логотип: знак потрапляє в шапку гри', a
 await step('перший етап пройдено: відкривається другий, розділи наступного етапу доступні', async () => {
   await p.evaluate(() => { const S = window.Startup.sim; S.s.ex ||= { d: {}, done: {} }; for (const id of ['niche', 'market', 'needs', 'mvp']) S.s.ex.done[id] = { w: 0, s: 2 }; S.s.canvas = { problem: 'Учні не розуміють домашку', segment: S.s.target, uvp: 'Пояснення за п’ять хвилин', solution: [Object.keys(S.I.features)[0]], channels: ['ads'] }; window.Startup.C.render(); });
   await go('dash');
+  await p.waitForSelector('.md.stage-done');
+  assert.match(await p.locator('.md.stage-done').innerText(), /Етап 1 «Ніша й продукт» пройдено[\s\S]*Далі: етап 2/, 'вітання з пройденим етапом');
+  await p.click('.md.stage-done [data-md-close]');
+  await p.waitForSelector('.md', { state: 'detached' });
   assert.match(await p.locator('.rail .rs.cur').innerText(), /Аудиторія й бренд/);
   assert.equal(await p.locator('.rail .rs.done').count(), 1);
   assert.match(await p.locator('.ws .k').innerText(), /Етап 2 з 9/, 'аркуш завжди показує поточний етап');

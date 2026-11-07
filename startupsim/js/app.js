@@ -11,7 +11,7 @@ import { moneyViews, moneyActs, moneyIns } from './v-money.js';
 import { peopleViews, peopleActs, peopleIns } from './v-people.js';
 import { STAGES, stageInfo, viewStage, isOpen, unlock, syncStage, ADVANCED_VIEWS, isSimple, suggestHours } from './stages.js';
 import { stageBar } from './v-stages.js';
-import { exViews, exActs, installEx, goalNow, STAGE_T } from './ex-core.js';
+import { exViews, exActs, installEx, goalNow, STAGE_T, exOf, exDone, exStars, stars } from './ex-core.js';
 import './ex1.js';
 import './ex1b.js';
 import './ex2.js';
@@ -188,11 +188,27 @@ function tabs(info) {
   }).join('')}</div>` : '';
   setHtml($('#tabs'), `<div class="navtabs-in">${TABS.map(([k, t, ic, views]) => `<button class="tab ${cur?.[0] === k ? 'on' : ''}" data-act="tab" data-k="${k}" aria-label="${t}${k === 'mail' && unread ? `, непрочитаних: ${unread}` : ''}" ${cur?.[0] === k ? 'aria-current="page"' : ''}>${icon(ic, 18)}<span>${t}</span>${badge(k)}</button>`).join('')}</div>${sub}`);
 }
+// коли пройдено етап, один раз вітаємо й показуємо, що відкрилося далі (старі збереження не вітаємо задним числом)
+let celebrating = false;
+function celebrate(info) {
+  const f = S.s.flags, passed = info.allDone ? info.list.length : info.cur;
+  if (f.stCel == null) { f.stCel = passed; return; }
+  if (passed <= f.stCel || celebrating || document.querySelector('.md, .wizard')) return;
+  const i = passed - 1, got = exOf(i).filter(e => exDone(S, e.id)), star = got.reduce((n, e) => n + exStars(S, e.id), 0), nx = STAGES[passed];
+  f.stCel = passed; celebrating = true;
+  const opened = nx ? nx.open.filter(v => VIEWS[v] && !STAGES[i].open.includes(v)).map(v => VIEWS[v].t) : [];
+  modal({ title: `Етап ${i + 1} «${STAGES[i].t}» пройдено`, cls: 'stage-done', onClose: () => { celebrating = false; render(); },
+    html: `<p class="sd-big">${icon('check', 28)}</p><p>Вправ виконано: <b>${got.length} з ${exOf(i).length}</b>. Зірок: <b>${star}</b>.</p>
+      ${nx ? `<p><b>Далі: етап ${passed + 1} «${esc(nx.t)}».</b> ${esc(nx.why)}</p>${opened.length ? `<p class="sm muted">Відкрилися розділи: ${esc(opened.join(', '))}.</p>` : ''}` : `<p><b>Усі дев’ять етапів пройдено.</b> Тепер просто грайте далі, а підсумки дивіться у звіті.</p>`}
+      <div class="row end gap"><button class="btn primary" data-md-close>${nx ? 'До наступного етапу' : 'Чудово'}</button></div>` });
+}
+
 function render() {
   if (!S) return;
   $('.app').inert = !!document.querySelector('.wizard');
   document.body.classList.toggle('simple', isSimple(S));
   const info = syncStage(S), fk = focusKey(document.activeElement);
+  setTimeout(() => { if (S) celebrate(info); }, 0);
   theme(); topbar(); road(info); tabs(info);
   const V = VIEWS[ui.view] || VIEWS.dash;
   const hint = VIEW_HINTS[ui.view] && !S.s.dismissed['hint-' + ui.view] ? `<aside class="view-hint">${icon('bulb', 18)}<p>${VIEW_HINTS[ui.view]}</p><button class="btn sm ghost" data-act="dismissTip" data-id="hint-${ui.view}">Зрозуміло</button></aside>` : '';

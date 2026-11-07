@@ -100,10 +100,12 @@ export const quizOk = (d, p, list) => { const cur = get(d, p) || {}; return list
 export const quizDone = (d, p, list) => { const cur = get(d, p) || {}; return list.filter((x, i) => cur[i] != null).length; };
 
 /* ═════════ сторінка вправи ═════════ */
+// наступна невиконана вправа цього ж етапу (щоб не вертатись щоразу на аркуш)
+const nextEx = (S, def) => { const l = exOf(def.stage), i = l.indexOf(def); return [...l.slice(i + 1), ...l.slice(0, i)].find(e => !exDone(S, e.id) && !e.opt) || null; };
 function footInner(S, def, d) {
   const r = def.ready(S, d), done = S.s.ex.done[def.id];
   return `<div class="ex-st">${done ? `<span class="chip ok">${icon('check', 14)} Виконано · ${stars(done.s)}</span>` : r.ok ? `<span class="chip ok">${icon('check', 14)} Можна завершувати</span>` : `<span class="chip">${icon('info', 14)} Можна завершити й так. Для повної вправи: ${esc((r.msg || 'заповніть решту').replace(/^./, c => c.toLowerCase()))}</span>`}</div>
-    <div class="ex-btns"><button class="btn ghost" data-act="exBack" data-ex="${def.id}">До етапу</button><button class="btn primary" data-act="exDone" data-ex="${def.id}">${done ? 'Зберегти зміни' : r.ok ? 'Завершити вправу' : 'Завершити як є'}</button></div>`;
+    <div class="ex-btns"><button class="btn ghost" data-act="exBack" data-ex="${def.id}">До етапу</button>${nextEx(S, def) && (done || r.ok) ? `<button class="btn" data-act="go" data-to="ex-${nextEx(S, def).id}">Далі: ${esc(nextEx(S, def).t)}</button>` : ''}<button class="btn primary" data-act="exDone" data-ex="${def.id}">${done ? 'Зберегти зміни' : r.ok ? 'Завершити вправу' : 'Завершити як є'}</button></div>`;
 }
 export function exPage(def) {
   return (S, ui) => {

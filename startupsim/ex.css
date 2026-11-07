@@ -413,3 +413,7 @@
 /* маршрут лише показує, де ви зараз: на етапи не клікають */
 div.rs { cursor: default; } div.rs:not(.cur):hover { background: transparent; }
 .rs .rt b { font-size: 14px; } .rail { padding: 8px; } .rs { padding: 7px 8px; gap: 10px; }
+
+.md.stage-done .sd-big { display: grid; place-items: center; width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 50%; background: #d9f3e3; color: #14663a; }
+.md.stage-done p { text-align: center; } .md.stage-done .row { justify-content: center; margin-top: 14px; }
+.ex-btns .btn:not(.primary):not(.ghost) { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
