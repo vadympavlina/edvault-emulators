@@ -261,6 +261,13 @@ await step('файл: зберегти всю гру у файл і відкри
   await q.click('[data-act="endWeek"]'); await q.waitForSelector('.md.week, .md.confirm'); const c = q.locator('.md.confirm .btn.primary'); if (await c.count()) { await c.click(); await q.waitForSelector('.md.week'); }
   await q.click('.md [data-md-close]');
   assert.equal(await q.evaluate(() => window.Startup.sim.s.week), cur.week + 1);
+  // старий формат .json (збережений раніше) теж відкривається й вважається цілим
+  const legacy = path + '-old.json'; fs.writeFileSync(legacy, JSON.stringify(data, null, 1));
+  const [fc1] = await Promise.all([q.waitForEvent('filechooser'), q.click('[data-act="more"]').then(() => q.click('.more-pop [data-act="openFile"]'))]);
+  await fc1.setFiles(legacy);
+  await q.waitForSelector('.md.file-open');
+  assert.match(await q.locator('.md.file-open').innerText(), /Файл цілий/, 'старий .json відкривається');
+  await q.click('.md.file-open [data-md-close]'); await q.waitForSelector('.md.file-open', { state: 'detached' });
   // файл, змінений вручну, — попередження в звіті
   const forged = JSON.parse(JSON.stringify(data)); forged.state.cash = 99999999;
   const fpath = path + '-forged.json'; fs.writeFileSync(fpath, JSON.stringify(forged));
