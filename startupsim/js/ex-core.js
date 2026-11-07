@@ -102,8 +102,8 @@ export const quizDone = (d, p, list) => { const cur = get(d, p) || {}; return li
 /* ═════════ сторінка вправи ═════════ */
 function footInner(S, def, d) {
   const r = def.ready(S, d), done = S.s.ex.done[def.id];
-  return `<div class="ex-st">${done ? `<span class="chip ok">${icon('check', 14)} Виконано · ${stars(done.s)}</span>` : r.ok ? `<span class="chip ok">${icon('check', 14)} Можна завершувати</span>` : `<span class="chip">${esc(r.msg || 'Заповніть вправу')}</span>`}</div>
-    <div class="ex-btns"><button class="btn ghost" data-act="exBack" data-ex="${def.id}">До етапу</button><button class="btn primary" data-act="exDone" data-ex="${def.id}" ${r.ok || done ? '' : 'aria-disabled="true"'}>${done ? 'Зберегти зміни' : 'Завершити вправу'}</button></div>`;
+  return `<div class="ex-st">${done ? `<span class="chip ok">${icon('check', 14)} Виконано · ${stars(done.s)}</span>` : r.ok ? `<span class="chip ok">${icon('check', 14)} Можна завершувати</span>` : `<span class="chip">${icon('info', 14)} Можна завершити й так. Для повної вправи: ${esc((r.msg || 'заповніть решту').replace(/^./, c => c.toLowerCase()))}</span>`}</div>
+    <div class="ex-btns"><button class="btn ghost" data-act="exBack" data-ex="${def.id}">До етапу</button><button class="btn primary" data-act="exDone" data-ex="${def.id}">${done ? 'Зберегти зміни' : r.ok ? 'Завершити вправу' : 'Завершити як є'}</button></div>`;
 }
 export function exPage(def) {
   return (S, ui) => {
@@ -140,9 +140,16 @@ export const exActs = {
   exBack(C, el) { const def = EX[el.dataset.ex]; C.ui.stage = def?.stage ?? null; C.go('dash'); },
   exDone(C, el) {
     const S = C.S, def = EX[el.dataset.ex], d = X(S, def.id), r = def.ready(S, d), was = S.s.ex.done[def.id];
-    if (!r.ok && !was) { C.toast(r.msg || 'Вправу ще не завершено', 'bad'); return; }
-    if (!was) { def.finish?.(S, d, C); S.s.ex.done[def.id] = { w: S.s.week, s: clamp(r.stars || 2, 1, 3) }; C.toast(`Вправу «${def.t}» виконано`, 'good'); }
-    else { def.finish?.(S, d, C, true); S.s.ex.done[def.id].s = clamp(r.stars || was.s, 1, 3); C.toast('Зміни збережено', 'good'); }
+    // пункти вправи необов'язкові: завершити можна й не все заповнивши. Тоді вправу лише позначаємо виконаною
+    // (без дій у грі, які потребують повних даних) з однією зіркою; повна вправа дає більше
+    if (!was) {
+      if (r.ok) def.finish?.(S, d, C);
+      S.s.ex.done[def.id] = { w: S.s.week, s: r.ok ? clamp(r.stars || 2, 1, 3) : 1 };
+      C.toast(r.ok ? `Вправу «${def.t}» виконано` : `Вправу «${def.t}» завершено без повного заповнення`, 'good');
+    } else {
+      if (r.ok) def.finish?.(S, d, C, true);
+      S.s.ex.done[def.id].s = clamp(r.ok ? (r.stars || was.s) : was.s, 1, 3); C.toast('Зміни збережено', 'good');
+    }
     C.ui.stage = def.stage; C.go('dash');
   },
 };

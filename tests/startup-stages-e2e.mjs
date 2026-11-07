@@ -36,14 +36,13 @@ await step('вправа: відкривається зі справи, пове
   await p.click('.ws .step:nth-child(1) .btn');
   await p.waitForSelector('.ex[data-ex-root="niche"]');
   assert.match(await p.locator('.pg-h').innerText(), /Оцініть нішу/);
-  assert.equal(await p.locator('.ex-foot .btn.primary').getAttribute('aria-disabled'), 'true', 'поки не заповнено, завершити не можна');
-  await p.click('.ex-foot .btn.primary', { force: true });
-  assert.match(await p.locator('#toast').innerText(), /пересуньте/);
+  assert.match(await p.locator('.ex-foot').innerText(), /Можна завершити й так/, 'пункти вправи необов’язкові');
+  assert.match(await p.locator('.ex-foot .btn.primary').innerText(), /Завершити як є/);
   await range('[data-p="me.need"]', '4'); await range('[data-p="me.size"]', '5'); await range('[data-p="me.skill"]', '2');
   assert.equal((await S()).ex.d.niche.me.size, 5);
   assert.ok(await p.locator('.nrow .ns').first().innerText());
   await p.fill('[data-exi="niche"][data-p="why"]', 'Проблема болить школярам, а конкурентів небагато.');
-  assert.equal(await p.locator('.ex-foot .btn.primary').getAttribute('aria-disabled'), null, 'можна завершувати');
+  assert.match(await p.locator('.ex-foot .btn.primary').innerText(), /Завершити вправу/);
   await p.click('.ex-foot .btn.primary');
   await p.waitForSelector('#main .ws');
   assert.equal(await p.locator('.ws > .steps > .step.ok').count(), 1);
