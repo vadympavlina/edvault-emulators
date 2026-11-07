@@ -753,3 +753,10 @@ body.simple .adv { display: none; }
 .view-hint .ic { margin-top: 0; color: #7a5a00; }
 .view-hint .btn { padding: 4px 10px; font-size: 13px; }
 .seg-card header { min-height: 58px; } .seg-card .ins { margin-top: 2px; }
+.form2 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+
+/* посилання в текстових блоках: колір акценту замість стандартного синього; відступ перед кнопками довідника */
+.card a:not(.btn), .md a:not(.btn) { color: var(--acc-tx, #4338ca); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1.5px; }
+.card a:not(.btn):hover { color: var(--acc); }
+.card ul + .row { margin-top: 14px; }
+.rp-h { align-items: flex-start; } .rp-h h1 { margin-top: 0; line-height: 1.15; } .rp-h > .lgm, .rp-h > .logo { flex: none; }
