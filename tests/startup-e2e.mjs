@@ -49,26 +49,25 @@ await step('майстер: без імені й назви далі не пус
   assert.equal(await p.locator('.navtabs .tab').count(), 5);
 });
 
-await step('етапи: розділ наступного етапу закритий, але його можна відкрити вручну', async () => {
+await step('етапи: розділи наступного етапу закриті й не відкриваються, доки не пройдено поточний', async () => {
   await p.click('.tab[data-k="market"]');
   assert.match(await p.locator('.pg-h').innerText(), /Клієнти/);
   assert.equal(await p.locator('.st-it.locked[data-to="brand"]').count(), 1);
   assert.equal(await p.locator('.st-it.locked[data-to="product"]').count(), 0, 'продукт відкрито вже на першому етапі');
   await p.click('.st-it[data-to="brand"]');
-  await p.waitForSelector('.md.confirm');
-  assert.match(await p.locator('.md.confirm').innerText(), /етапі 2/);
-  await p.click('.md.confirm .btn.primary');
-  assert.match(await p.locator('.pg-h').innerText(), /Бренд/);
-  assert.equal(await p.locator('.st-it.locked[data-to="brand"]').count(), 0);
-  assert.equal((await S()).flags.unlocked.brand, true);
-  // гроші ще всі закриті: вкладка питає, чи відкрити
+  assert.equal(await p.locator('.md.confirm').count(), 0, 'питання «відкрити зараз» більше немає');
+  assert.match(await p.locator('#toast').innerText(), /етапі 2/);
+  assert.match(await p.locator('.pg-h').innerText(), /Клієнти/, 'лишаємось у тому ж розділі');
+  assert.equal(await p.locator('.st-it.locked[data-to="brand"]').count(), 1);
+  await p.evaluate(() => window.Startup.C.go('brand'));
+  assert.match(await p.locator('.pg-h').innerText(), /Клієнти/, 'go() не відкриває закритий розділ');
   await p.click('.tab[data-k="money"]');
-  await p.waitForSelector('.md.confirm');
-  await p.keyboard.press('Escape');
-  await p.waitForSelector('.md.confirm', { state: 'detached' });
-  assert.match(await p.locator('.pg-h').innerText(), /Бренд/);
+  assert.match(await p.locator('#toast').innerText(), /етапі/);
+  assert.match(await p.locator('.pg-h').innerText(), /Клієнти/);
   await p.click('.tab[data-k="home"]');
   await p.waitForSelector('#main .ws');
+  // далі перевіряємо розділи всіх етапів, тож відкриваємо їх (як ніби етапи пройдено)
+  await p.evaluate(() => { window.Startup.sim.s.flags.st9 = 8; window.Startup.C.render(); });
 });
 
 await step('план тижня: стовпчики й кнопки годин оновлюють суму, фокус лишається на кнопці', async () => {

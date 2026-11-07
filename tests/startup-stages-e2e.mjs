@@ -80,6 +80,7 @@ await step('перетягування: точку «Ми» можна пере�
 });
 
 await step('канали: клітинки календаря перемикаються, підсумок рахується', async () => {
+  await p.evaluate(() => { window.Startup.sim.s.flags.st9 = 8; window.Startup.C.render(); });
   await go('ex-channels');
   await p.click('.xp[data-v="social"]'); await p.click('.xp[data-v="ads"]'); await p.click('.xp[data-v="flyers"]');
   assert.equal(await p.locator('.cal tbody tr').count(), 3);
@@ -133,6 +134,7 @@ await step('телефон: усі сторінки вправ без гориз
   const m = await newPage(await browser.newContext({ viewport: { width: 390, height: 844 } }), errors);
   m.setDefaultTimeout(10000);
   await start(m);
+  await m.evaluate(() => { window.Startup.sim.s.flags.st9 = 8; window.Startup.C.render(); });
   assert.equal(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true, 'головна');
   const rail = await m.locator('.rail').boundingBox(), ws = await m.locator('.ws').boundingBox();
   assert.ok(rail.y < ws.y, 'маршрут над аркушем');

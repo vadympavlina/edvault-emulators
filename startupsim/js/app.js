@@ -65,7 +65,7 @@ const save = () => { if (!S) return; try { localStorage.setItem(KEY, JSON.string
 const C = {
   get S() { return S; }, ui,
   // перехід із коду (підказка, лист, кнопка завдання) відкриває розділ навіть до його етапу
-  go(v) { if (!VIEWS[v]) return; if (S && !isOpen(S, v)) unlock(S, v); ui.view = v; const t = tabOf(v); if (t) (ui.tabLast ||= {})[t[0]] = v; if (v !== 'dash') ui.stage = null; closeMore(); render(); $('#main').scrollTo?.(0, 0); scrollTo(0, 0); },
+  go(v) { if (!VIEWS[v]) return; if (S && !isOpen(S, v)) { askUnlock(v); return; } ui.view = v; const t = tabOf(v); if (t) (ui.tabLast ||= {})[t[0]] = v; if (v !== 'dash') ui.stage = null; closeMore(); render(); $('#main').scrollTo?.(0, 0); scrollTo(0, 0); },
   render: () => render(), save, toast,
   out(k, text) { const el = document.querySelector(`[data-out="${k}"]`); if (el) el.textContent = text; },
   topbar: () => topbar(), theme: () => theme(), ending: () => ending(),
@@ -359,10 +359,10 @@ function startWizard() {
 }
 
 /* ═════════ події ═════════ */
-// розділ ще не потрібен на цьому етапі: пояснюємо й даємо відкрити, якщо учень хоче
+// розділ із наступного етапу: не відкривається, доки не пройдено поточний
 function askUnlock(v) {
   const st = viewStage(v);
-  return confirmBox(`«${VIEWS[v].t}» знадобиться на етапі ${st + 1} «${STAGES[st].t}»`, 'Відкрити зараз', { sub: 'Спершу варто виконати завдання поточного етапу. Але якщо хочете — розділ можна відкрити вже зараз.' }).then(ok => { if (ok) C.go(v); });
+  toast(`«${VIEWS[v].t}» відкриється на етапі ${st + 1} «${STAGES[st].t}», коли ви пройдете попередні етапи`, 'bad');
 }
 document.addEventListener('click', e => {
   const t = e.target.closest('.term'); if (t) { e.preventDefault(); termPop(t); return; }
