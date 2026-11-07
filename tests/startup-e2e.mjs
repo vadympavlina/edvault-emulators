@@ -231,8 +231,11 @@ await step('файл: зберегти всю гру у файл і відкри
   const fs = await import('node:fs');
   await go('dash');
   const [dl] = await Promise.all([p.waitForEvent('download'), p.click('.top-save')]);
-  assert.match(dl.suggestedFilename(), /^startup_[A-Za-z0-9-]+_[A-Za-z0-9-]+_tyzhden-\d+\.json$/);
-  const path = await dl.path(), text = fs.readFileSync(path, 'utf8'), data = JSON.parse(text);
+  assert.match(dl.suggestedFilename(), /^startup_[A-Za-z0-9-]+_[A-Za-z0-9-]+_tyzhden-\d+\.edvault$/);
+  const path = await dl.path(), text = fs.readFileSync(path, 'utf8');
+  assert.match(text, /^EDVAULT-STARTUP 1\n/); assert.throws(() => JSON.parse(text), 'власний формат, а не JSON');
+  const dec = t => { const l = t.split('\n'), i = l.indexOf('DATA'), j = l.lastIndexOf('END'); return JSON.parse(Buffer.from(l.slice(i + 1, j).join(''), 'base64').toString('utf8')); };
+  const data = dec(text);
   const cur = await S();
   assert.equal(data.app, 'edvault-startup'); assert.equal(data.format, 1);
   assert.deepEqual(data.state, cur, 'у файлі повний стан гри');
@@ -259,7 +262,7 @@ await step('файл: зберегти всю гру у файл і відкри
   await q.click('.md [data-md-close]');
   assert.equal(await q.evaluate(() => window.Startup.sim.s.week), cur.week + 1);
   // файл, змінений вручну, — попередження в звіті
-  const forged = JSON.parse(text); forged.state.cash = 99999999;
+  const forged = JSON.parse(JSON.stringify(data)); forged.state.cash = 99999999;
   const fpath = path + '-forged.json'; fs.writeFileSync(fpath, JSON.stringify(forged));
   const [fc2] = await Promise.all([q.waitForEvent('filechooser'), q.click('[data-act="more"]').then(() => q.click('.more-pop [data-act="openFile"]'))]);
   await fc2.setFiles(fpath);

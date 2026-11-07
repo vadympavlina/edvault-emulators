@@ -5,7 +5,7 @@ import { newGame, okState, Sim, money, WEEKS } from '../startupsim/js/sim.js';
 import { autoplay, smartWeek, recklessWeek } from '../startupsim/js/bots.js';
 import { IDEAS, INVESTORS } from '../startupsim/js/data.js';
 import { assumptionsVsReality } from '../startupsim/js/custom.js';
-import { packGame, unpackGame, fileName, translit, checksum } from '../startupsim/js/file.js';
+import { packGame, unpackGame, serializeGame, fileName, translit, checksum } from '../startupsim/js/file.js';
 
 const fresh = (o = {}) => newGame({ idea: 'homework', founder: 'Тест', company: 'Тест', seed: 7, ...o });
 const build = (S, ids) => { for (const id of ids) S.s.product.built.push(id); };
@@ -354,7 +354,7 @@ test('файл: ручні зміни, чужі й пошкоджені файл
 test('файл: назва латиницею за офіційною транслітерацією', () => {
   assert.equal(translit('Олена Коваль'), 'Olena Koval'); assert.equal(translit('Юлія Згорська'), 'Yuliia Zghorska'); assert.equal(translit('Щастя'), 'Shchastia');
   const S = newGame({ founder: 'Олена Коваль', company: 'КнигоОбмін', seed: 1 }); S.s.week = 11;
-  assert.equal(fileName(S), 'startup_KnyhoObmin_Olena-Koval_tyzhden-12.json');
+  assert.equal(fileName(S), 'startup_KnyhoObmin_Olena-Koval_tyzhden-12.edvault');
 });
 
 test('журнал рішень записує дії учня', () => {
@@ -469,4 +469,20 @@ test('інтерв’ю без жодного запитання не зарах
   assert.equal(S.s.interviews.length, 1);
   assert.equal(S.s.interviews[0].log.length, 1);
   assert.ok(okState(S.s));
+});
+
+
+test('власний формат файлу .edvault: не JSON, читабельна шапка, відкривається назад, зміни видно', () => {
+  const S = fresh(); S.s.cash = 123456;
+  const txt = serializeGame(S, { view: 'dash' });
+  assert.match(txt, /^EDVAULT-STARTUP 1\n/);
+  assert.throws(() => JSON.parse(txt), 'це не JSON');
+  assert.match(txt, /# Гроші: /, 'підсумок можна прочитати в блокноті');
+  const r = unpackGame(txt);
+  assert.ok(r.ok); assert.equal(r.state.cash, 123456); assert.equal(r.edited, false); assert.equal(r.ui.view, 'dash');
+  assert.ok(unpackGame(txt.replace(/\n/g, '\r\n')).ok, 'переноси рядків Windows');
+  assert.ok(unpackGame(JSON.stringify(packGame(S, {}))).ok, 'старі файли .json відкриваються');
+  const lines = txt.split('\n'), k = lines.indexOf('DATA') + 1, broken = [...lines]; broken[k] = broken[k].slice(0, -3) + 'AAA';
+  assert.equal(unpackGame(broken.join('\n')).ok, false, 'змінені дані не відкриваються');
+  assert.equal(unpackGame('EDVAULT-STARTUP 1\nDATA\n!!!\nEND').ok, false);
 });

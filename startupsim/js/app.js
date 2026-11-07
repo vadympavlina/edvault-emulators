@@ -2,7 +2,7 @@
 import { IDEAS, BACKGROUNDS, ACHIEVEMENTS } from './data.js';
 import { Sim, newGame, okState, money, num, pct, plural, dateText, WEEKS, HOURS } from './sim.js';
 import { ARCH, KINDS, SIZES, SCOPES, ideaCheck } from './custom.js';
-import { packGame, unpackGame, fileName } from './file.js';
+import { serializeGame, unpackGame, fileName } from './file.js';
 import { icon } from './icons.js';
 import { esc, $, $$, h, modal, toast, termPop, confirmBox, logo, nl2br } from './ui.js';
 import { coreViews, coreActs, coreIns, hoursUsed } from './v-core.js';
@@ -80,7 +80,7 @@ const C = {
 function saveFile() {
   if (!S) return;
   S.s.flags.fileWeek = S.s.week; S.s.flags.fileSaves = (S.s.flags.fileSaves || 0) + 1; S.s.flags.fileSavedAt = new Date().toISOString();
-  const name = fileName(S), blob = new Blob([JSON.stringify(packGame(S, ui), null, 1)], { type: 'application/json' });
+  const name = fileName(S), blob = new Blob([serializeGame(S, ui)], { type: 'application/octet-stream' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   save(); toast(`Файл збережено: ${name}`, 'good');
@@ -89,7 +89,7 @@ function saveFile() {
 let fileInput = null;
 function openFile() {
   if (!fileInput) {
-    fileInput = h('<input type="file" accept=".json,application/json" hidden>');
+    fileInput = h('<input type="file" accept=".edvault,.json,application/json" hidden>');
     document.body.appendChild(fileInput);
     fileInput.addEventListener('change', () => { const f = fileInput.files[0]; fileInput.value = ''; if (f) readFile(f); });
   }
@@ -281,7 +281,7 @@ function startWizard() {
   const segChecks = (path, sel) => `<div class="wz-segs">${segNames().map((n, i) => `<label><input type="checkbox" data-c="${path}" value="${i}" ${sel.includes(i) ? 'checked' : ''}> ${esc(n)}</label>`).join('')}</div>`;
   const VIEW = {
     hello: () => `<div class="wz-hero">${icon('rocket', 46)}<h1>Симулятор стартапу</h1><p>Ви засновуєте компанію з нуля й проходите дев'ять етапів. На кожному робите лише свою частину справи: спершу ніша й продукт, потім бренд, ціна, гроші, просування, команда, фриланс і платежі.</p><ol class="wz-route">${STAGE_T.map((t, i) => `<li><span>${i + 1}</span>${esc(t)}</li>`).join('')}</ol><p class="muted sm">Один хід — тиждень. Гра триває 2 роки, якщо раніше не закінчаться гроші. Усі люди й компанії вигадані.</p>
-      <div class="wz-open"><button class="btn" data-act="openFile">${icon('open', 16)} Відкрити збережену гру з файлу</button><small class="muted">Або перетягніть файл .json на цю сторінку</small></div></div>`,
+      <div class="wz-open"><button class="btn" data-act="openFile">${icon('open', 16)} Відкрити збережену гру з файлу</button><small class="muted">Або перетягніть файл .edvault на цю сторінку</small></div></div>`,
     idea: () => `${tag('idea')}<h2>Оберіть нішу й ідею</h2><div class="wz-ideas">${Object.entries(IDEAS).filter(([k]) => k !== 'custom').map(([k, x]) => `<button class="wz-idea ${w.idea === k ? 'on' : ''}" data-w="idea" data-v="${k}" style="--ic:${x.color}"><span class="wz-ic">${icon(x.icon, 26)}</span><b>${esc(x.t)}</b><p>${esc(x.pitch)}</p><small>${{ app: 'Застосунок', hardware: 'Пристрій («залізо»)', saas: 'Сервіс для бізнесу' }[x.kind]} · сегменти: ${Object.values(x.segments).map(g => g.short.toLowerCase()).join(', ')}</small></button>`).join('')}
       <button class="wz-idea own ${w.idea === 'custom' ? 'on' : ''}" data-w="idea" data-v="custom" style="--ic:#111827"><span class="wz-ic">${icon('bulb', 26)}</span><b>Своя ідея</b><p>Опишіть власний стартап: проблему, клієнтів, функції й конкурентів. А ринок покаже, чи праві ви.</p><small>Ваші припущення перевірятимуться інтерв'ю</small></button></div>`,
     cIdea: () => `${tag('cIdea')}<h2>Опишіть свою ідею</h2>${w.restored ? `<p class="note">${icon('info', 16)} <span>Ми відновили вашу попередню ідею — можна доопрацювати її. <button class="link" data-w="clearIdea">Почати з чистого аркуша</button></span></p>` : ''}<div class="wz-form">

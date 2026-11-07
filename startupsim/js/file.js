@@ -9,6 +9,9 @@ export { checksum, translit };
 
 export const FILE_APP = 'edvault-startup';
 export const FILE_FORMAT = 1;
+// власний формат файлу: читабельна шапка з підсумком і дані гри в закодованому вигляді (не JSON)
+export const FILE_EXT = '.edvault';
+const MAGIC = 'EDVAULT-STARTUP';
 
 const STATUS = { bankrupt: 'компанія закрилася (закінчилися гроші)', sold: 'компанію продано', time: 'гру завершено: минуло 2 роки' };
 
@@ -35,9 +38,9 @@ export function summaryOf(S) {
   };
 }
 
-// Безпечна назва файлу: startup_Kompaniia_Imia-Prizvyshche_tyzhden-12.json
+// Безпечна назва файлу: startup_Kompaniia_Imia-Prizvyshche_tyzhden-12.edvault
 export function fileName(S) {
-  return ['startup', slug(S.s.company.name) || 'kompaniia', slug(S.s.founder.name), `tyzhden-${S.s.week + 1}`].filter(Boolean).join('_') + '.json';
+  return ['startup', slug(S.s.company.name) || 'kompaniia', slug(S.s.founder.name), `tyzhden-${S.s.week + 1}`].filter(Boolean).join('_') + FILE_EXT;
 }
 
 export function packGame(S, ui = {}) {
@@ -52,10 +55,35 @@ export function packGame(S, ui = {}) {
   };
 }
 
-// Розбирає текст файлу. Повертає { ok, state, ui, edited, savedAt, summary } або { ok: false, error }
+
+const toB64 = str => { const u = new TextEncoder().encode(str); let bin = ''; for (let i = 0; i < u.length; i += 0x8000) bin += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(bin); };
+const fromB64 = t => new TextDecoder().decode(Uint8Array.from(atob(t), c => c.charCodeAt(0)));
+
+// Текст файлу .edvault: шапка (її можна прочитати в блокноті), контрольна сума даних і самі дані
+export function serializeGame(S, ui = {}) {
+  const pack = packGame(S, ui), body = toB64(JSON.stringify(pack)).match(/.{1,96}/g).join('\n');
+  const head = [`${MAGIC} ${FILE_FORMAT}`, '# Збережена гра «Симулятор стартапу» (emulators.edvault.online/startup).', '# Відкрийте її в симуляторі: «Відкрити з файлу». Нижче закодовані дані гри, їх не змінюйте.', '#',
+    ...Object.entries(pack.summary).map(([k, v]) => `# ${k}: ${v}`), '#', `SUM ${checksum(body)}`, 'DATA'];
+  return `${head.join('\n')}\n${body}\nEND\n`;
+}
+// Розбирає текст файлу .edvault у такий самий об'єкт, який дає JSON-файл
+function parseFile(raw) {
+  const lines = raw.split(/\r?\n/), i = lines.indexOf('DATA'), j = lines.lastIndexOf('END');
+  if (i < 0 || j < i) throw new Error('structure');
+  const body = lines.slice(i + 1, j).join('\n'), sum = (lines.find(l => l.startsWith('SUM ')) || '').slice(4).trim();
+  if (sum && sum !== checksum(body)) throw new Error('sum');
+  return JSON.parse(fromB64(body.replace(/\s+/g, '')));
+}
+
+// Розбирає текст файлу (.edvault або старий .json). Повертає { ok, state, ui, edited, savedAt, summary } або { ok: false, error }
 export function unpackGame(text) {
   let data;
-  try { data = JSON.parse(String(text).replace(/^﻿/, '')); } catch { return { ok: false, error: 'Це не файл збереження: його не вдалося прочитати.' }; }
+  const raw = String(text).replace(/^\uFEFF/, '').trimStart();
+  if (raw.startsWith(MAGIC)) {
+    try { data = parseFile(raw); } catch (e) { return { ok: false, error: e.message === 'sum' ? 'Файл пошкоджений або його змінювали вручну: дані не збігаються з контрольною сумою.' : 'Файл пошкоджений: його не вдалося прочитати.' }; }
+  } else {
+    try { data = JSON.parse(raw); } catch { return { ok: false, error: 'Це не файл збереження: його не вдалося прочитати.' }; }
+  }
   if (!data || typeof data !== 'object') return { ok: false, error: 'Це не файл збереження симулятора стартапу.' };
   // підтримка «голого» стану (наприклад, скопійованого з localStorage)
   const state = data.state ?? data.s ?? (data.v === 1 && data.cap ? data : null);
