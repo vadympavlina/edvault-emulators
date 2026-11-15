@@ -617,6 +617,17 @@ await step('допис із власним фото: справжні пропо
   assert.equal(r.fit, 'contain'); assert.ok(r.bd, 'є розмите тло');
 });
 
+await step('редактор кадру має великий попередній перегляд для горизонтального фото (режим «Оригінал»)', async () => {
+  const h = await p.evaluate(async () => {
+    const { openCreate } = await import('/bloggeremu/js/create.js');
+    const g = Blogger.sim.s.gallery.find(x => x.own && x.type === 'photo' && x.w > x.h); openCreate(Blogger.phone, { gid: g.id });
+    await new Promise(r => setTimeout(r, 400));
+    const e = document.querySelector('.ed-prev'); return { w: e.getBoundingClientRect().width, h: e.getBoundingClientRect().height, cls: e.className };
+  });
+  assert.match(h.cls, /croporig/); assert.ok(h.w > 300 && h.h > 150, 'попередній перегляд не згорнувся: ' + JSON.stringify(h));
+  await p.click('[data-act="cr.tool"][data-k="crop"]').catch(() => {});
+});
+
 await step('жодної помилки в консолі сторінки', async () => { assert.deepEqual(errors, []); });
 
 await browser.close();
