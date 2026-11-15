@@ -204,9 +204,15 @@ class Phone {
           <div class="row2"><button class="btn primary" data-act="ph.galPost" data-id="${g.id}">${icon('plusSq', 18)}Опублікувати</button><button class="btn danger" data-act="ph.galDel" data-id="${g.id}">${icon('trash', 18)}Видалити</button></div></div></div></div>`;
     }
     const f = a.f || 'all', list = s.gallery.filter(g => f === 'all' || (f === 'own' ? g.own : g.type === f));
-    return `<div class="gal"><header class="ah"><button class="ib" data-act="ph.home" aria-label="Додому">${icon('back', 24)}</button><b class="ah-t">Галерея</b><span class="grow"></span>${fileBtn('gallery', 'Додати')}</header>
+    const sel = a.sel ? a.sel.filter(id => s.gallery.some(g => g.id === id)) : null, n = sel?.length || 0;
+    const head = sel
+      ? `<header class="ah"><button class="ib" data-act="ph.galSelOff" aria-label="Скасувати вибір">${icon('close', 24)}</button><b class="ah-t">Вибрано: ${n}</b><span class="grow"></span><button class="btn sm" data-act="ph.galSelAll">${n === list.length ? 'Зняти все' : 'Вибрати все'}</button></header>`
+      : `<header class="ah"><button class="ib" data-act="ph.home" aria-label="Додому">${icon('back', 24)}</button><b class="ah-t">Галерея</b><span class="grow"></span>${list.length ? `<button class="btn sm" data-act="ph.galSelOn">Вибрати</button>` : ''}${fileBtn('gallery', 'Додати')}</header>`;
+    const tile = g => `<button class="pg${sel?.includes(g.id) ? ' picked' : ''}" data-act="${sel ? 'ph.galTick' : 'ph.galOpen'}" data-id="${g.id}" data-gp="1" aria-label="${esc(galTitle(g))}"${sel ? ` aria-pressed="${sel.includes(g.id)}"` : ''}>${thumb(g)}${sel ? `<i class="pg-n${sel.includes(g.id) ? ' on' : ''}">${sel.includes(g.id) ? icon('check', 14) : ''}</i>` : ''}</button>`;
+    const bar = sel ? `<div class="gal-bar" role="toolbar" aria-label="Дії з вибраними файлами"><button data-act="ph.galSelPost"${n && sel.every(id => s.gallery.find(g => g.id === id)?.type === 'photo') || n === 1 ? '' : ' disabled'}>${icon('plusSq', 18)}Опублікувати</button><button data-act="ph.galSelTopic"${n && sel.some(id => s.gallery.find(g => g.id === id)?.own) ? '' : ' disabled'}>${icon('layers', 18)}Тема</button><button class="del" data-act="ph.galSelDel"${n ? '' : ' disabled'}>${icon('trash', 18)}Видалити</button></div>` : '';
+    return `<div class="gal${sel ? ' selecting' : ''}">${head}
       <div class="seg pad">${[['all', 'Усе'], ['photo', 'Фото'], ['video', 'Відео'], ['own', 'Мої файли']].map(([k, t]) => `<button class="${f === k ? 'on' : ''}" data-act="ph.galF" data-f="${k}">${t}</button>`).join('')}</div>
-      <div class="scroll" data-scroll="gal">${f === 'own' && !list.length ? `<div class="empty">${icon('upload', 40)}<b>Додайте свої фото й відео</b><p>Натисніть «Додати» вгорі. Файли зберігаються лише в цьому браузері: їх ніхто не побачить, а симулятор покаже, як на них відреагували б підписники.</p></div>` : `<div class="pick-grid">${list.map(g => `<button class="pg" data-act="ph.galOpen" data-id="${g.id}" aria-label="${esc(galTitle(g))}">${thumb(g)}</button>`).join('')}</div>`}</div></div>`;
+      <div class="scroll" data-scroll="gal">${f === 'own' && !list.length ? `<div class="empty">${icon('upload', 40)}<b>Додайте свої фото й відео</b><p>Натисніть «Додати» вгорі або перетягніть файли на сторінку. Файли зберігаються лише в цьому браузері: їх ніхто не побачить, а симулятор покаже, як на них відреагували б підписники.</p></div>` : `<div class="pick-grid">${list.map(tile).join('')}</div>`}</div>${bar}</div>`;
   }
 
   /* ═════════ Ідеї ═════════ */
@@ -339,7 +345,14 @@ class Phone {
     this.screen.querySelector('.homebar').addEventListener('click', () => { this.screen.querySelectorAll('.sh-back, .cf-back').forEach(x => (x._api ? x._api.close() : x.remove())); this.home(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') { const sh = this.screen.querySelector('.sh-back:last-of-type'); if (sh) sh.click(); } });
   }
+  // утримання плитки в Галереї: увімкнути вибір і позначити її
+  longPick(id) {
+    if (this.app !== 'gallery' || this.args.id || this.args.sel) return;
+    this.args.sel = [id]; this.justHeld = true; setTimeout(() => { this.justHeld = false; }, 600); this.render();
+    navigator.vibrate?.(15);
+  }
   act(name, el) {
+    if (this.justHeld && name === 'galOpen') { this.justHeld = false; return; }
     const s = sim.s, a = this.args;
     const A = {
       open: () => this.open(el.dataset.app),
@@ -361,6 +374,26 @@ class Phone {
         this.render(); toast(mode === 'photo' ? (g.dark ? 'Фото збережено. Вийшло темнувато' : 'Фото збережено в Галерею') : 'Відео збережено в Галерею');
       },
       galF: () => { a.f = el.dataset.f; this.render(true); },
+      galSelOn: () => { a.sel = []; this.render(); },
+      galSelOff: () => { a.sel = null; this.render(); },
+      galTick: () => { const id = el.dataset.id, i = (a.sel ||= []).indexOf(id); if (i < 0) a.sel.push(id); else a.sel.splice(i, 1); this.render(); },
+      galSelAll: () => { const f = a.f || 'all', ids = s.gallery.filter(g => f === 'all' || (f === 'own' ? g.own : g.type === f)).map(g => g.id); a.sel = (a.sel?.length === ids.length) ? [] : ids; this.render(); },
+      galSelPost: () => {
+        if (!s.me) { this.open('likeer'); toast('Спершу створіть профіль'); return; }
+        const ids = a.sel || []; if (!ids.length) return;
+        a.sel = null; openCreate(this, ids.length === 1 ? { gid: ids[0] } : { gids: ids });
+      },
+      galSelTopic: () => {
+        const own = (a.sel || []).map(id => s.gallery.find(g => g.id === id)).filter(g => g?.own); if (!own.length) return;
+        sheet({ title: `Тема для файлів: ${own.length}`, cls: 'topics', html: `<p class="muted sm">Від теми залежить, кому покажуть допис із цими файлами.</p><div class="niches sm">${[...Object.entries(NICHES), ['me', { t: 'Про мене / інше', icon: 'user' }]].map(([k, n]) => `<button class="niche" data-t="${k}">${icon(n.icon, 20)}<span>${n.t}</span></button>`).join('')}</div>`,
+          onOpen: api => api.el.addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; own.forEach(g => sim.setTopic(g.id, b.dataset.t)); api.close(); this.render(); this.save(); toast('Тему змінено'); }) });
+      },
+      galSelDel: async () => {
+        const gs = (a.sel || []).map(id => s.gallery.find(g => g.id === id)).filter(Boolean); if (!gs.length) return;
+        const used = gs.some(g => g.own && sim.mediaInUse(g.mid) && s.posts.some(p => JSON.stringify([p.photo, p.photos, p.video]).includes(g.mid)));
+        if (!(await confirm(gs.length === 1 ? 'Видалити з галереї?' : `Видалити файли (${gs.length}) з галереї?`, 'Видалити', true, used ? 'Опубліковані дописи з цими файлами залишаться.' : ''))) return;
+        gs.forEach(g => sim.deletePhoto(g.id)); a.sel = null; this.render(); this.save(); gs.forEach(g => this.gc(g)); toast(gs.length === 1 ? 'Файл видалено' : `Видалено: ${gs.length}`);
+      },
       galOpen: () => { a.id = el.dataset.id; this.render(true); },
       galBack: () => { a.id = null; this.render(); },
       strip: () => { sim.stripGeo(el.dataset.id); toast('Місце видалено з файлу'); this.render(); },
@@ -580,6 +613,18 @@ function addDropped(files) {
   if (document.querySelector('.sh-back')) { toast('Спершу закрийте відкрите вікно'); return; }
   phone.open('gallery'); phone.importFiles(media, 'gallery');
 }
+// утримання плитки в Галереї вмикає вибір кількох файлів
+(() => {
+  let t = 0, x0 = 0, y0 = 0;
+  const stop = () => clearTimeout(t);
+  document.addEventListener('pointerdown', e => {
+    const b = e.target.closest?.('.gal [data-gp][data-act="ph.galOpen"]'); if (!b) return;
+    x0 = e.clientX; y0 = e.clientY; stop();
+    t = setTimeout(() => { t = 0; phone.longPick(b.dataset.id); }, 480);
+  });
+  document.addEventListener('pointermove', e => { if (t && Math.hypot(e.clientX - x0, e.clientY - y0) > 8) stop(); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => document.addEventListener(ev, stop, true));
+})();
 document.addEventListener('paste', e => {
   if (e.target.closest?.('input, textarea, [contenteditable]')) return;
   const files = [...(e.clipboardData?.files || [])]; if (files.length) { e.preventDefault(); addDropped(files); }

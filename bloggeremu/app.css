@@ -1116,3 +1116,19 @@ body.drop-on::after { content: 'Відпустіть файли: фото й в�
 :root[data-theme="dark"] :focus-visible { outline-color: #9aabff; }
 @media (max-width: 760px) { .pn-theme { display: none; } }
 :root[data-theme="dark"] .phone { color: #121212; color-scheme: light; }
+
+/* ═════════ Галерея: вибір кількох файлів ═════════ */
+.pg.picked::after { content: ''; position: absolute; inset: 0; border: 3px solid var(--accent); background: rgba(0,100,224,.16); pointer-events: none; }
+.gal.selecting .pg-n { left: 5px; right: auto; top: 5px; }
+.gal.selecting .scroll { padding-bottom: 84px; }
+.gal { position: relative; }
+.gal-bar { position: absolute; left: 10px; right: 10px; bottom: 26px; z-index: 6; display: flex; gap: 4px; padding: 6px; border-radius: 18px; background: #16161a; box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+.gal-bar button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 4px; border-radius: 12px; color: #fff; font-size: 12px; font-weight: 600; }
+.gal-bar button:hover:not(:disabled) { background: rgba(255,255,255,.12); }
+.gal-bar button.del { color: #ff8a80; }
+.gal-bar button:disabled { opacity: .35; }
+.ah .btn.sm:not(.primary) { background: var(--soft); color: var(--ink); margin-right: 6px; }
+
+/* пульт не вилазить за екран, коли карток багато: прокручується сам */
+.panel { max-height: calc(100vh - 32px); overflow-y: auto; scrollbar-width: thin; padding: 2px 4px 2px 2px; margin: -2px; }
+@media (max-height: 900px) { .panel { gap: 10px; } .pn-card { padding: 13px; } }

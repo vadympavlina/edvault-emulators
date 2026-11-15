@@ -555,6 +555,51 @@ await step('час іде сам, пульт перемотує до вечор�
   assert.equal(Math.floor((await S()).t / 60) % 24, 18);
 });
 
+await step('Галерея: вибір кількох файлів, тема й видалення', async () => {
+  await home(); await p.click('[data-app="gallery"]');
+  const before = (await S()).gallery.length;
+  await p.click('[data-act="ph.galSelOn"]');
+  assert.match(await p.locator('.ah-t').innerText(), /Вибрано: 0/);
+  assert.equal(await p.locator('.gal-bar [data-act="ph.galSelDel"]').isDisabled(), true);
+  const tiles = p.locator('.pg[data-act="ph.galTick"]'); await tiles.nth(0).click(); await tiles.nth(1).click();
+  assert.match(await p.locator('.ah-t').innerText(), /Вибрано: 2/);
+  await tiles.nth(1).click();
+  assert.match(await p.locator('.ah-t').innerText(), /Вибрано: 1/);
+  await p.click('[data-act="ph.galSelAll"]');
+  assert.match(await p.locator('.ah-t').innerText(), new RegExp(`Вибрано: ${before}`));
+  await p.click('[data-act="ph.galSelOff"]');
+  assert.equal(await p.locator('.gal-bar').count(), 0);
+  // утримання плитки вмикає вибір
+  const box = await p.locator('.pg').nth(2).boundingBox();
+  await p.mouse.move(box.x + 20, box.y + 20); await p.mouse.down(); await p.waitForTimeout(700); await p.mouse.up();
+  assert.equal(await p.locator('.pg.picked').count(), 1);
+  assert.equal((await S()).gallery.length, before, 'утримання не відкриває й не видаляє файл');
+  await p.click('[data-act="ph.galSelOff"]');
+});
+
+await step('перетягнуте на сторінку фото потрапляє в Галерею', async () => {
+  await p.evaluate(async () => {
+    const c = document.createElement('canvas'); c.width = 64; c.height = 48; const x = c.getContext('2d'); x.fillStyle = '#c33'; x.fillRect(0, 0, 64, 48);
+    const blob = await new Promise(r => c.toBlob(r, 'image/png')); const dt = new DataTransfer(); dt.items.add(new File([blob], 'perenesene.png', { type: 'image/png' }));
+    document.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }));
+  });
+  await p.waitForSelector('.sheet', { timeout: 5000 });
+  await p.click('.sheet [data-t]');
+  await p.waitForFunction(() => Blogger.sim.s.gallery.some(g => g.own), null, { timeout: 5000 }).catch(() => {});
+  assert.ok((await S()).gallery.some(g => g.own && g.type === 'photo'));
+  assert.equal(await p.locator('.seg .on').innerText(), 'Мої файли');
+});
+
+await step('тема сторінки: темна навколо, телефон світлий', async () => {
+  await p.click('#themeBtn');
+  await p.click('#themeBtn');
+  assert.equal(await p.evaluate(() => document.documentElement.dataset.theme), 'dark');
+  assert.equal(await p.evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(30, 30, 30)');
+  assert.equal(await p.evaluate(() => getComputedStyle(document.querySelector('.screen')).backgroundColor), 'rgb(255, 255, 255)');
+  await p.click('#themeBtn');
+  assert.equal(await p.evaluate(() => localStorage.getItem('edvault-theme')), 'auto');
+});
+
 await step('жодної помилки в консолі сторінки', async () => { assert.deepEqual(errors, []); });
 
 await browser.close();

@@ -23,6 +23,8 @@ export function openCreate(ph, o = {}) {
   const lk = ph.apps.likeer;
   if (!ph.sim.s.me) return;
   const d = { kind: o.kind || 'photo', step: o.gid ? 'edit' : 'pick', gid: o.gid || null, gids: o.gid ? [o.gid] : [], ed: {}, multi: false, own: false, filter: 'none', text: '', textY: 'bottom', sticker: '', crop: '45', tool: 'filter', clip: o.clip || null, start: 0, end: null, title: '', music: 'none', caption: '', place: '', commentsOff: false, ad: '', adMarked: true, collab: false, when: 'now', sched: '', bg: BGS[0], txt: '', poll: false, pq: '', pa: ['', ''], story: 'photo' };
+  // кілька фото з Галереї одразу: карусель
+  if (o.gids?.length > 1) { d.gids = o.gids.slice(0, MAX_SLIDES); d.gid = d.gids[0]; d.multi = true; d.step = 'edit'; }
   if (o.gid) { const g = ph.sim.s.gallery.find(x => x.id === o.gid); if (g?.type === 'video') { d.kind = 'video'; d.gids = []; setVideo(d, g); } }
   // продовжити чернетку
   if (o.draft) { Object.assign(d, JSON.parse(JSON.stringify(o.draft)), { draftId: o.draft.id }); delete d.id; delete d.t; d.gids ||= d.gid && d.kind === 'photo' ? [d.gid] : []; d.ed ||= {}; }
