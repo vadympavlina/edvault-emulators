@@ -8,6 +8,17 @@
 <link rel="icon" href="icons/blogger.ico" sizes="32x32">
 <link rel="icon" href="icons/blogger.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/blogger-180.png">
+<meta name="theme-color" content="#f3f2f7">
+<script>
+// тема до першого малювання (спільна для всіх інструментів: light / dark / auto)
+(() => {
+  let t = 'auto'; try { t = localStorage.getItem('edvault-theme') || 'auto'; } catch (e) {}
+  const dark = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  document.querySelector('meta[name=theme-color]').content = dark ? '#1e1e1e' : '#f3f2f7';
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Grand+Hotel&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="bloggeremu/app.css">
 <!-- og -->
@@ -35,7 +46,7 @@
     </div>
   </div>
   <aside class="panel" aria-label="Керування часом">
-    <header class="pn-h"><b>Симулятор блогера</b><small>Навчальний телефон · Edvault</small></header>
+    <header class="pn-h"><b>Симулятор блогера</b><small>Навчальний телефон · Edvault</small><button class="pn-theme" id="themeBtn" type="button" aria-label="Змінити тему: світла, темна, як у системі" title="Тема"></button></header>
     <section class="pn-card"><div class="pn-time"><b>16:00</b><small>Понеділок</small></div>
       <p class="pn-l">Швидкість часу</p><div class="pn-speed" role="group" aria-label="Швидкість часу"></div>
       <p class="pn-l">Перемотати</p><div class="pn-jump"><button data-jump="hour">+1 година</button><button data-jump="evening">До вечора</button><button data-jump="morning">До ранку</button><button data-jump="day">+1 день</button></div></section>
@@ -46,6 +57,23 @@
   </aside>
 </main>
 <div id="boot" class="boot"><svg width="64" height="64" viewBox="0 0 48 48" aria-hidden="true"><rect x="2" y="2" width="44" height="44" rx="13" fill="#e1306c"/><path d="M24 35s-10-6.2-13-12.6A7 7 0 0 1 24 15.5a7 7 0 0 1 13 6.9C34 28.8 24 35 24 35z" fill="#fff"/></svg></div>
+<script>
+// перемикач теми: auto → світла → темна
+(() => {
+  const b = document.getElementById('themeBtn'), L = { auto: 'Авто', light: 'Світла', dark: 'Темна' }, F = { auto: 'Тема: як у системі', light: 'Тема: світла', dark: 'Тема: темна' };
+  const get = () => { try { return localStorage.getItem('edvault-theme') || 'auto'; } catch (e) { return 'auto'; } };
+  const apply = () => {
+    const t = get(), dark = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    document.querySelector('meta[name=theme-color]').content = dark ? '#1e1e1e' : '#f3f2f7';
+    b.textContent = L[t]; b.dataset.t = t; b.title = F[t] + '. Натисніть, щоб змінити'; b.setAttribute('aria-label', F[t] + '. Натисніть, щоб змінити');
+  };
+  b.addEventListener('click', () => { const n = { auto: 'light', light: 'dark', dark: 'auto' }[get()]; try { localStorage.setItem('edvault-theme', n); } catch (e) {} apply(); });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', apply);
+  addEventListener('storage', e => { if (e.key === 'edvault-theme') apply(); });
+  apply();
+})();
+</script>
 <script type="module" src="bloggeremu/js/app.js"></script>
 </body>
 </html>

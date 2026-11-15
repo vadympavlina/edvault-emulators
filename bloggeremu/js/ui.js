@@ -56,9 +56,9 @@ export function banner(html, on) {
 }
 // Коротке повідомлення внизу
 let toastT = 0;
-export function toast(text) {
+export function toast(text, sticky = false) {
   let el = host.querySelector('.toast'); if (!el) { el = h('<div class="toast" role="status"></div>'); host.appendChild(el); }
-  el.textContent = text; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2400);
+  el.textContent = text; el.classList.add('on'); clearTimeout(toastT); if (!sticky) toastT = setTimeout(() => el.classList.remove('on'), 2400);
 }
 export function hideToast() { host?.querySelector('.toast')?.classList.remove('on'); clearTimeout(toastT); }
 // Перемикач

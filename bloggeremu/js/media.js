@@ -119,7 +119,7 @@ async function importVideo(file) {
     if (dur < 1) throw new Error('Відео закоротке або пошкоджене');
     const w = v.videoWidth, h = v.videoHeight;
     // початок: кадри кожні пів секунди — коли щось починає рухатися
-    const early = [], step = 0.5, until = Math.min(dur - 0.1, 10);
+    const early = [], step = 0.6, until = Math.min(dur - 0.1, 8);
     for (let t = 0.05; t <= until; t += step) { const f = await grab(v, t); if (f) early.push({ t, f }); }
     const ds = early.slice(1).map((x, i) => ({ t: early[i].t, d: diff(early[i].f.g, x.f.g) }));
     // «щось відбувається» — помітно більше руху, ніж зазвичай у цьому відео

@@ -409,9 +409,10 @@ class Phone {
     const single = ['avatar', 'banner', 'wall', 'thumb', 'tavatar'].includes(ctx), onlyPhoto = single;
     if (files.length > 20) { toast('Можна додати до 20 файлів за раз'); files = files.slice(0, 20); }
     if (single) files = files.slice(0, 1);
-    toast(files.length === 1 ? 'Обробляю файл…' : `Обробляю ${files.length} ${plural(files.length, 'файл', 'файли', 'файлів')}…`);
     const added = [], errs = [];
+    let i = 0;
     for (const f of files) {
+      i++; toast(files.length === 1 ? (/^video\//.test(f.type) ? 'Обробляю відео, це може тривати кілька секунд…' : 'Обробляю файл…') : `Обробляю файл ${i} з ${files.length}…`, true);
       try { if (onlyPhoto && !/^image\//.test(f.type) && !/\.(jpe?g|png|webp|gif|bmp|avif)$/i.test(f.name)) throw new Error('Тут потрібне фото'); added.push(await importFile(f)); }
       catch (e) { errs.push(e.message); }
     }
@@ -566,10 +567,22 @@ document.addEventListener('dragover', e => {
 document.addEventListener('dragleave', e => { if (!e.relatedTarget) document.body.classList.remove('drop-on'); });
 document.addEventListener('drop', e => {
   document.body.classList.remove('drop-on');
-  const f = e.dataTransfer?.files?.[0]; if (!f) return;
+  const all = [...(e.dataTransfer?.files || [])]; if (!all.length) return;
   e.preventDefault();
-  if (/\.(zip|json)$/i.test(f.name)) phone.loadFile(f);
-  else toast('Щоб додати фото чи відео, відкрийте Галерею. Сюди можна перетягнути лише файл збереженої гри (.zip).');
+  const f = all[0];
+  if (all.length === 1 && /\.(zip|json)$/i.test(f.name)) { phone.loadFile(f); return; }
+  addDropped(all);
+});
+// перетягнуті або вставлені (Ctrl+V) фото й відео потрапляють у Галерею
+function addDropped(files) {
+  const media = files.filter(f => /^(image|video)\//.test(f.type) || /\.(jpe?g|png|webp|gif|bmp|heic|heif|avif|mp4|webm|mov|m4v|ogv)$/i.test(f.name));
+  if (!media.length) { toast('Сюди можна перетягнути фото, відео або файл збереженої гри (.zip)'); return; }
+  if (document.querySelector('.sh-back')) { toast('Спершу закрийте відкрите вікно'); return; }
+  phone.open('gallery'); phone.importFiles(media, 'gallery');
+}
+document.addEventListener('paste', e => {
+  if (e.target.closest?.('input, textarea, [contenteditable]')) return;
+  const files = [...(e.clipboardData?.files || [])]; if (files.length) { e.preventDefault(); addDropped(files); }
 });
 function jump(k) {
   const t = sim.s.t, h = hourOf(t);
