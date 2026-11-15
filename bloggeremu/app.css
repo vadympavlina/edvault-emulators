@@ -1144,3 +1144,6 @@ body.drop-on::after { content: 'Відпустіть файли: фото й в�
 .tv-th.sh .art.own > img { object-fit: contain; }
 .tv-th .art.own:not(.fit) > img { object-fit: cover; }
 .player .art.own.fit, .up-prev .art.own.fit { background: #000; }
+
+.ed-prev.vid.ownv { width: 100%; aspect-ratio: var(--ar, 4 / 5); max-height: 360px; }
+.ed-prev.vid.ownv .art.own > video { object-fit: contain; }
