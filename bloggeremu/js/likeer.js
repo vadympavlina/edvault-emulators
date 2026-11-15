@@ -38,11 +38,11 @@ export function media(sim, p, o = {}) {
   if (p.kind === 'text') return `<div class="txtcard" style="background:${p.bg || '#5c6bc0'}"><p>${esc(p.text)}</p></div>`;
   if (p.kind === 'video') {
     const v = p.video, g = v.own ? sim.s.gallery.find(x => x.id === v.gid) || v.g : null;
-    const vid = v.own ? video(g, { fit: true, paused: !o.play, live: !o.thumb, start: v.start, end: v.end, sound: o.sound && !p.claimed }) : video(v.clip, { paused: !o.play });
+    const vid = v.own ? video(g, { fit: !o.thumb, paused: !o.play, live: !o.thumb, start: v.start, end: v.end, sound: o.sound && !p.claimed }) : video(v.clip, { paused: !o.play });
     return `<div class="vbox">${vid}${v.title ? `<span class="v-title">${esc(v.title)}</span>` : ''}${p.claimed ? `<span class="v-mute">${icon('music', 14)}Звук вимкнено</span>` : ''}<span class="v-dur">${fmtDur(p.len || 20)}</span>${o.play ? '' : `<span class="v-play">${icon('play', 30, true)}</span>`}${v.own && o.play && !p.claimed && !o.thumb ? `<button class="v-snd" data-act="lk.sound" aria-label="${o.sound ? 'Вимкнути звук' : 'Увімкнути звук'}" aria-pressed="${!!o.sound}">${icon(o.sound ? 'sound' : 'mute', 18)}</button>` : ''}</div>`;
   }
   if (!p.photo) return `<div class="txtcard" style="background:#455a64"><p>${esc(p.caption || p.text || '')}</p></div>`;
-  const one = ph => { const g = sim.s.gallery.find(x => x.id === ph.gid) || ph.g || { scene: ph.scene || 'cat' }; return photo(g, { fit: fitOf(ph, g), filter: filterCss(ph.filter), text: ph.text, textY: ph.textY, sticker: ph.sticker, thumb: o.thumb }); };
+  const one = ph => { const g = sim.s.gallery.find(x => x.id === ph.gid) || ph.g || { scene: ph.scene || 'cat' }; return photo(g, { fit: fitOf(ph, g) && !o.thumb, filter: filterCss(ph.filter), text: ph.text, textY: ph.textY, sticker: ph.sticker, thumb: o.thumb }); };
   const sl = p.photos?.length > 1 ? p.photos : null;
   if (!sl) return one(p.photo);
   if (!o.carousel) return `${one(sl[0])}<i class="gi-ic">${icon('layers', 16)}</i>`;
@@ -378,7 +378,7 @@ export class Likeer {
     if (!st) return `${this.head('Історії')}<div class="empty">${icon('camera', 40)}<b>Немає активних історій</b><p>Історії зникають через 24 години.</p></div>`;
     const g = st.gid && s.gallery.find(x => x.id === st.gid);
     return `<div class="story-view">${this.svBars(list.length, i)}<header class="sv-h">${avatar(this.meAv(), 32)}<b>${esc(s.me.nick)}</b><small>${ago(s.t, st.t)}</small><span class="grow"></span><button class="ib light" data-act="lk.back" aria-label="Закрити">${icon('close', 24)}</button></header>
-      <div class="sv-media">${st.fake ? `<div class="txtcard alarm"><p>ТЕРМІНОВО! Завтра скасовують уроки в усіх школах країни. Поширте!!!</p></div>` : g ? photo(g) : `<div class="txtcard" style="background:#7e57c2"><p>${esc(st.text)}</p></div>`}
+      <div class="sv-media">${st.fake ? `<div class="txtcard alarm"><p>ТЕРМІНОВО! Завтра скасовують уроки в усіх школах країни. Поширте!!!</p></div>` : g ? photo(g, { fit: !!g.own }) : `<div class="txtcard" style="background:#7e57c2"><p>${esc(st.text)}</p></div>`}
       ${this.svZones()}
       ${st.poll ? (() => { const tot = st.votes[0] + st.votes[1]; return `<div class="poll"><b>${esc(st.poll.q)}</b>${st.poll.a.map((t, j) => { const pc = tot ? Math.round(st.votes[j] / tot * 100) : 0; return `<div class="poll-a"><i style="width:${tot >= 3 ? pc : 0}%"></i><span>${esc(t)}</span><b>${tot >= 3 ? pc + '%' : ''}</b></div>`; }).join('')}<small class="poll-n">${tot >= 3 ? `${tot} ${plural(tot, 'голос', 'голоси', 'голосів')}` : 'Голоси ще збираються…'}</small></div>`; })() : ''}</div>
       <footer class="sv-f">${icon('eye', 18)}<span>${num(st.views)} ${plural(st.views, 'перегляд', 'перегляди', 'переглядів')}</span><span class="grow"></span><small>${i + 1} з ${list.length}</small></footer></div>`;
