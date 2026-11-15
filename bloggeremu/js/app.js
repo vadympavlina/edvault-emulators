@@ -195,7 +195,7 @@ class Phone {
       const title = g.own ? (g.type === 'video' ? 'Ваше відео' : 'Ваше фото') : (g.type === 'video' ? CLIPS[g.clip] : SCENES[g.scene])?.t || '';
       const st = { ok: 'check', warn: 'alert', bad: 'alert' };
       return `<div class="gal"><header class="ah"><button class="ib" data-act="ph.galBack" aria-label="Назад">${icon('back', 24)}</button><b class="ah-t">${esc(title)}</b></header>
-        <div class="scroll"><div class="gal-big${g.own ? ' fit' : ''}">${g.type === 'video' ? (g.own ? video(g, { live: true }) : video(g.clip)) : photo(g)}</div>
+        <div class="scroll"><div class="gal-big${g.own ? ' fit' : ''}">${g.type === 'video' ? (g.own ? video(g, { live: true, fit: true }) : video(g.clip)) : photo(g, { fit: !!g.own })}</div>
         <div class="pad">${g.own ? `<h3 class="sec">Перевірка кадру</h3><ul class="qc">${checks(g).map(([k, v, c]) => `<li class="${c}">${icon(st[c], 16)}<span><b>${k}</b>${esc(v)}</span></li>`).join('')}</ul>
           <label class="opt"><span class="opt-ic">${icon(nicheOf(g.topic).icon, 20)}</span><div><b>Тема</b><small>Від теми залежить, кому покажуть допис</small></div><select class="in sel" data-phsel="topic" data-id="${g.id}" aria-label="Тема">${topicOptions(g.topic)}</select></label>` : ''}
           <div class="check"><p>${icon('clock', 18)}<span>${dayOf(g.t) === dayOf(s.t) ? 'Сьогодні' : dayOf(g.t) === dayOf(s.t) - 1 ? 'Учора' : 'Раніше'}, ${clock(g.t)}${g.cam ? ' · знято камерою' : g.own ? ' · додано з пристрою' : ''}</span></p>

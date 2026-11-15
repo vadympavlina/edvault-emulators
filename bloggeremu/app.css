@@ -30,7 +30,7 @@ button:disabled { cursor: default; opacity: .45; }
 .screen.dark-bar .sbar { background: #000; color: #fff; }
 .app { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
 .app > * { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.homebar { flex: none; height: 22px; display: flex; align-items: center; justify-content: center; background: var(--bg); position: relative; z-index: 5; }
+.homebar { flex: none; height: 28px; display: flex; align-items: center; justify-content: center; background: var(--bg); position: relative; z-index: 5; }
 .homebar i { width: 134px; height: 5px; border-radius: 3px; background: #1d1d1f; transition: transform .15s; }
 .homebar:hover i { transform: scaleX(1.06); }
 .screen.dark-bar .homebar { background: #000; } .screen.dark-bar .homebar i { background: #fff; }
@@ -76,7 +76,7 @@ button:disabled { cursor: default; opacity: .45; }
 .btn.primary { background: var(--accent); color: #fff; } .btn.primary:hover:not(:disabled) { background: var(--accent-d); }
 .btn.danger { color: #b71c1c; background: #fdecec; } .btn.danger:hover:not(:disabled) { background: #fadada; }
 .btn.big { width: 100%; height: 46px; font-size: 15.5px; border-radius: 12px; }
-.btn.sm { height: 30px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
+.btn.sm { height: 36px; padding: 0 14px; font-size: 13px; border-radius: 8px; }
 .btn.link { background: none; color: var(--link); width: 100%; margin-top: 8px; }
 .lnk { color: var(--link); font-weight: 600; font-size: 14px; padding: 4px 6px; border-radius: 6px; }
 .lnk:hover:not(:disabled) { background: rgba(11, 99, 196, .08); }
@@ -1078,7 +1078,7 @@ p[data-ok] { display: flex; align-items: center; gap: 4px; color: var(--ok) !imp
   .apps { gap: 12px 8px; padding-bottom: 8px; }
 }
 /* ═════════ збереження у файл ═════════ */
-.link { color: var(--link); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; font-size: inherit; padding: 0; }
+.link:not(.opt):not(.btn) { color: var(--link); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; font-size: inherit; padding: 0; }
 .pn-file .pn-l { margin-top: 0; }
 .pn-who { display: flex; align-items: center; gap: 6px; font-size: 13.5px; margin-bottom: 8px; } .pn-who span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; } .pn-who .link { font-size: 12.5px; }
 .pn-fbtn { display: grid; grid-template-columns: 1fr; gap: 6px; }
@@ -1110,7 +1110,7 @@ body.drop-on::after { content: 'Відпустіть файли: фото й в�
 :root[data-theme="dark"] .pn-speed button[aria-pressed="true"] { background: #9aabff; color: #10153a; }
 :root[data-theme="dark"] .pn-fbtn .pn-save { background: #9aabff; color: #10153a; } :root[data-theme="dark"] .pn-fbtn .pn-save:hover { background: #b3c0ff; }
 :root[data-theme="dark"] .pn-reset { color: #f08a82; }
-:root[data-theme="dark"] .link { color: #9aabff; }
+:root[data-theme="dark"] .link:not(.opt):not(.btn) { color: #9aabff; }
 :root[data-theme="dark"] .phone { box-shadow: 0 0 0 2px #3a3a3a, 0 30px 80px rgba(0,0,0,.6), inset 0 0 0 2px #2b2b2b; }
 :root[data-theme="dark"] body.drop-on::after { background: rgba(30,30,30,.92); color: #9aabff; }
 :root[data-theme="dark"] :focus-visible { outline-color: #9aabff; }
@@ -1147,3 +1147,13 @@ body.drop-on::after { content: 'Відпустіть файли: фото й в�
 
 .ed-prev.vid.ownv { width: 100%; aspect-ratio: var(--ar, 4 / 5); max-height: 360px; }
 .ed-prev.vid.ownv .art.own > video { object-fit: contain; }
+
+/* ═════════ аудит: розміри цілей, дрібні підписи, шпалери ═════════ */
+.pg-dur, .v-dur, .tv-dur { font-size: 12px; }
+.walls .wall:last-child:nth-child(4n+1) { grid-column: span 2; aspect-ratio: auto; height: 56px; }
+.avp.add { font-size: 12px; }
+.pn-who .link { min-height: 28px; }
+.ah .btn.sm, .seg.pad button { min-height: 36px; }
+.opt.link { color: inherit; text-decoration: none; font-weight: inherit; text-align: left; }
+.opt.link b { color: var(--ink); font-weight: 600; }
+.opt.link small { color: var(--ink2); }
