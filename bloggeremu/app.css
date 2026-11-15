@@ -1132,3 +1132,12 @@ body.drop-on::after { content: 'Відпустіть файли: фото й в�
 /* пульт не вилазить за екран, коли карток багато: прокручується сам */
 .panel { max-height: calc(100vh - 32px); overflow-y: auto; scrollbar-width: thin; padding: 2px 4px 2px 2px; margin: -2px; }
 @media (max-height: 900px) { .panel { gap: 10px; } .pn-card { padding: 13px; } }
+
+/* ═════════ кадр допису: справжні пропорції, без зайвого обрізання ═════════ */
+.pm-media { aspect-ratio: var(--ar, 4 / 5); max-height: 78vh; }
+.ed-prev.croporig { aspect-ratio: var(--ar, 4 / 5); }
+.art.own.fit > img, .art.own.fit > video { object-fit: contain; z-index: 1; }
+.art.own .bd { position: absolute; inset: -24px; background: center / cover no-repeat; filter: blur(26px) brightness(.8) saturate(1.2); transform: translateZ(0); }
+.art.own.fit > .ov { z-index: 2; }
+.art.own > video { background: transparent; }
+.pm-media .vbox .v-play, .pm-media .vbox .v-dur, .pm-media .vbox .v-title, .pm-media .vbox .v-mute { z-index: 3; }

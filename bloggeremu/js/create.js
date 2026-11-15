@@ -22,7 +22,7 @@ export function openCreate(ph, o = {}) {
   ph.open('likeer');
   const lk = ph.apps.likeer;
   if (!ph.sim.s.me) return;
-  const d = { kind: o.kind || 'photo', step: o.gid ? 'edit' : 'pick', gid: o.gid || null, gids: o.gid ? [o.gid] : [], ed: {}, multi: false, own: false, filter: 'none', text: '', textY: 'bottom', sticker: '', crop: '45', tool: 'filter', clip: o.clip || null, start: 0, end: null, title: '', music: 'none', caption: '', place: '', commentsOff: false, ad: '', adMarked: true, collab: false, when: 'now', sched: '', bg: BGS[0], txt: '', poll: false, pq: '', pa: ['', ''], story: 'photo' };
+  const d = { kind: o.kind || 'photo', step: o.gid ? 'edit' : 'pick', gid: o.gid || null, gids: o.gid ? [o.gid] : [], ed: {}, multi: false, own: false, filter: 'none', text: '', textY: 'bottom', sticker: '', crop: 'orig', tool: 'filter', clip: o.clip || null, start: 0, end: null, title: '', music: 'none', caption: '', place: '', commentsOff: false, ad: '', adMarked: true, collab: false, when: 'now', sched: '', bg: BGS[0], txt: '', poll: false, pq: '', pa: ['', ''], story: 'photo' };
   // кілька фото з Галереї одразу: карусель
   if (o.gids?.length > 1) { d.gids = o.gids.slice(0, MAX_SLIDES); d.gid = d.gids[0]; d.multi = true; d.step = 'edit'; }
   if (o.gid) { const g = ph.sim.s.gallery.find(x => x.id === o.gid); if (g?.type === 'video') { d.kind = 'video'; d.gids = []; setVideo(d, g); } }
@@ -95,9 +95,9 @@ export function renderCreate(lk, top) {
     if (d.tool === 'filter') panel = `<div class="filters">${FILTERS.map(f => `<button class="flt${d.filter === f.id ? ' on' : ''}" data-act="cr.filter" data-f="${f.id}"><span class="flt-m">${photo(g, { filter: f.css, thumb: true })}</span><small>${f.t}</small></button>`).join('')}</div>`;
     else if (d.tool === 'text') panel = `<div class="pad"><input class="in" data-keep="cr.ptext" data-in="cr.ptext" value="${esc(d.text)}" maxlength="22" placeholder="Напис на фото (до 22 символів)" aria-label="Напис на фото"><div class="seg sm">${[['top', 'Угорі'], ['bottom', 'Унизу']].map(([k, t]) => `<button class="${d.textY === k ? 'on' : ''}" data-act="cr.textY" data-k="${k}">${t}</button>`).join('')}</div></div>`;
     else if (d.tool === 'sticker') panel = `<div class="sw-row center pad"><button class="stk${!d.sticker ? ' on' : ''}" data-act="cr.sticker" data-k="" aria-label="Без наліпки">${icon('close', 22)}</button>${STICKERS.map(k => `<button class="stk${d.sticker === k ? ' on' : ''}" data-act="cr.sticker" data-k="${k}" aria-label="Наліпка">${icon(k, 24, true)}</button>`).join('')}</div>`;
-    else panel = `<div class="seg pad">${[['45', 'Портрет 4:5'], ['11', 'Квадрат 1:1']].map(([k, t]) => `<button class="${d.crop === k ? 'on' : ''}" data-act="cr.crop" data-k="${k}">${t}</button>`).join('')}</div>`;
+    else panel = `<div class="seg pad">${[['orig', 'Оригінал'], ['45', 'Портрет 4:5'], ['11', 'Квадрат 1:1']].map(([k, t]) => `<button class="${d.crop === k ? 'on' : ''}" data-act="cr.crop" data-k="${k}">${t}</button>`).join('')}</div>`;
     return `<header class="ah">${back}<b class="ah-t">Редагування</b><span class="grow"></span><button class="lnk strong" data-act="cr.next">Далі</button></header>
-      <div class="ed-prev crop${d.crop}">${prev(s, d)}${d.gids.length > 1 ? `<span class="car-n">${d.gids.indexOf(d.gid) + 1}/${d.gids.length}</span>` : ''}</div>
+      <div class="ed-prev crop${d.crop}"${d.crop === 'orig' ? ` style="--ar:${edAr(s, d)}"` : ''}>${prev(s, d)}${d.gids.length > 1 ? `<span class="car-n">${d.gids.indexOf(d.gid) + 1}/${d.gids.length}</span>` : ''}</div>
       ${d.gids.length > 1 ? `<div class="slides" role="tablist" aria-label="Фото каруселі">${d.gids.map((id, i) => { const x = s.gallery.find(y => y.id === id); return `<button role="tab" class="sl${id === d.gid ? ' on' : ''}" aria-selected="${id === d.gid}" data-act="cr.slide" data-id="${id}" aria-label="Фото ${i + 1}">${x ? photo(x, { thumb: true, filter: FILTERS.find(f => f.id === (id === d.gid ? d.filter : d.ed[id]?.filter))?.css }) : ''}<i>${i + 1}</i></button>`; }).join('')}</div>` : ''}<div class="tools" role="tablist">${tools.map(([k, t]) => `<button role="tab" class="${d.tool === k ? 'on' : ''}" aria-selected="${d.tool === k}" data-act="cr.tool" data-k="${k}">${t}</button>`).join('')}</div><div class="tool-panel">${panel}</div>`;
   }
   if (d.step === 'edit' && d.kind === 'video') {
@@ -138,10 +138,11 @@ export function renderCreate(lk, top) {
     <details class="pre"><summary>${icon('shield', 18)}Перевірте себе перед публікацією</summary><ul><li>Чи немає на фото адреси, номера будинку, назви школи, документів?</li><li>Чи погодилися люди на фото, щоб їх показували?</li><li>Чи це ваш власний твір (фото, музика, малюнок)?</li><li>Чи правдивий опис і заголовок?</li></ul></details></div>
     <footer class="foot"><button class="btn primary big" data-act="cr.publish">${d.sched ? 'Запланувати' : 'Опублікувати'}</button></footer>`;
 }
+const edAr = (s, d) => { const g = s.gallery.find(x => x.id === d.gid); return g?.own && g.w && g.h ? Math.min(1.91, Math.max(0.8, g.w / g.h)) : 0.8; };
 function prev(s, d) {
   if (d.kind === 'video') { if (d.own) { const g = s.gallery.find(x => x.id === d.gid); return g ? video(g, { paused: true }) : ''; } return video(d.clip, { paused: true }); }
   const g = s.gallery.find(x => x.id === d.gid); if (!g) return '';
-  return photo(g, { filter: FILTERS.find(f => f.id === d.filter)?.css, text: d.text, textY: d.textY, sticker: d.sticker });
+  return photo(g, { fit: d.crop === 'orig' && !!g.own, filter: FILTERS.find(f => f.id === d.filter)?.css, text: d.text, textY: d.textY, sticker: d.sticker });
 }
 function schedSlots(t) {
   const out = [], start = Math.ceil((t + 30) / 60) * 60;

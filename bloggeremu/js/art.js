@@ -125,14 +125,16 @@ const missing = () => `<span class="miss">${icon('image', 28)}<small>Файл н
 // Власне фото з телефону (зберігається в браузері)
 function ownPhoto(g, o) {
   const src = mediaUrl(g.mid, o.thumb ? 'thumb' : 'src'), [txt, st] = deco(o);
-  return `<span class="art own">${src ? `<img src="${src}" alt="" decoding="async"${o.filter ? ` style="filter:${o.filter}"` : ''}>` : missing()}${txt || st ? `<svg class="ov" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${txt}${st}</svg>` : ''}</span>`;
+  const bd = o.fit && src ? `<i class="bd" style="background-image:url(${mediaUrl(g.mid, 'thumb') || src})" aria-hidden="true"></i>` : '';
+  return `<span class="art own${o.fit ? ' fit' : ''}">${bd}${src ? `<img src="${src}" alt="" decoding="async"${o.filter ? ` style="filter:${o.filter}"` : ''}>` : missing()}${txt || st ? `<svg class="ov" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${txt}${st}</svg>` : ''}</span>`;
 }
 // Власне відео. paused без live — лише кадр-обкладинка (легше для сітки); live — справжній плеєр
 function ownVideo(g, o) {
   const thumb = mediaUrl(g.mid, 'thumb');
   if (!thumb) return `<span class="art own">${missing()}</span>`;
-  if (o.paused && !o.live) return `<span class="art own"><img src="${thumb}" alt="" decoding="async"></span>`;
-  return `<span class="art own"><video src="${mediaUrl(g.mid)}" muted loop playsinline preload="metadata" data-own="1" data-play="${o.paused ? 0 : 1}" data-s="${o.start || 0}"${o.end ? ` data-e="${o.end}"` : ''}${o.sound ? ' data-sound="1"' : ''}></video></span>`;
+  const bd = o.fit ? `<i class="bd" style="background-image:url(${thumb})" aria-hidden="true"></i>` : '';
+  if (o.paused && !o.live) return `<span class="art own${o.fit ? ' fit' : ''}">${bd}<img src="${thumb}" alt="" decoding="async"></span>`;
+  return `<span class="art own${o.fit ? ' fit' : ''}">${bd}<video src="${mediaUrl(g.mid)}" poster="${thumb}" muted loop playsinline preload="metadata" data-own="1" data-play="${o.paused ? 0 : 1}" data-s="${o.start || 0}"${o.end ? ` data-e="${o.end}"` : ''}${o.sound ? ' data-sound="1"' : ''}></video></span>`;
 }
 
 export function photo(g, o = {}) {

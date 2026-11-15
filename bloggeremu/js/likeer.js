@@ -21,15 +21,28 @@ export const nickErr = n => !n ? 'Придумайте ім’я користу�
 // Медіа допису (фото, карусель, відео або текстова картка)
 // o: play — грати відео; carousel — гортати всі фото; thumb — легка мініатюра для сітки; sound — зі звуком
 export const carIdx = new Map(); // який кадр каруселі зараз видно (переживає перемальовування)
+// Співвідношення сторін кадру допису: як у Instagram, від 4:5 до 1,91:1. Власні фото й відео показуємо цілком,
+// без обрізання: усе, що не вмістилося, лежить на розмитому тлі з того ж кадру.
+const AR_MIN = 0.8, AR_MAX = 1.91;
+const natural = g => (g?.w && g?.h ? Math.min(AR_MAX, Math.max(AR_MIN, g.w / g.h)) : AR_MIN);
+function slideOf(sim, p) { const ph = p.photo; return ph ? { ph, g: sim.s.gallery.find(x => x.id === ph.gid) || ph.g } : null; }
+export function arOf(sim, p) {
+  if (p.kind === 'text') return 1;
+  if (p.kind === 'video') { const v = p.video, g = v?.own ? v.g || sim.s.gallery.find(x => x.id === v.gid) : null; return g ? natural(g) : AR_MIN; }
+  const sl = slideOf(sim, p); if (!sl) return AR_MIN;
+  if (sl.ph.crop === '11') return 1;
+  return sl.g?.own && sl.ph.crop === 'orig' ? natural(sl.g) : AR_MIN;
+}
+const fitOf = (ph, g) => !!g?.own && ph?.crop === 'orig';
 export function media(sim, p, o = {}) {
   if (p.kind === 'text') return `<div class="txtcard" style="background:${p.bg || '#5c6bc0'}"><p>${esc(p.text)}</p></div>`;
   if (p.kind === 'video') {
     const v = p.video, g = v.own ? sim.s.gallery.find(x => x.id === v.gid) || v.g : null;
-    const vid = v.own ? video(g, { paused: !o.play, live: !o.thumb, start: v.start, end: v.end, sound: o.sound && !p.claimed }) : video(v.clip, { paused: !o.play });
+    const vid = v.own ? video(g, { fit: true, paused: !o.play, live: !o.thumb, start: v.start, end: v.end, sound: o.sound && !p.claimed }) : video(v.clip, { paused: !o.play });
     return `<div class="vbox">${vid}${v.title ? `<span class="v-title">${esc(v.title)}</span>` : ''}${p.claimed ? `<span class="v-mute">${icon('music', 14)}Звук вимкнено</span>` : ''}<span class="v-dur">${fmtDur(p.len || 20)}</span>${o.play ? '' : `<span class="v-play">${icon('play', 30, true)}</span>`}${v.own && o.play && !p.claimed && !o.thumb ? `<button class="v-snd" data-act="lk.sound" aria-label="${o.sound ? 'Вимкнути звук' : 'Увімкнути звук'}" aria-pressed="${!!o.sound}">${icon(o.sound ? 'sound' : 'mute', 18)}</button>` : ''}</div>`;
   }
   if (!p.photo) return `<div class="txtcard" style="background:#455a64"><p>${esc(p.caption || p.text || '')}</p></div>`;
-  const one = ph => { const g = sim.s.gallery.find(x => x.id === ph.gid) || ph.g || { scene: ph.scene || 'cat' }; return photo(g, { filter: filterCss(ph.filter), text: ph.text, textY: ph.textY, sticker: ph.sticker, thumb: o.thumb }); };
+  const one = ph => { const g = sim.s.gallery.find(x => x.id === ph.gid) || ph.g || { scene: ph.scene || 'cat' }; return photo(g, { fit: fitOf(ph, g), filter: filterCss(ph.filter), text: ph.text, textY: ph.textY, sticker: ph.sticker, thumb: o.thumb }); };
   const sl = p.photos?.length > 1 ? p.photos : null;
   if (!sl) return one(p.photo);
   if (!o.carousel) return `${one(sl[0])}<i class="gi-ic">${icon('layers', 16)}</i>`;
@@ -133,7 +146,7 @@ export class Likeer {
         <div class="pa"><button class="ib${f.liked ? ' liked' : ''}" data-act="lk.likeFeed" data-id="${f.id}" aria-label="Вподобати" aria-pressed="${!!f.liked}">${icon('heart', 25, f.liked)}</button><button class="ib" aria-label="Коментарі" data-act="lk.feedComments" data-id="${f.id}">${icon('comment', 24)}</button><button class="ib" aria-label="Поділитися" data-act="lk.toast" data-t="Посилання скопійовано">${icon('send', 23)}</button></div>
         <p class="pl"><b>${num(f.likes)}</b> ${plural(f.likes, 'вподобання', 'вподобання', 'вподобань')}</p><p class="pc"><b>${c ? esc(c.nick) : 'olivets.official'}</b> ${rich(f.caption)}</p>${f.ad ? '' : `<p class="pmore">Переглянути всі коментарі (${f.comments})</p>`}</article>`;
     };
-    const own = mine.map(p => `<article class="post own" data-act="lk.post" data-id="${p.id}"><header class="ph">${avatar(this.meAv(), 34)}<div><b>${esc(s.me.nick)}</b><small>${ago(s.t, p.t)} · ваш допис</small></div></header><div class="pm-media">${media(this.sim, p, { carousel: true })}</div><div class="pa"><button class="ib${p.liked ? ' liked' : ''}" data-act="lk.likePost" data-id="${p.id}" aria-label="Вподобати" aria-pressed="${!!p.liked}">${icon('heart', 23, p.liked)}</button><b>${num(p.stats.likes)}</b><button class="ib" data-act="lk.go" data-v="comments" data-id="${p.id}" aria-label="Коментарі">${icon('comment', 22)}</button><b>${num(p.stats.comments)}</b><span class="grow"></span><span class="muted sm">${num(p.stats.views)} переглядів</span></div></article>`).join('');
+    const own = mine.map(p => `<article class="post own" data-act="lk.post" data-id="${p.id}"><header class="ph">${avatar(this.meAv(), 34)}<div><b>${esc(s.me.nick)}</b><small>${ago(s.t, p.t)} · ваш допис</small></div></header><div class="pm-media" style="--ar:${arOf(this.sim, p)}">${media(this.sim, p, { carousel: true })}</div><div class="pa"><button class="ib${p.liked ? ' liked' : ''}" data-act="lk.likePost" data-id="${p.id}" aria-label="Вподобати" aria-pressed="${!!p.liked}">${icon('heart', 23, p.liked)}</button><b>${num(p.stats.likes)}</b><button class="ib" data-act="lk.go" data-v="comments" data-id="${p.id}" aria-label="Коментарі">${icon('comment', 22)}</button><b>${num(p.stats.comments)}</b><span class="grow"></span><span class="muted sm">${num(p.stats.views)} переглядів</span></div></article>`).join('');
     return `<header class="ah main">${logo(28)}<b class="brand lk-word">Instagram</b><span class="grow"></span><button class="ib" data-act="lk.go" data-v="dms" aria-label="Повідомлення">${icon('send', 24)}${dmN ? `<i class="dot">${dmN}</i>` : ''}</button></header>
       <div class="scroll" data-scroll="feed">${stories}${own}${s.feed.map(card).join('')}<p class="end">${icon('check', 18)}Ви переглянули всі нові дописи</p></div>`;
   }
@@ -220,7 +233,7 @@ export class Likeer {
     return `${this.head(sched ? 'Запланований допис' : 'Допис', `<button class="ib" data-act="lk.postMenu" data-id="${p.id}" aria-label="Ще">${icon('more', 24)}</button>`)}
       <div class="scroll" data-scroll="post"><article class="post"><header class="ph">${avatar(this.meAv(), 34)}<div><b>${esc(s.me.nick)}</b><small>${p.place ? `${icon('location', 12)}${esc(p.place)}` : sched ? `Вийде ${dayOf(p.sched) === dayOf(s.t) ? 'сьогодні' : 'завтра'} о ${clock(p.sched)}` : ago(s.t, p.t)}</small></div></header>
       ${p.ad ? `<p class="adline${p.adMarked ? '' : ' warn'}">${icon('money', 14)}${p.adMarked ? `Реклама · ${esc(adName(p.ad))}` : 'Рекламу не позначено'}</p>` : ''}
-      <div class="pm-media" ${p.kind === 'video' ? 'data-act="lk.play"' : ''}>${media(this.sim, p, { play: a.play, carousel: true, sound: this.sound })}</div>
+      <div class="pm-media" style="--ar:${arOf(this.sim, p)}" ${p.kind === 'video' ? 'data-act="lk.play"' : ''}>${media(this.sim, p, { play: a.play, carousel: true, sound: this.sound })}</div>
       ${sched ? '' : `<div class="pa"><button class="ib${p.liked ? ' liked' : ''}" data-act="lk.likePost" data-id="${p.id}" aria-label="Вподобати" aria-pressed="${!!p.liked}">${icon('heart', 25, p.liked)}</button><b>${num(st.likes)}</b><button class="ib" data-act="lk.go" data-v="comments" data-id="${p.id}" aria-label="Коментарі">${icon('comment', 24)}</button><b>${num(st.comments)}</b><span class="ib static">${icon('send', 23)}</span><b>${num(st.shares)}</b><span class="grow"></span><span class="ib static">${icon('bookmark', 23)}</span><b>${num(st.saves)}</b></div>`}
       ${p.caption ? `<p class="pc"><b>${esc(s.me.nick)}</b> ${rich(p.caption)}</p>` : ''}
       ${sched || p.kind === 'text' ? '' : `<button class="promo-btn" data-act="ad.promote" data-id="${p.id}">${icon('megaphone', 17)}Просувати допис</button>`}

@@ -600,6 +600,23 @@ await step('тема сторінки: темна навколо, телефон
   assert.equal(await p.evaluate(() => localStorage.getItem('edvault-theme')), 'auto');
 });
 
+await step('допис із власним фото: справжні пропорції кадру й розмите тло замість обрізання', async () => {
+  const ar = await p.evaluate(async () => {
+    const sim = Blogger.sim, s = sim.s;
+    const c = document.createElement('canvas'); c.width = 1600; c.height = 900; const x = c.getContext('2d'); x.fillStyle = '#39c'; x.fillRect(0, 0, 1600, 900);
+    const { importFile } = await import('/bloggeremu/js/media.js');
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg')); const it = await importFile(new File([blob], 'wide.jpg', { type: 'image/jpeg' }));
+    const g = sim.addOwn(it, 'me');
+    sim.publish({ kind: 'photo', caption: 'широке', photo: { gid: g.id, filter: 'none', text: '', textY: 'bottom', sticker: '', crop: 'orig', g: { own: true, type: 'photo', mid: g.mid, w: g.w, h: g.h } } });
+    Blogger.phone.open('likeer');
+    return null;
+  });
+  await p.waitForSelector('.post.own .pm-media');
+  const r = await p.evaluate(() => { const m = document.querySelector('.post.own .pm-media'), i = m.querySelector('img'); const b = m.getBoundingClientRect(); return { ratio: b.width / b.height, fit: getComputedStyle(i).objectFit, bd: !!m.querySelector('.bd') }; });
+  assert.ok(Math.abs(r.ratio - 16 / 9) < 0.05, 'кадр 16:9, а не 4:5: ' + r.ratio);
+  assert.equal(r.fit, 'contain'); assert.ok(r.bd, 'є розмите тло');
+});
+
 await step('жодної помилки в консолі сторінки', async () => { assert.deepEqual(errors, []); });
 
 await browser.close();
