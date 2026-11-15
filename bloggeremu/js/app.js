@@ -345,7 +345,7 @@ class Phone {
     this.screen.querySelector('.homebar').addEventListener('click', () => { this.screen.querySelectorAll('.sh-back, .cf-back').forEach(x => (x._api ? x._api.close() : x.remove())); this.home(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') { const sh = this.screen.querySelector('.sh-back:last-of-type'); if (sh) sh.click(); } });
   }
-  // утримання плитки в Галереї: увімкнути вибір і позначити її
+// утримання плитки в Галереї: увімкнути вибір і позначити її
   longPick(id) {
     if (this.app !== 'gallery' || this.args.id || this.args.sel) return;
     this.args.sel = [id]; this.justHeld = true; setTimeout(() => { this.justHeld = false; }, 600); this.render();
@@ -606,6 +606,8 @@ document.addEventListener('drop', e => {
   if (all.length === 1 && /\.(zip|json)$/i.test(f.name)) { phone.loadFile(f); return; }
   addDropped(all);
 });
+// колесо миші гортає ряд тем в YouTube вбік
+document.addEventListener('wheel', e => { const r = e.target.closest?.('.chips-row'); if (r && Math.abs(e.deltaY) > Math.abs(e.deltaX)) { r.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
 // перетягнуті або вставлені (Ctrl+V) фото й відео потрапляють у Галерею
 function addDropped(files) {
   const media = files.filter(f => /^(image|video)\//.test(f.type) || /\.(jpe?g|png|webp|gif|bmp|heic|heif|avif|mp4|webm|mov|m4v|ogv)$/i.test(f.name));

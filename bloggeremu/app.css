@@ -805,7 +805,7 @@ button.pill:hover { background: #e8e9ec; } .pill.on { background: var(--ink); co
 .slides { flex-wrap: wrap; overflow: visible; }
 .th-pick { display: grid; grid-template-columns: repeat(3, 1fr); overflow: visible; }
 .th-pick .thp { width: auto; } .thp.on { margin: 0; }
-.chips-row { flex-wrap: wrap; overflow: visible; }
+.chips-row { flex-wrap: nowrap; overflow-x: auto; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); } .chips-row .chip-t { flex: none; }
 .shorts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow: visible; }
 .sh-card { width: auto; }
 .pa { flex-wrap: wrap; }
@@ -1141,3 +1141,6 @@ body.drop-on::after { content: 'Відпустіть файли: фото й в�
 .art.own.fit > .ov { z-index: 2; }
 .art.own > video { background: transparent; }
 .pm-media .vbox .v-play, .pm-media .vbox .v-dur, .pm-media .vbox .v-title, .pm-media .vbox .v-mute { z-index: 3; }
+.tv-th.sh .art.own > img { object-fit: contain; }
+.tv-th .art.own:not(.fit) > img { object-fit: cover; }
+.player .art.own.fit, .up-prev .art.own.fit { background: #000; }

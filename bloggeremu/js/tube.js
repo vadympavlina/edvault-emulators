@@ -161,14 +161,14 @@ export class Tube {
   // Плеєр джерела (власне відео або вбудований кліп)
   srcPlayer(u, paused) {
     const g = this.s.gallery.find(x => x.id === u.gid); if (!g) return '';
-    return g.own ? `<span class="art own"><video src="${mediaUrl(g.mid)}" poster="${mediaUrl(g.mid, 'thumb')}" controls playsinline preload="metadata"></video></span>` : video(g.clip, { paused });
+    return g.own ? `<span class="art own fit"><i class="bd" style="background-image:url(${mediaUrl(g.mid, 'thumb')})" aria-hidden="true"></i><video src="${mediaUrl(g.mid)}" poster="${mediaUrl(g.mid, 'thumb')}" controls playsinline preload="metadata"></video></span>` : video(g.clip, { paused });
   }
   // Обкладинка відео 16:9 (або 9:16 для коротких)
   thumbHtml(v) {
     const th = v.thumb || {}, dur = `<i class="tv-dur">${v.shorts ? icon('spark', 12) : fmtDur(v.dur)}</i>`;
     let img;
     if (!v.shorts && th.kind === 'photo') { const g = this.s.gallery.find(x => x.id === th.gid) || th.g; img = g ? photo(g, { thumb: true }) : ''; }
-    else if (v.src.own) { const g = this.s.gallery.find(x => x.id === v.src.gid) || v.src.g; const k = v.shorts || th.i == null || th.i < 0 ? 'thumb' : 'f' + th.i; img = g?.mid && mediaUrl(g.mid, k) ? `<span class="art own"><img src="${mediaUrl(g.mid, k)}" alt=""></span>` : `<span class="art own"><span class="miss">${icon('video', 24)}</span></span>`; }
+    else if (v.src.own) { const g = this.s.gallery.find(x => x.id === v.src.gid) || v.src.g; const k = v.shorts || th.i == null || th.i < 0 ? 'thumb' : 'f' + th.i; img = g?.mid && mediaUrl(g.mid, k) ? `<span class="art own${g.w && g.h && g.w / g.h < 1.6 ? ' fit' : ''}">${g.w && g.h && g.w / g.h < 1.6 ? `<i class="bd" style="background-image:url(${mediaUrl(g.mid, k)})" aria-hidden="true"></i>` : ''}<img src="${mediaUrl(g.mid, k)}" alt="" decoding="async" loading="lazy"></span>` : `<span class="art own"><span class="miss">${icon('video', 24)}</span></span>`; }
     else img = photo({ scene: CLIPS[v.src.clip]?.scene || 'cat', v: ((th.i ?? 0) + 1) * 0.3 });
     return `${img}${!v.shorts && th.text ? `<span class="th-text">${esc(th.text)}</span>` : ''}${dur}`;
   }
@@ -177,7 +177,7 @@ export class Tube {
   v_video(a) {
     const s = this.s, v = this.ch.videos.find(x => x.id === a.id); if (!v) return this.v_gone();
     const st = v.stats, g = v.src.own ? s.gallery.find(x => x.id === v.src.gid) || v.src.g : null;
-    const player = v.src.own ? (g?.mid && mediaUrl(g.mid) ? `<span class="art own"><video src="${mediaUrl(g.mid)}" poster="${mediaUrl(g.mid, 'thumb')}" controls playsinline preload="metadata"></video></span>` : `<span class="art own"><span class="miss">${icon('video', 28)}<small>Файл недоступний</small></span></span>`) : video(v.src.clip);
+    const player = v.src.own ? (g?.mid && mediaUrl(g.mid) ? `<span class="art own fit"><i class="bd" style="background-image:url(${mediaUrl(g.mid, 'thumb')})" aria-hidden="true"></i><video src="${mediaUrl(g.mid)}" poster="${mediaUrl(g.mid, 'thumb')}" controls playsinline preload="metadata"></video></span>` : `<span class="art own"><span class="miss">${icon('video', 28)}<small>Файл недоступний</small></span></span>`) : video(v.src.clip);
     return `${this.head('', `<button class="ib" data-act="tb.vMenu" data-id="${v.id}" aria-label="Ще">${icon('more', 24)}</button>`)}<div class="scroll" data-scroll="tbv-${v.id}"><div class="player${v.shorts ? ' sh' : ''}">${player}</div><div class="pad">
       <h2 class="tv-title">${esc(v.title)}</h2><p class="muted sm">${v.t ? `${num(st.views)} ${plural(st.views, 'перегляд', 'перегляди', 'переглядів')} · ${ago(s.t, v.t)}` : `Вийде ${dayOf(v.sched) === dayOf(s.t) ? 'сьогодні' : 'завтра'} о ${clock(v.sched)}`}${v.vis !== 'public' ? ` · ${VIS.find(x => x[0] === v.vis)[1]}` : ''}${v.kids ? ' · Для дітей' : ''}</p>
       <div class="tv-acts"><button class="pill${v.liked ? ' on' : ''}" data-act="tb.likeOwn" data-id="${v.id}" aria-pressed="${!!v.liked}" aria-label="Подобається">${icon('thumbUp', 18, v.liked)}${num(st.likes)}</button><span class="pill static">${icon('thumbDown', 18)}${num(st.dislikes)}</span><span class="pill static">${icon('share', 18)}${num(st.shares)}</span></div>
